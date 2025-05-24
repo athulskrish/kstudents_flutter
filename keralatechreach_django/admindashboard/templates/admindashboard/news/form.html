@@ -1,0 +1,266 @@
+{% extends 'admindashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">{{ title }}</h6>
+                    </div>
+                </div>
+                <div class="card-body px-4 pb-2">
+                    <form method="post" enctype="multipart/form-data" id="newsForm">
+                        {% csrf_token %}
+                        
+                        <!-- Title -->
+                        <div class="mb-4">
+                            <label class="form-label" for="{{ form.title.id_for_label }}">Title</label>
+                            {{ form.title }}
+                        </div>
+                        {% if form.title.errors %}
+                        <div class="text-danger mb-3">
+                            {{ form.title.errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Slug -->
+                        <div class="mb-4">
+                            <label class="form-label" for="{{ form.slug.id_for_label }}">URL Slug (optional)</label>
+                            {{ form.slug }}
+                        </div>
+                        {% if form.slug.errors %}
+                        <div class="text-danger mb-3">
+                            {{ form.slug.errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Content -->
+                        <div class="mb-4">
+                            <label class="form-label" for="{{ form.content.id_for_label }}">Content</label>
+                            {{ form.content }}
+                        </div>
+                        {% if form.content.errors %}
+                        <div class="text-danger mb-3">
+                            {{ form.content.errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Excerpt -->
+                        <div class="mb-4">
+                            <label class="form-label" for="{{ form.excerpt.id_for_label }}">Excerpt</label>
+                            {{ form.excerpt }}
+                            <small class="text-muted">A short summary of the article that will appear in listings and social media shares.</small>
+                        </div>
+                        {% if form.excerpt.errors %}
+                        <div class="text-danger mb-3">
+                            {{ form.excerpt.errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- SEO Section -->
+                        <div class="card mt-4 mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">SEO Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Meta Title -->
+                                <div class="mb-4">
+                                    <label class="form-label" for="{{ form.meta_title.id_for_label }}">Meta Title</label>
+                                    {{ form.meta_title }}
+                                    <small class="form-text text-muted d-block">Maximum 60 characters for optimal SEO.</small>
+                                </div>
+                                {% if form.meta_title.errors %}
+                                <div class="text-danger mb-3">
+                                    {{ form.meta_title.errors }}
+                                </div>
+                                {% endif %}
+
+                                <!-- Meta Description -->
+                                <div class="mb-4">
+                                    <label class="form-label" for="{{ form.meta_description.id_for_label }}">Meta Description</label>
+                                    {{ form.meta_description }}
+                                    <small class="form-text text-muted d-block">Maximum 160 characters for optimal SEO.</small>
+                                </div>
+                                {% if form.meta_description.errors %}
+                                <div class="text-danger mb-3">
+                                    {{ form.meta_description.errors }}
+                                </div>
+                                {% endif %}
+
+                                <!-- Keywords -->
+                                <div class="mb-4">
+                                    <label class="form-label" for="{{ form.keywords.id_for_label }}">Keywords</label>
+                                    {{ form.keywords }}
+                                    <small class="form-text text-muted d-block">Comma-separated keywords for SEO.</small>
+                                </div>
+                                {% if form.keywords.errors %}
+                                <div class="text-danger mb-3">
+                                    {{ form.keywords.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Media Section -->
+                        <div class="card mt-4 mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Media</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Main Image -->
+                                <div class="mb-4">
+                                    <label class="form-label" for="{{ form.image.id_for_label }}">Main Image</label>
+                                    {{ form.image }}
+                                    <small class="form-text text-muted d-block">This will be used as the main article image.</small>
+                                </div>
+                                {% if form.image.errors %}
+                                <div class="text-danger mb-3">
+                                    {{ form.image.errors }}
+                                </div>
+                                {% endif %}
+
+                                <!-- Thumbnail -->
+                                <div class="mb-4">
+                                    <label class="form-label" for="{{ form.thumbnail.id_for_label }}">Thumbnail</label>
+                                    {{ form.thumbnail }}
+                                    <small class="form-text text-muted d-block">This will be used in article listings and previews.</small>
+                                </div>
+                                {% if form.thumbnail.errors %}
+                                <div class="text-danger mb-3">
+                                    {{ form.thumbnail.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Publishing -->
+                        <div class="form-check form-switch mb-4">
+                            {{ form.is_published }}
+                            <label class="form-check-label" for="{{ form.is_published.id_for_label }}">
+                                Publish article
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn bg-gradient-primary" id="submitBtn">Save Article</button>
+                        <a href="{% url 'admindashboard:news_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include TinyMCE from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.7.2/tinymce.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize TinyMCE
+        tinymce.init({
+            selector: '#id_content',
+            height: 500,
+            menubar: 'file edit view insert format tools table help',
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor',
+                'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'help', 'wordcount', 'emoticons',
+                'codesample', 'hr', 'nonbreaking', 'directionality', 'visualchars',
+                'template', 'pagebreak', 'quickbars'
+            ],
+            toolbar: [
+                'undo redo | styles | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify',
+                'bullist numlist outdent indent | forecolor backcolor | link image media table | emoticons codesample',
+                'searchreplace visualblocks code fullscreen preview | help'
+            ],
+            toolbar_mode: 'sliding',
+            skin: 'oxide',
+            content_css: 'default',
+            branding: false,
+            promotion: false,
+            image_advtab: true,
+            image_title: true,
+            automatic_uploads: true,
+            file_picker_types: 'image',
+            visualblocks_default_state: true,
+            codesample_languages: [
+                { text: 'HTML/XML', value: 'markup' },
+                { text: 'JavaScript', value: 'javascript' },
+                { text: 'CSS', value: 'css' },
+                { text: 'PHP', value: 'php' },
+                { text: 'Python', value: 'python' },
+                { text: 'Java', value: 'java' },
+                { text: 'C', value: 'c' },
+                { text: 'C++', value: 'cpp' }
+            ],
+            setup: function(editor) {
+                editor.on('change', function() {
+                    editor.save(); // Save content to textarea
+                });
+            }
+        });
+
+        // Handle form submission
+        const form = document.getElementById('newsForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
+            
+            // Save TinyMCE content before submission
+            tinymce.triggerSave();
+            
+            // Create FormData object
+            const formData = new FormData(form);
+            
+            // Disable submit button to prevent double submission
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Saving...';
+            
+            // Submit form
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // If response is a redirect, follow it
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    } else {
+                        response.text().then(html => {
+                            if (html.includes('News article created successfully')) {
+                                window.location.href = "{% url 'admindashboard:news_list' %}";
+                            } else {
+                                // Replace current page content with response
+                                document.documentElement.innerHTML = html;
+                                // Reinitialize TinyMCE
+                                tinymce.init({
+                                    selector: '#id_content'
+                                });
+                            }
+                        });
+                    }
+                } else {
+                    console.error('Form submission failed');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Save Article';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Save Article';
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+ 

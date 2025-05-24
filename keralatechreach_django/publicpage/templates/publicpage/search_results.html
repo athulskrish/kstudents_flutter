@@ -1,0 +1,109 @@
+{% extends 'publicpage/base.html' %}
+
+{% block title %}Search Results - Kerala Tech Reach{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <h1 class="mb-4">Search Results</h1>
+            
+            <!-- Search Form -->
+            <form method="GET" action="{% url 'publicpage:search' %}" class="mb-5">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control search-box" value="{{ query }}" placeholder="Search for resources, events, or initiatives...">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </form>
+
+            {% if query %}
+                <p class="lead mb-4">Found {{ total_results }} results for "{{ query }}"</p>
+
+                {% if events %}
+                    <h2 class="h4 mb-3">Events</h2>
+                    {% for event in events %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ event.name }}</h5>
+                                <p class="text-muted mb-2">{{ event.event_start|date:"F d, Y" }}</p>
+                                <p class="card-text">{{ event.description|truncatewords:30 }}</p>
+                                <a href="{% url 'publicpage:event_detail' event.pk %}" class="btn btn-outline-primary btn-sm">Learn More</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if news %}
+                    <h2 class="h4 mb-3 mt-4">News</h2>
+                    {% for article in news %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ article.title }}</h5>
+                                <p class="text-muted mb-2">{{ article.created_at|date:"F d, Y" }}</p>
+                                <p class="card-text">{{ article.content|truncatewords:30 }}</p>
+                                <a href="{% url 'publicpage:news_detail' article.slug %}" class="btn btn-outline-primary btn-sm">Read More</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if exams %}
+                    <h2 class="h4 mb-3 mt-4">Exams</h2>
+                    {% for exam in exams %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ exam.exam_name }}</h5>
+                                <p class="text-muted mb-2">Date: {{ exam.exam_date|date:"F d, Y" }}</p>
+                                <p class="card-text">{{ exam.degree_name.name }} - {{ exam.semester }}</p>
+                                <a href="{{ exam.exam_url }}" class="btn btn-outline-primary btn-sm">View Details</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if initiatives %}
+                    <h2 class="h4 mb-3 mt-4">Initiatives</h2>
+                    {% for initiative in initiatives %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ initiative.name }}</h5>
+                                <p class="card-text">{{ initiative.description|truncatewords:30 }}</p>
+                                {% if initiative.link %}
+                                    <a href="{{ initiative.link }}" class="btn btn-outline-primary btn-sm">Learn More</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if entrance_notifications %}
+                    <h2 class="h4 mb-3 mt-4">Entrance Exam Notifications</h2>
+                    {% for notification in entrance_notifications %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ notification.title }}</h5>
+                                <p class="text-muted mb-2">Deadline: {{ notification.deadline|date:"F d, Y" }}</p>
+                                <p class="card-text">{{ notification.description|truncatewords:30 }}</p>
+                                {% if notification.link %}
+                                    <a href="{{ notification.link }}" class="btn btn-outline-primary btn-sm">Apply Now</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if not events and not news and not exams and not initiatives and not entrance_notifications %}
+                    <div class="alert alert-info">
+                        No results found for your search query. Please try different keywords.
+                    </div>
+                {% endif %}
+
+            {% else %}
+                <div class="alert alert-info">
+                    Please enter a search term to find content.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

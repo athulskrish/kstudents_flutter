@@ -1,0 +1,4 @@
+{
+    "jdk.runConfig.env": "JAVA_HOME",
+    "java.configuration.updateBuildConfiguration": "automatic"
+}

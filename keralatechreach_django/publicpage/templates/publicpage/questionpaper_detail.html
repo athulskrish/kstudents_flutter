@@ -1,0 +1,33 @@
+{% extends 'publicpage/base.html' %}
+
+{% load static %}
+
+{% block title %}{{ question_paper.subject }} - {{ question_paper.year }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'publicpage:home' %}">Home</a></li>
+             <li class="breadcrumb-item active" aria-current="page">Question Papers</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <article>
+                <h1 class="mb-3">{{ question_paper.subject }} ({{ question_paper.year }})</h1>
+                <p class="text-muted">Degree: {{ question_paper.degree.name }}</p>
+                <p class="text-muted">University: {{ question_paper.university.name }}</p>
+                <p class="text-muted">Semester: {{ question_paper.semester }}</p>
+                <hr>
+                {% if question_paper.file_path %}
+                    <p><a href="{{ question_paper.file_path.url }}" class="btn btn-primary" download>Download Question Paper</a></p>
+                {% else %}
+                    <p class="text-warning">Question paper file not available.</p>
+                {% endif %}
+            </article>
+        </div>
+    </div>
+</div>
+{% endblock %} 

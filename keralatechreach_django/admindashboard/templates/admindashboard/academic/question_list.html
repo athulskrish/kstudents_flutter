@@ -1,0 +1,26 @@
+{% extends 'admindashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="text-white text-capitalize ps-3">Question Papers</h6>
+                            <a href="{% url 'admindashboard:question_create' %}" class="btn btn-sm btn-success me-3">
+                                <i class="material-symbols-rounded">add</i> Add Question Paper
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    {{ question_table|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

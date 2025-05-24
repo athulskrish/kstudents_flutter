@@ -1,0 +1,36 @@
+{% extends 'admindashboard/base.html' %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>Events</h4>
+    <a href="{% url 'event_create' %}" class="btn btn-primary">+ Add Event</a>
+  </div>
+  <table class="table table-bordered">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in events %}
+      <tr>
+        <td>{{ event.id }}</td>
+        <td>{{ event.title }}</td>
+        <td>{{ event.date|date:"Y-m-d" }}</td>
+        <td>
+          <a href="{% url 'event_edit' event.pk %}" class="btn btn-sm btn-warning">Edit</a>
+          <a href="{% url 'event_delete' event.pk %}" class="btn btn-sm btn-danger">Delete</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" class="text-center">No events found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'admindashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="text-white text-capitalize ps-3">Districts</h6>
+                            <a href="{% url 'admindashboard:district_create' %}" class="btn btn-sm btn-success me-3">
+                                <i class="material-symbols-rounded">add</i> Add District
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Name</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for district in districts %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex px-2 py-1">
+                                            <div class="d-flex flex-column justify-content-center">
+                                                <h6 class="mb-0 text-sm">{{ district.name }}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if district.is_active %}
+                                        <span class="badge badge-sm bg-gradient-success">Active</span>
+                                        {% else %}
+                                        <span class="badge badge-sm bg-gradient-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <a href="{% url 'admindashboard:district_edit' district.id %}" class="btn btn-link text-dark px-3 mb-0">
+                                            <i class="material-symbols-rounded text-dark me-2">edit</i>Edit
+                                        </a>
+                                        <a href="{% url 'admindashboard:district_delete' district.id %}" class="btn btn-link text-danger px-3 mb-0">
+                                            <i class="material-symbols-rounded text-dark me-2">delete</i>Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No districts found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,42 @@
+{% extends 'admindashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-danger shadow-danger border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">Delete Confirmation</h6>
+                    </div>
+                </div>
+                <div class="card-body px-4 pb-2">
+                    <h5>Are you sure you want to delete this degree?</h5>
+                    <div class="mt-4">
+                        <p><strong>Name:</strong> {{ degree.name }}</p>
+                        <p><strong>Code:</strong> {{ degree.code }}</p>
+                        <p><strong>University:</strong> {{ degree.university.name }}</p>
+                        <p><strong>Duration:</strong> {{ degree.duration }} Years</p>
+                        {% if degree.description %}
+                        <p><strong>Description:</strong> {{ degree.description }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Warning!</strong> This action cannot be undone. All related question papers will also be deleted.
+                    </div>
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="text-center">
+                            <button type="submit" class="btn bg-gradient-danger w-auto me-2">Confirm Delete</button>
+                            <a href="{% url 'admindashboard:degree_list' %}" class="btn bg-gradient-dark w-auto">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

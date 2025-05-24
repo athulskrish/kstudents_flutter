@@ -1,0 +1,12 @@
+{% extends 'admindashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            {% include "admindashboard/components/form_card.html" with title=title form=form %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

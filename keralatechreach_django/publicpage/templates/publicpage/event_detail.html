@@ -1,0 +1,36 @@
+{% extends 'publicpage/base.html' %}
+
+{% load static %}
+
+{% block title %}{{ event.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'publicpage:home' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Events</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <article>
+                <h1 class="mb-3">{{ event.name }}</h1>
+                <p class="text-muted">Date: {{ event.event_start|date:"F d, Y P" }} {% if event.event_end %}- {{ event.event_end|date:"F d, Y P" }}{% endif %}</p>
+                <p class="text-muted">Place: {{ event.place }} {% if event.district %}, {{ event.district.name }}{% endif %}</p>
+                {% if event.link %}
+                    <p><a href="{{ event.link }}" target="_blank" class="btn btn-primary btn-sm">Event Link</a></p>
+                {% endif %}
+                {% if event.map_link %}
+                     <p><a href="{{ event.map_link }}" target="_blank" class="btn btn-secondary btn-sm">View on Map</a></p>
+                {% endif %}
+                <hr>
+                <div class="event-description">
+                    {{ event.description|safe }}
+                </div>
+            </article>
+        </div>
+    </div>
+</div>
+{% endblock %} 

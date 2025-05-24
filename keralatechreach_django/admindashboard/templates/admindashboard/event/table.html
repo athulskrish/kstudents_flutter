@@ -1,0 +1,56 @@
+<table class="table align-items-center mb-0">
+    <thead>
+        <tr>
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Name</th>
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Date & Time</th>
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Location</th>
+            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Category</th>
+            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+            <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in events %}
+        <tr>
+            <td>
+                <div class="d-flex px-2 py-1">
+                    <div class="d-flex flex-column justify-content-center">
+                        <h6 class="mb-0 text-sm">{{ event.name }}</h6>
+                        <p class="text-xs text-secondary mb-0">{{ event.description|truncatewords:20 }}</p>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <p class="text-xs font-weight-bold mb-0">{{ event.event_start|date:"M d, Y" }}</p>
+                <p class="text-xs text-secondary mb-0">{{ event.event_start|time:"H:i" }}</p>
+            </td>
+            <td>
+                <p class="text-xs font-weight-bold mb-0">{{ event.place }}</p>
+                <p class="text-xs text-secondary mb-0">{{ event.district.name }}</p>
+            </td>
+            <td>
+                <p class="text-xs font-weight-bold mb-0">{{ event.category.category }}</p>
+            </td>
+            <td class="align-middle text-center text-sm">
+                {% if event.is_published %}
+                <span class="badge badge-sm bg-gradient-success">Published</span>
+                {% else %}
+                <span class="badge badge-sm bg-gradient-secondary">Draft</span>
+                {% endif %}
+            </td>
+            <td class="align-middle text-center">
+                <a href="{% url 'admindashboard:event_edit' event.id %}" class="btn btn-link text-dark px-3 mb-0">
+                    <i class="material-symbols-rounded text-dark me-2">edit</i>Edit
+                </a>
+                <a href="{% url 'admindashboard:event_delete' event.id %}" class="btn btn-link text-danger px-3 mb-0">
+                    <i class="material-symbols-rounded text-dark me-2">delete</i>Delete
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center">No events found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table> 

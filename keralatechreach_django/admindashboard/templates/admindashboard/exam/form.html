@@ -1,0 +1,160 @@
+{% extends 'admindashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">{{ title }}</h6>
+                    </div>
+                </div>
+                <div class="card-body px-4 pb-2">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Exam Name -->
+                                <div class="input-group input-group-outline my-3">
+                                    <label class="form-label">Exam Name</label>
+                                    {{ form.exam_name }}
+                                </div>
+                                {% if form.exam_name.errors %}
+                                <div class="text-danger">
+                                    {{ form.exam_name.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Exam Date -->
+                                <div class="input-group input-group-outline my-3">
+                                    <label class="form-label">Exam Date</label>
+                                    {{ form.exam_date }}
+                                </div>
+                                {% if form.exam_date.errors %}
+                                <div class="text-danger">
+                                    {{ form.exam_date.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- University -->
+                                <div class="my-3">
+                                    <label class="form-label">University</label>
+                                    {{ form.university }}
+                                </div>
+                                {% if form.university.errors %}
+                                <div class="text-danger">
+                                    {{ form.university.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Degree -->
+                                <div class="my-3">
+                                    <label class="form-label">Degree</label>
+                                    {{ form.degree_name }}
+                                </div>
+                                {% if form.degree_name.errors %}
+                                <div class="text-danger">
+                                    {{ form.degree_name.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Semester -->
+                                <div class="input-group input-group-outline my-3">
+                                    <label class="form-label">Semester</label>
+                                    {{ form.semester }}
+                                </div>
+                                {% if form.semester.errors %}
+                                <div class="text-danger">
+                                    {{ form.semester.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Admission Year -->
+                                <div class="input-group input-group-outline my-3">
+                                    <label class="form-label">Admission Year</label>
+                                    {{ form.admission_year }}
+                                </div>
+                                {% if form.admission_year.errors %}
+                                <div class="text-danger">
+                                    {{ form.admission_year.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Exam URL -->
+                        <div class="input-group input-group-outline my-3">
+                            <label class="form-label">Exam URL</label>
+                            {{ form.exam_url }}
+                        </div>
+                        {% if form.exam_url.errors %}
+                        <div class="text-danger">
+                            {{ form.exam_url.errors }}
+                        </div>
+                        {% endif %}
+
+                        <!-- Published Status -->
+                        <div class="form-check form-switch my-3">
+                            {{ form.is_published }}
+                            <label class="form-check-label" for="{{ form.is_published.id_for_label }}">
+                                Published
+                            </label>
+                        </div>
+                        {% if form.is_published.errors %}
+                        <div class="text-danger">
+                            {{ form.is_published.errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn bg-gradient-primary w-100 my-4 mb-2">Save</button>
+                            <a href="{% url 'admindashboard:exam_list' %}" class="btn bg-gradient-secondary w-100">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Initialize Material Dashboard's input effects
+    document.querySelectorAll('.input-group-outline input').forEach(function(input) {
+        if (input.value || input.type === 'date') {
+            input.parentElement.classList.add('is-filled');
+        }
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('is-focused');
+        });
+        input.addEventListener('blur', function() {
+            this.parentElement.classList.remove('is-focused');
+            if (this.value || this.type === 'date') {
+                this.parentElement.classList.add('is-filled');
+            } else {
+                this.parentElement.classList.remove('is-filled');
+            }
+        });
+    });
+
+    // Special handling for date inputs to always show as filled
+    document.querySelectorAll('input[type="date"]').forEach(function(dateInput) {
+        dateInput.parentElement.classList.add('is-filled');
+    });
+</script>
+{% endblock %}
+{% endblock %} 

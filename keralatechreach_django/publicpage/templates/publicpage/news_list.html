@@ -1,0 +1,124 @@
+{% extends 'publicpage/base.html' %}
+{% load static %}
+
+{% block title %}Latest News - Kerala Tech Reach{% endblock %}
+
+{% block extra_css %}
+<style>
+    .news-header {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                    url('{% static "images/news-header.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        padding: 100px 0;
+        color: white;
+        margin-bottom: 50px;
+    }
+
+    .news-card {
+        transition: transform 0.3s ease;
+        border: none;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        height: 100%;
+    }
+
+    .news-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .news-image {
+        height: 250px;
+        object-fit: cover;
+    }
+
+    .news-meta {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .news-excerpt {
+        color: #6c757d;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .category-badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        z-index: 2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- News Header -->
+<div class="news-header text-center">
+    <div class="container">
+        <h1 class="display-4 mb-4">Latest News</h1>
+        <p class="lead">Stay updated with the latest news and updates from Kerala Tech Reach</p>
+    </div>
+</div>
+
+<!-- News List -->
+<div class="container mb-5">
+    <div class="row g-4">
+        {% for article in news_articles %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card news-card">
+                <div class="position-relative">
+                    {% if article.category %}
+                    <span class="badge bg-primary category-badge">{{ article.category }}</span>
+                    {% endif %}
+                    {% if article.image %}
+                    <img src="{{ article.image.url }}" class="card-img-top news-image" alt="{{ article.title }}">
+                    {% else %}
+                    <img src="{% static 'images/placeholder-news.jpg' %}" class="card-img-top news-image" alt="News Image">
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="news-meta d-flex align-items-center mb-3">
+                        <span class="me-3">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            {{ article.created_at|date:"M d, Y" }}
+                        </span>
+                        <span>
+                            <i class="fas fa-clock me-1"></i>
+                            {{ article.reading_time }} min read
+                        </span>
+                    </div>
+                    <h5 class="card-title mb-3">{{ article.title }}</h5>
+                    {% if article.excerpt %}
+                    <p class="news-excerpt mb-3">{{ article.excerpt|truncatewords:25 }}</p>
+                    {% else %}
+                    <p class="news-excerpt mb-3">{{ article.content|striptags|truncatewords:25 }}</p>
+                    {% endif %}
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'publicpage:news_detail' article.slug %}" class="btn btn-primary">Read More</a>
+                        {% if article.keywords %}
+                        <div class="d-flex gap-2">
+                            {% for keyword in article.keywords.split|slice:":2" %}
+                            <span class="badge bg-light text-dark">{{ keyword|title }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle me-2"></i>
+                No news articles available at the moment.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Font Awesome -->
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+{% endblock %} 

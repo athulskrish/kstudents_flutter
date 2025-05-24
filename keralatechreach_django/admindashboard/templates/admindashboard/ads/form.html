@@ -1,0 +1,72 @@
+{% extends 'admindashboard/base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">{{ title }}</h6>
+                    </div>
+                </div>
+                <div class="card-body px-4 pb-2">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Name -->
+                        <div class="mb-4">
+                            <label class="form-label" for="{{ form.name.id_for_label }}">Name</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <div class="text-danger mt-1">
+                                {{ form.name.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Location -->
+                        <div class="mb-4">
+                            <label class="form-label" for="{{ form.location.id_for_label }}">Location</label>
+                            {{ form.location }}
+                            {% if form.location.errors %}
+                            <div class="text-danger mt-1">
+                                {{ form.location.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Ad Code -->
+                        <div class="mb-4">
+                            <label class="form-label" for="{{ form.ad_code.id_for_label }}">Ad Code</label>
+                            {{ form.ad_code }}
+                            <small class="form-text text-muted">Paste your third-party ad code here (e.g., Google AdSense)</small>
+                            {% if form.ad_code.errors %}
+                            <div class="text-danger mt-1">
+                                {{ form.ad_code.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-check form-switch mb-4">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                Active
+                            </label>
+                            {% if form.is_active.errors %}
+                            <div class="text-danger mt-1">
+                                {{ form.is_active.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="btn bg-gradient-primary">Save Ad Setting</button>
+                        <a href="{% url 'admindashboard:ad_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

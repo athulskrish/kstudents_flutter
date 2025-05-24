@@ -1,0 +1,141 @@
+{% extends 'publicpage/base.html' %}
+
+{% block title %}Events Calendar - Kerala Tech Reach{% endblock %}
+
+{% block extra_css %}
+<style>
+    .event-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .event-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .month-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .month-header {
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .pagination .page-link {
+        color: var(--primary-color);
+    }
+    
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Events Calendar</h1>
+            
+            {% if events_by_month %}
+                {% for month, month_events in events_by_month.items %}
+                    <div class="month-section">
+                        <h2 class="month-header h4">{{ month }}</h2>
+                        <div class="row">
+                            {% for event in month_events %}
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="card event-card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ event.name }}</h5>
+                                            <p class="text-muted mb-2">
+                                                <i class="fas fa-calendar-alt me-2"></i>
+                                                {{ event.event_start|date:"F d, Y" }}
+                                                {% if event.event_end %}
+                                                    - {{ event.event_end|date:"F d, Y" }}
+                                                {% endif %}
+                                            </p>
+                                            {% if event.place %}
+                                                <p class="text-muted mb-2">
+                                                    <i class="fas fa-map-marker-alt me-2"></i>
+                                                    {{ event.place }}
+                                                    {% if event.district %}
+                                                        , {{ event.district }}
+                                                    {% endif %}
+                                                </p>
+                                            {% endif %}
+                                            <p class="card-text">{{ event.description|truncatewords:30 }}</p>
+                                            
+                                            <div class="mt-3">
+                                                {% if event.link %}
+                                                    <a href="{{ event.link }}" class="btn btn-primary btn-sm me-2">Register</a>
+                                                {% endif %}
+                                                {% if event.map_link %}
+                                                    <a href="{{ event.map_link }}" class="btn btn-outline-secondary btn-sm" target="_blank">
+                                                        <i class="fas fa-map me-1"></i> View Map
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+                
+                <!-- Pagination -->
+                {% if events.has_other_pages %}
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if events.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ events.previous_page_number }}">&laquo; Previous</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo; Previous</span>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in events.paginator.page_range %}
+                                {% if events.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if events.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ events.next_page_number }}">Next &raquo;</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">Next &raquo;</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+                
+            {% else %}
+                <div class="alert alert-info">
+                    <h4 class="alert-heading">No Upcoming Events</h4>
+                    <p>There are no upcoming events scheduled at the moment. Please check back later!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

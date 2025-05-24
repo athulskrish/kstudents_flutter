@@ -1,0 +1,898 @@
+{% extends 'publicpage/base.html' %}
+{% load static %}
+{% block title %}Kerala Tech Reach - Home{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Modern Design System */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #2193b0, #6dd5ed);
+        --secondary-gradient: linear-gradient(135deg, #E4032E, #ff6b6b);
+        --card-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        --hover-transform: translateY(-5px);
+        --transition-speed: 0.3s;
+    }
+
+    /* Showcase Section */
+    .showcase-section {
+        padding: 100px 0 80px;
+        background: #f8f9fa;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .showcase-section::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: 
+            radial-gradient(circle at 20% 20%, rgba(33, 147, 176, 0.15) 0%, transparent 25%),
+            radial-gradient(circle at 80% 80%, rgba(109, 213, 237, 0.15) 0%, transparent 25%);
+    }
+
+    .showcase-header {
+        text-align: center;
+        margin-bottom: 80px;
+        position: relative;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .showcase-subtitle {
+        color: #2193b0;
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        opacity: 0;
+        animation: fadeInUp 0.6s ease forwards;
+        position: relative;
+    }
+
+    .showcase-subtitle::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 2px;
+        background: var(--primary-gradient);
+    }
+
+    .showcase-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #1a1a1a;
+        margin-bottom: 2rem;
+        line-height: 1.2;
+        opacity: 0;
+        animation: fadeInUp 0.6s ease forwards 0.2s;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .showcase-description {
+        max-width: 600px;
+        margin: 0 auto;
+        color: #666;
+        font-size: 1.25rem;
+        line-height: 1.8;
+        opacity: 0;
+        animation: fadeInUp 0.6s ease forwards 0.4s;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .showcase-title {
+            font-size: 2.5rem;
+        }
+        
+        .showcase-subtitle {
+            font-size: 1rem;
+        }
+        
+        .showcase-description {
+            font-size: 1.1rem;
+            padding: 0 20px;
+        }
+        
+        .showcase-section {
+            padding: 120px 0 40px;
+        }
+
+        .showcase-search {
+            margin-top: 2rem;
+            padding: 0 20px;
+        }
+    }
+
+    .showcase-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        position: relative;
+    }
+
+    .showcase-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .showcase-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: var(--primary-gradient);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+
+    .showcase-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .showcase-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+
+    .showcase-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-gradient);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        transform: rotate(45deg);
+        transition: transform 0.3s ease;
+    }
+
+    .showcase-card:hover .showcase-icon {
+        transform: rotate(0deg);
+    }
+
+    .showcase-icon i {
+        font-size: 2rem;
+        color: white;
+        transform: rotate(-45deg);
+        transition: transform 0.3s ease;
+    }
+
+    .showcase-card:hover .showcase-icon i {
+        transform: rotate(0deg);
+    }
+
+    .showcase-card h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #1a1a1a;
+    }
+
+    .showcase-card p {
+        color: #666;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .showcase-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        margin-top: 4rem;
+        padding-top: 3rem;
+        border-top: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .stat-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    @media (max-width: 992px) {
+        .showcase-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .showcase-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .showcase-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .showcase-stats {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .showcase-title {
+            font-size: 2rem;
+        }
+    }
+
+    /* Search Section */
+    .search-section {
+        display: none;
+    }
+
+    /* Card Designs */
+    .card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all var(--transition-speed) ease;
+        box-shadow: var(--card-shadow);
+    }
+
+    .card:hover {
+        transform: var(--hover-transform);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+
+    .card-title {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    /* News Card Specific */
+    .news-card {
+        position: relative;
+    }
+
+    .news-card .card-img-top {
+        height: 220px;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .news-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+
+    .news-card .badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: 500;
+        z-index: 2;
+        background: var(--secondary-gradient);
+    }
+
+    .news-card .card-body {
+        padding: 1.5rem;
+    }
+
+    /* Section Styling */
+    .section-padding {
+        padding: 80px 0;
+    }
+
+    .section-title {
+        position: relative;
+        margin-bottom: 50px;
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: var(--primary-gradient);
+        border-radius: 2px;
+    }
+
+    /* Timeline Enhancement */
+    .timeline-item {
+        border-left: 3px solid #2193b0;
+        padding: 25px;
+        background: white;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        position: relative;
+        box-shadow: var(--card-shadow);
+        transition: all var(--transition-speed) ease;
+    }
+
+    .timeline-item:hover {
+        transform: var(--hover-transform);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -11px;
+        top: 25px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--primary-gradient);
+        box-shadow: 0 0 0 5px rgba(33, 147, 176, 0.2);
+    }
+
+    /* Call to Action Enhancement */
+    .cta-section {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 100px 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.1;
+    }
+
+    .newsletter-form .form-control {
+        height: 60px;
+        border-radius: 30px 0 0 30px;
+        padding: 0 30px;
+        font-size: 1.1rem;
+        border: none;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .newsletter-form .btn {
+        border-radius: 0 30px 30px 0;
+        padding: 0 40px;
+        background: var(--secondary-gradient);
+        border: none;
+        font-size: 1.1rem;
+        height: 60px;
+        transition: all 0.3s ease;
+    }
+
+    .newsletter-form .btn:hover {
+        transform: translateX(5px);
+    }
+
+    /* Additional Styles */
+    .icon-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(33, 147, 176, 0.1), rgba(109, 213, 237, 0.1));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover .icon-circle {
+        transform: scale(1.1);
+    }
+
+    .initiative-card .initiative-image {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+
+    .initiative-card .initiative-image img {
+        transition: transform 0.5s ease;
+    }
+
+    .initiative-card:hover .initiative-image img {
+        transform: scale(1.05);
+    }
+
+    .btn-link {
+        text-decoration: none;
+    }
+
+    .btn-link:hover {
+        text-decoration: none;
+        opacity: 0.8;
+    }
+
+    /* Add to the existing CSS */
+    .showcase-search {
+        margin-top: 3rem;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        opacity: 0;
+        animation: fadeInUp 0.6s ease forwards 0.6s;
+    }
+
+    .showcase-search .search-box {
+        border-radius: 50px;
+        padding: 20px 30px;
+        border: 2px solid rgba(33, 147, 176, 0.2);
+        font-size: 1.1rem;
+        background: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .showcase-search .search-box:focus {
+        border-color: #2193b0;
+        box-shadow: 0 15px 40px rgba(33, 147, 176, 0.15);
+    }
+
+    .showcase-search .search-button {
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--primary-gradient);
+        border: none;
+        height: 45px;
+        width: 45px;
+        border-radius: 50%;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .showcase-search .search-button:hover {
+        transform: translateY(-50%) scale(1.05);
+        box-shadow: 0 5px 15px rgba(33, 147, 176, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .showcase-search {
+            margin-top: 2rem;
+            padding: 0 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Showcase Section -->
+<section class="showcase-section">
+    <div class="container">
+        <div class="showcase-header">
+            <div class="showcase-subtitle">Welcome to Kerala Tech Reach</div>
+            <h1 class="showcase-title">Your Gateway to Tech Excellence</h1>
+            <p class="showcase-description">
+                Discover a world of opportunities through our comprehensive platform designed 
+                to empower Kerala's tech community with resources, events, and initiatives.
+            </p>
+            <div class="showcase-search">
+                <form method="GET" action="{% url 'publicpage:search' %}" class="position-relative">
+                    <input type="text" name="q" class="form-control search-box" placeholder="Search for resources, events, or initiatives...">
+                    <button type="submit" class="search-button">
+                        <i class="fas fa-search"></i>
+                            </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="showcase-grid">
+            <div class="showcase-card">
+                <div class="showcase-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3>Educational Resources</h3>
+                <p>Access a vast library of study materials, question papers, and academic resources tailored for tech students.</p>
+                <a href="#resources" class="btn btn-outline-primary">
+                    Explore Resources
+                    <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+
+            <div class="showcase-card">
+                <div class="showcase-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3>Tech Events</h3>
+                <p>Stay updated with the latest tech events, workshops, and conferences happening across Kerala.</p>
+                <a href="{% url 'publicpage:events' %}" class="btn btn-outline-primary">
+                    View Events
+                    <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+
+            <div class="showcase-card">
+                <div class="showcase-icon">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <h3>Latest Updates</h3>
+                <p>Get the latest news and updates about technology, education, and government initiatives.</p>
+                <a href="{% url 'publicpage:news_list' %}" class="btn btn-outline-primary">
+                    Read News
+                    <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+                            </div>
+                        </div>
+
+        <div class="showcase-stats">
+            <div class="stat-card">
+                <div class="stat-number">10K+</div>
+                <div class="stat-label">Active Students</div>
+                    </div>
+            <div class="stat-card">
+                <div class="stat-number">500+</div>
+                <div class="stat-label">Resources</div>
+                            </div>
+            <div class="stat-card">
+                <div class="stat-number">100+</div>
+                <div class="stat-label">Monthly Events</div>
+                        </div>
+            <div class="stat-card">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Initiatives</div>
+                            </div>
+                </div>
+            </div>
+        </section>
+
+<!-- Latest Events Section -->
+<section class="section-padding">
+            <div class="container">
+        <h2 class="section-title">Upcoming Events</h2>
+                <div class="row">
+            <div class="col-lg-8">
+                {% for event in upcoming_events %}
+                <div class="timeline-item">
+                    <h4 class="mb-3">{{ event.name }}</h4>
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge bg-primary me-2">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            {{ event.event_start|date:"F d, Y" }}
+                        </span>
+                        {% if event.place %}
+                        <span class="badge bg-info">
+                            <i class="fas fa-map-marker-alt me-1"></i>
+                            {{ event.place }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="text-muted mb-3">{{ event.description|truncatewords:30 }}</p>
+                    {% if event.link %}
+                        <a href="{{ event.link }}" class="btn btn-outline-primary btn-sm">
+                            Learn More
+                            <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    {% endif %}
+                                </div>
+                            {% empty %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No upcoming events at the moment.
+                                </div>
+                            {% endfor %}
+            </div>
+            <div class="col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-alt fa-3x text-primary mb-4"></i>
+                        <h5 class="card-title mb-3">Event Calendar</h5>
+                        <p class="card-text text-muted mb-4">Stay updated with all upcoming events and register for them in advance.</p>
+                        <a href="{% url 'publicpage:events' %}" class="btn btn-primary">
+                            View Calendar
+                            <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<!-- News Articles Section -->
+<section class="section-padding bg-light">
+            <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <h2 class="section-title mb-0">Latest News</h2>
+            <a href="{% url 'publicpage:news_list' %}" class="btn btn-outline-primary">
+                View All News
+                <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-4">
+            {% for news in latest_news %}
+            <div class="col-md-4">
+                <div class="card h-100 news-card">
+                    <div class="position-relative overflow-hidden">
+                        {% if news.image %}
+                            <img src="{{ news.image.url }}" class="card-img-top" alt="{{ news.title }}">
+                        {% else %}
+                            <img src="{% static 'images/placeholder-news.jpg' %}" class="card-img-top" alt="News Image">
+                        {% endif %}
+                        {% if news.category %}
+                            <span class="badge">{{ news.category }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <small class="text-muted me-3">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                {{ news.created_at|date:"M d, Y" }}
+                            </small>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ news.reading_time }} min read
+                            </small>
+                        </div>
+                        <h5 class="card-title">{{ news.title }}</h5>
+                        {% if news.excerpt %}
+                            <p class="card-text text-muted">{{ news.excerpt|truncatewords:20 }}</p>
+                        {% else %}
+                            <p class="card-text text-muted">{{ news.content|striptags|truncatewords:20 }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'publicpage:news_detail' news.slug %}" class="btn btn-link text-primary p-0">
+                                Read More
+                                <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                            {% if news.keywords %}
+                                <div class="d-flex gap-2">
+                                    {% for keyword in news.keywords.split|slice:":2" %}
+                                        <span class="badge bg-light text-dark">{{ keyword|title }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No news articles available at the moment.
+                </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+<!-- Question Papers Section -->
+<section class="section-padding">
+             <div class="container">
+        <h2 class="section-title">Latest Exam Updates</h2>
+        <div class="row g-4">
+            {% for exam in latest_exams %}
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="icon-circle mb-4">
+                            <i class="fas fa-file-alt fa-2x text-primary"></i>
+                        </div>
+                        <h5 class="card-title mb-3">{{ exam.exam_name }}</h5>
+                        <p class="card-text mb-2">{{ exam.degree_name.name }} - {{ exam.semester }}</p>
+                        <p class="text-muted mb-4">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            {{ exam.exam_date|date:"F d, Y" }}
+                        </p>
+                        <a href="{{ exam.exam_url }}" class="btn btn-outline-primary">
+                            View Details
+                            <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+                                </div>
+
+        <div class="mt-5">
+            <h3 class="section-title">Entrance Exam Notifications</h3>
+            <div class="row g-4">
+                {% for notification in entrance_notifications %}
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="icon-circle mb-4">
+                                <i class="fas fa-bell fa-2x text-primary"></i>
+                            </div>
+                            <h5 class="card-title mb-3">{{ notification.title }}</h5>
+                            <p class="card-text mb-3">{{ notification.description|truncatewords:15 }}</p>
+                            <p class="text-muted mb-4">
+                                <i class="fas fa-clock me-1"></i>
+                                Deadline: {{ notification.deadline|date:"F d, Y" }}
+                            </p>
+                            {% if notification.link %}
+                                <a href="{{ notification.link }}" class="btn btn-outline-primary">
+                                    Apply Now
+                                    <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                        </div>
+                    {% endfor %}
+            </div>
+                </div>
+            </div>
+        </section>
+
+<!-- Government Initiatives Section -->
+<section class="section-padding bg-light">
+             <div class="container">
+        <h2 class="section-title">Government Initiatives</h2>
+        <div class="row g-4">
+            {% for initiative in initiatives %}
+            <div class="col-md-6">
+                <div class="card h-100 initiative-card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">{{ initiative.name }}</h5>
+                        <p class="card-text text-muted mb-4">{{ initiative.description|truncatewords:50 }}</p>
+                        {% if initiative.photo %}
+                        <div class="initiative-image mb-4">
+                            <img src="{{ initiative.photo.url }}" alt="{{ initiative.name }}" class="img-fluid rounded">
+                        </div>
+                        {% endif %}
+                        {% if initiative.link %}
+                            <a href="{{ initiative.link }}" class="btn btn-primary">
+                                Learn More
+                                <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+                </div>
+            </div>
+        </section>
+
+<!-- Testimonials Section -->
+{% if testimonials %}
+<section class="section-padding">
+             <div class="container">
+        <h2 class="section-title">What People Say</h2>
+                <div class="row">
+            {% for testimonial in testimonials %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <p class="card-text font-italic">"{{ testimonial.testimonial_text|truncatewords:30 }}"</p>
+                        <footer class="blockquote-footer mt-3">
+                            {{ testimonial.author_name }}
+                            {% if testimonial.author_designation %}
+                                <cite title="Source Title">{{ testimonial.author_designation }}</cite>
+                            {% endif %}
+                        </footer>
+                    </div>
+                </div>
+                    </div>
+            {% endfor %}
+                </div>
+            </div>
+        </section>
+{% endif %}
+
+<!-- FAQ Section -->
+{% if faqs %}
+<section class="section-padding bg-light">
+            <div class="container">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="accordion" id="faqAccordion">
+                    {% for faq in faqs %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}">
+                                {{ faq.question }}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                {{ faq.answer }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Call to Action -->
+<section class="cta-section text-center">
+            <div class="container">
+        <h2 class="mb-4">Stay Updated with Latest Resources</h2>
+        <p class="lead mb-5">Subscribe to our newsletter to receive updates about new resources, events, and initiatives.</p>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <form method="POST" action="{% url 'publicpage:newsletter_signup' %}" class="newsletter-form">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="email" name="email" class="form-control" placeholder="Enter your email address" required>
+                        <button class="btn btn-primary" type="submit">
+                            Subscribe
+                            <i class="fas fa-paper-plane ms-1"></i>
+                        </button>
+                    </div>
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} mt-3">
+                                {{ message }}
+                </div>
+                        {% endfor %}
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+

@@ -1,0 +1,961 @@
+{% extends 'publicpage/base.html' %}
+
+{% block title %}{{ news_article.meta_title|default:news_article.title }} - Kerala Tech Reach{% endblock %}
+
+{% block meta %}
+<meta name="description" content="{{ news_article.meta_description }}">
+<meta name="keywords" content="{{ news_article.keywords }}">
+<meta property="og:title" content="{{ news_article.meta_title|default:news_article.title }}">
+<meta property="og:description" content="{{ news_article.meta_description }}">
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% if news_article.image %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ news_article.image.url }}">
+{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ news_article.meta_title|default:news_article.title }}">
+<meta name="twitter:description" content="{{ news_article.meta_description }}">
+{% if news_article.image %}
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ news_article.image.url }}">
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Modern Malayalam Typography */
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap');
+
+    /* Base Container */
+    .article-container {
+        font-family: 'Noto Sans Malayalam', sans-serif;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        overflow-x: hidden;
+    }
+
+    /* Article Text Content */
+    .article-text {
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-word;
+        hyphens: auto;
+    }
+
+    .article-text * {
+        max-width: 100%;
+    }
+
+    .article-text img {
+        height: auto;
+        display: block;
+        margin: 1.5rem auto;
+    }
+
+    .article-text pre {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 4px;
+    }
+
+    /* Table Styles */
+    .article-text table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        background-color: white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+    }
+
+    /* Table wrapper for better overflow control */
+    .article-text table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 1.5rem 0;
+        border-radius: 4px;
+    }
+
+    /* Inner table styling */
+    .article-text table > table {
+        min-width: 100%;
+        width: max-content;
+        margin: 0;
+    }
+
+    .article-text table th,
+    .article-text table td {
+        padding: 12px 15px;
+        text-align: left;
+        border: 1px solid #e2e8f0;
+        min-width: 100px; /* Minimum column width */
+        max-width: 300px; /* Maximum column width */
+        white-space: normal; /* Allow text wrapping */
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Specific handling for numerical data */
+    .article-text table td:has(> :not(a)):not(:has(br, p, div)) {
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+        min-width: 80px; /* Smaller minimum width for numerical columns */
+    }
+
+    .article-text table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #1a1a1a;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        white-space: normal; /* Allow header text to wrap */
+    }
+
+    /* Add horizontal scroll indicator */
+    .article-text table::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 50px;
+        height: 100%;
+        background: linear-gradient(to right, transparent, rgba(0,0,0,0.05));
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .article-text table::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .article-text table::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+
+    .article-text table::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+
+    .article-text table::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .article-text table td,
+        .article-text table th {
+            min-width: 120px; /* Slightly larger on mobile for better touch targets */
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+
+        .article-text table::before {
+            content: '← Scroll →';
+            display: block;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+            padding: 5px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e2e8f0;
+        }
+    }
+
+    /* Main Content Area */
+    .article-main {
+        font-size: clamp(1rem, 1.1vw, 1.2rem);
+        line-height: 1.8;
+        color: #333;
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    /* Article Image */
+    .article-image-container {
+        margin-left: -20px;
+        margin-right: -20px;
+        margin-bottom: 2rem;
+        width: calc(100% + 40px);
+        max-width: none;
+        overflow: hidden;
+    }
+
+    .article-image {
+        width: 100%;
+        max-height: 600px;
+        object-fit: cover;
+    }
+
+    .article-image-caption {
+        font-size: 0.9rem;
+        color: #666;
+        margin: 1rem 0;
+        font-style: italic;
+        text-align: center;
+    }
+
+    /* Article Header */
+    .article-header {
+        margin-bottom: 2rem;
+    }
+
+    .article-category {
+        color: #E4032E;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .article-title {
+        font-size: clamp(1.875rem, 4vw, 2.5rem);
+        font-weight: 700;
+        line-height: 1.3;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .article-title {
+            padding-top: 4rem;
+        }
+    }
+
+    .article-subtitle {
+        font-size: clamp(1.125rem, 2vw, 1.3rem);
+        color: #444;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Article Meta */
+    .article-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .article-meta > div {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Article Content Layout */
+    .article-content {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 2rem;
+    }
+
+    /* Sidebar */
+    .article-sidebar {
+        position: sticky;
+        top: 20px;
+    }
+
+    .share-box {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .share-box h4 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        color: #333;
+    }
+
+    .share-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .share-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .share-button:hover {
+        transform: translateY(-2px);
+        opacity: 0.9;
+    }
+
+    .must-read {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+    }
+
+    .must-read h4 {
+        color: #E4032E;
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .must-read-item {
+        display: flex;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .must-read-item:last-child {
+        border-bottom: none;
+    }
+
+    .must-read-image {
+        width: 80px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .must-read-content h5 {
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        max-height: 2.6em;
+    }
+
+    .must-read-content a {
+        color: #333;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .must-read-content a:hover {
+        color: #E4032E;
+    }
+
+    /* Article Tags */
+    .article-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 2rem;
+    }
+
+    .article-tags .badge {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 20px;
+        background-color: #f8f9fa;
+        color: #333;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .article-container {
+            padding: 30px 15px;
+        }
+
+        .article-content {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .article-image-container {
+            margin-left: -15px;
+            margin-right: -15px;
+            width: calc(100% + 30px);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .article-container {
+            padding: 20px 12px;
+        }
+
+        .article-image-container {
+            margin-left: -12px;
+            margin-right: -12px;
+            width: calc(100% + 24px);
+        }
+
+        .article-content {
+            gap: 1rem;
+        }
+
+        .must-read-item {
+            gap: 0.5rem;
+        }
+
+        .must-read-image {
+            width: 70px;
+            height: 50px;
+        }
+
+        /* Improve table scrolling on mobile */
+        .article-main table {
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0,0,0,0.2) transparent;
+        }
+
+        .article-main table::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .article-main table::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .article-main table::-webkit-scrollbar-thumb {
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .article-container {
+            padding: 15px 10px;
+        }
+
+        .article-image-container {
+            margin-left: -10px;
+            margin-right: -10px;
+            width: calc(100% + 20px);
+        }
+
+        .article-title {
+            font-size: 1.5rem;
+            line-height: 1.4;
+        }
+
+        .article-meta {
+            font-size: 0.8rem;
+            gap: 0.75rem;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 0.5rem;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        .article-meta::-webkit-scrollbar {
+            display: none;  /* Chrome, Safari and Opera */
+        }
+
+        .share-box {
+            padding: 1rem;
+        }
+
+        .must-read {
+            padding: 1rem;
+        }
+    }
+
+    /* Table of Contents Styles */
+    .toc-container {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 2rem;
+        border: 1px solid #e2e8f0;
+    }
+
+    .toc-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .toc-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .toc-list li {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+
+    .toc-list li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 0.5rem;
+        height: 0.5rem;
+        background: #E4032E;
+        border-radius: 50%;
+        transform: translateY(-50%);
+    }
+
+    .toc-list a {
+        color: #444;
+        text-decoration: none;
+        transition: color 0.2s;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+
+    .toc-list a:hover {
+        color: #E4032E;
+    }
+
+    /* Enhanced Related Articles Styles */
+    .related-articles {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .related-articles-title {
+        color: #E4032E;
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .related-article-card {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 1rem;
+    }
+
+    .related-article-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .related-article-image {
+        width: 120px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 4px;
+        transition: transform 0.3s ease;
+    }
+
+    .related-article-card:hover .related-article-image {
+        transform: scale(1.05);
+    }
+
+    .related-article-content {
+        flex: 1;
+    }
+
+    .related-article-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #1a1a1a;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .related-article-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    .related-article-category {
+        color: #E4032E;
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .related-article-card {
+            flex-direction: column;
+        }
+
+        .related-article-image {
+            width: 100%;
+            height: 160px;
+        }
+    }
+
+    /* Ad Container Styles */
+    .ad-container {
+        text-align: center;
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .ad-container > * {
+        margin: 0 auto;
+    }
+
+    .ad-between-content {
+        margin: 2rem 0;
+    }
+
+    @media (max-width: 768px) {
+        .ad-container {
+            margin-left: -12px;
+            margin-right: -12px;
+            border-radius: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="article-container">
+    <article>
+        <!-- Above Content Ad -->
+        {% if ads.above_content %}
+        <div class="ad-container ad-above-content mb-4">
+            {{ ads.above_content.ad_code|safe }}
+        </div>
+        {% endif %}
+
+        <!-- Article Header -->
+        <header class="article-header">
+            <div class="article-category">{{ news_article.category|default:"KERALA TECH" }}</div>
+            <h1 class="article-title">{{ news_article.title }}</h1>
+            {% if news_article.excerpt %}
+            <div class="article-subtitle">{{ news_article.excerpt }}</div>
+            {% endif %}
+            <div class="article-meta">
+                <div>
+                    <i class="fas fa-user"></i>
+                    {{ news_article.created_by.user.get_full_name }}
+                </div>
+                <div>
+                    <i class="fas fa-clock"></i>
+                    {{ news_article.reading_time }} min read
+                </div>
+                <div>
+                    <i class="fas fa-calendar"></i>
+                    {{ news_article.created_at|date:"d M Y, h:i A" }}
+                </div>
+                <div>
+                    <i class="fas fa-eye"></i>
+                    {{ news_article.views_count }} views
+                </div>
+            </div>
+        </header>
+
+        <div class="article-content">
+            <div class="article-main">
+                {% if news_article.image %}
+                <div class="article-image-container">
+                    <img src="{{ news_article.image.url }}" alt="{{ news_article.title }}" class="article-image">
+                    {% if news_article.image_caption %}
+                    <div class="article-image-caption">{{ news_article.image_caption }}</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Table of Contents -->
+                <div class="toc-container">
+                    <h2 class="toc-title">
+                        <i class="fas fa-list"></i>
+                        Table of Contents
+                    </h2>
+                    <ul class="toc-list" id="toc-list">
+                        <!-- ToC will be generated here by JavaScript -->
+                    </ul>
+                </div>
+
+                <!-- Between Content Ad -->
+                {% if ads.between_content %}
+                <div class="ad-container ad-between-content my-4">
+                    {{ ads.between_content.ad_code|safe }}
+                </div>
+                {% endif %}
+
+                <div class="article-text">
+                    {{ news_article.content|safe }}
+                </div>
+
+                <!-- Below Content Ad -->
+                {% if ads.below_content %}
+                <div class="ad-container ad-below-content mt-4">
+                    {{ ads.below_content.ad_code|safe }}
+                </div>
+                {% endif %}
+
+                {% if news_article.keywords %}
+                <div class="article-tags">
+                    {% for keyword in news_article.keywords.split|slice:":5" %}
+                    <span class="badge">{{ keyword|title }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Enhanced Related Articles -->
+                {% if related_news %}
+                <div class="related-articles">
+                    <h3 class="related-articles-title">
+                        <i class="fas fa-newspaper"></i>
+                        Related Articles
+                    </h3>
+                    {% for article in related_news %}
+                    <a href="{% url 'publicpage:news_detail' article.slug %}" class="related-article-card">
+                        <div class="related-article-image-container">
+                            {% if article.thumbnail %}
+                            <img src="{{ article.thumbnail.url }}" alt="{{ article.title }}" class="related-article-image">
+                            {% elif article.image %}
+                            <img src="{{ article.image.url }}" alt="{{ article.title }}" class="related-article-image">
+                            {% endif %}
+                        </div>
+                        <div class="related-article-content">
+                            <h4 class="related-article-title">{{ article.title }}</h4>
+                            <div class="related-article-meta">
+                                <span class="related-article-category">{{ article.category|default:"KERALA TECH" }}</span>
+                                <span><i class="fas fa-clock"></i> {{ article.reading_time }} min read</span>
+                                <span><i class="fas fa-calendar"></i> {{ article.created_at|date:"d M Y" }}</span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <aside class="article-sidebar">
+                <!-- Sidebar Top Ad -->
+                {% if ads.sidebar_top %}
+                <div class="ad-container ad-sidebar-top mb-4">
+                    {{ ads.sidebar_top.ad_code|safe }}
+                </div>
+                {% endif %}
+
+                <!-- Share Box -->
+                <div class="share-box">
+                    <h4>Share This Article</h4>
+                    <div class="share-buttons">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" 
+                           target="_blank" 
+                           class="share-button facebook" style="background: #1877f2;">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ news_article.title }}" 
+                           target="_blank" 
+                           class="share-button twitter" style="background: #1da1f2;">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://wa.me/?text={{ news_article.title }}%20{{ request.build_absolute_uri }}" 
+                           target="_blank" 
+                           class="share-button whatsapp" style="background: #25d366;">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Must Read Section -->
+                {% if related_news %}
+                <div class="must-read">
+                    <h4>
+                        <i class="fas fa-fire text-danger"></i>
+                        MUST READ
+                    </h4>
+                    {% for article in related_news %}
+                    <div class="must-read-item">
+                        {% if article.thumbnail %}
+                        <img src="{{ article.thumbnail.url }}" alt="{{ article.title }}" class="must-read-image">
+                        {% elif article.image %}
+                        <img src="{{ article.image.url }}" alt="{{ article.title }}" class="must-read-image">
+                        {% endif %}
+                        <div class="must-read-content">
+                            <h5><a href="{% url 'publicpage:news_detail' article.slug %}">{{ article.title|truncatechars:20 }}</a></h5>
+                            <small class="text-muted">{{ article.created_at|date:"d M Y" }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Sidebar Bottom Ad -->
+                {% if ads.sidebar_bottom %}
+                <div class="ad-container ad-sidebar-bottom mt-4">
+                    {{ ads.sidebar_bottom.ad_code|safe }}
+                </div>
+                {% endif %}
+            </aside>
+        </div>
+    </article>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<!-- Code Syntax Highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Initialize syntax highlighting
+        document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightBlock(block);
+        });
+
+        // Update view count
+        const updateViewCount = async () => {
+            try {
+                await fetch(`/api/news/${newsId}/view`, { method: 'POST' });
+            } catch (error) {
+                console.error('Error updating view count:', error);
+            }
+        };
+        updateViewCount();
+
+        // Add smooth scrolling for tables on mobile
+        const tables = document.querySelectorAll('.article-main table');
+        tables.forEach(table => {
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            table.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - table.offsetLeft;
+                scrollLeft = table.scrollLeft;
+            });
+
+            table.addEventListener('mouseleave', () => {
+                isDown = false;
+            });
+
+            table.addEventListener('mouseup', () => {
+                isDown = false;
+            });
+
+            table.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - table.offsetLeft;
+                const walk = (x - startX);
+                table.scrollLeft = scrollLeft - walk;
+            });
+        });
+    });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Generate Table of Contents
+    function generateTOC() {
+        const articleContent = document.querySelector('.article-text');
+        const tocList = document.getElementById('toc-list');
+        const headings = articleContent.querySelectorAll('h1, h2, h3, h4');
+        
+        if (headings.length === 0) {
+            document.querySelector('.toc-container').style.display = 'none';
+            return;
+        }
+
+        headings.forEach((heading, index) => {
+            // Add ID to heading if it doesn't have one
+            if (!heading.id) {
+                heading.id = `heading-${index}`;
+            }
+
+            // Create TOC item
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = `#${heading.id}`;
+            a.textContent = heading.textContent;
+            
+            // Add indent based on heading level
+            const indent = (parseInt(heading.tagName[1]) - 1) * 1;
+            li.style.marginLeft = `${indent}rem`;
+            
+            li.appendChild(a);
+            tocList.appendChild(li);
+
+            // Add smooth scroll behavior
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                heading.scrollIntoView({
+                    behavior: 'smooth'
+                });
+                // Update URL without jumping
+                history.pushState(null, null, a.href);
+            });
+        });
+    }
+
+    // Initialize TOC
+    generateTOC();
+
+    // Highlight current section in TOC
+    function highlightTOCSection() {
+        const headings = document.querySelectorAll('.article-text h1, .article-text h2, .article-text h3, .article-text h4');
+        const tocLinks = document.querySelectorAll('.toc-list a');
+        
+        let currentHeading = null;
+        
+        headings.forEach(heading => {
+            const rect = heading.getBoundingClientRect();
+            if (rect.top <= 100) {
+                currentHeading = heading;
+            }
+        });
+
+        tocLinks.forEach(link => {
+            link.style.fontWeight = 'normal';
+            if (currentHeading && link.getAttribute('href') === `#${currentHeading.id}`) {
+                link.style.fontWeight = 'bold';
+                link.style.color = '#E4032E';
+            }
+        });
+    }
+
+    // Update TOC highlight on scroll
+    window.addEventListener('scroll', highlightTOCSection);
+});
+</script>
+{% endblock %} 

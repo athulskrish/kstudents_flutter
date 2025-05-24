@@ -1,0 +1,84 @@
+{% extends 'admindashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="float-start">User Management</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user_profile in users %}
+                        <tr>
+                            <td>{{ user_profile.user.username }}</td>
+                            <td>{{ user_profile.user.get_full_name }}</td>
+                            <td>{{ user_profile.email }}</td>
+                            <td>
+                                {% if user_profile.is_blocked %}
+                                    <span class="badge bg-danger">Blocked</span>
+                                {% elif not user_profile.is_active %}
+                                    <span class="badge bg-warning">Inactive</span>
+                                {% elif not user_profile.is_verified %}
+                                    <span class="badge bg-info">Unverified</span>
+                                {% elif not user_profile.is_approved %}
+                                    <span class="badge bg-warning">Pending Approval</span>
+                                {% else %}
+                                    <span class="badge bg-success">Active</span>
+                                {% endif %}
+                                {% if user_profile.is_staff %}
+                                    <span class="badge bg-primary">Staff</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user_profile.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'admindashboard:user_detail' user_profile.pk %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ user_profile.pk }}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteModal{{ user_profile.pk }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete user "{{ user_profile.user.username }}"?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <form action="{% url 'admindashboard:user_delete' user_profile.pk %}" method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

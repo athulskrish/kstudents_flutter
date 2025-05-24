@@ -1,0 +1,97 @@
+{% extends 'admindashboard/base.html' %}
+
+{% block title %}Contact Messages - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Contact Messages</h1>
+        {% if unread_count > 0 %}
+            <span class="badge bg-primary">{{ unread_count }} Unread</span>
+        {% endif %}
+    </div>
+
+    {% if messages %}
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Name</th>
+                                <th>Subject</th>
+                                <th>Email</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for message in messages %}
+                            <tr {% if not message.is_read %}class="table-primary"{% endif %}>
+                                <td>
+                                    {% if message.is_read %}
+                                        <span class="badge bg-success">Read</span>
+                                    {% else %}
+                                        <span class="badge bg-primary">New</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ message.name }}</td>
+                                <td>{{ message.subject }}</td>
+                                <td>{{ message.email }}</td>
+                                <td>{{ message.created_at|date:"M d, Y H:i" }}</td>
+                                <td>
+                                    <a href="{% url 'admindashboard:contact_message_detail' message.pk %}" 
+                                       class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'admindashboard:contact_message_delete' message.pk %}" 
+                                       class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if messages.has_other_pages %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if messages.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ messages.previous_page_number }}">Previous</a>
+                    </li>
+                {% endif %}
+
+                {% for num in messages.paginator.page_range %}
+                    {% if messages.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if messages.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ messages.next_page_number }}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info">
+            No contact messages found.
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

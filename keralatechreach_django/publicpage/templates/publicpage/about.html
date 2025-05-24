@@ -1,0 +1,264 @@
+{% extends 'publicpage/base.html' %}
+{% load static %}
+
+{% block title %}About Us - Kerala Tech Reach{% endblock %}
+
+{% block extra_css %}
+<style>
+    .about-header {
+        background: linear-gradient(135deg, rgba(33, 147, 176, 0.1), rgba(109, 213, 237, 0.1));
+        padding: 80px 0;
+        text-align: center;
+    }
+
+    .about-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, #2193b0, #6dd5ed);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .about-subtitle {
+        font-size: 1.2rem;
+        color: #666;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.8;
+    }
+
+    .about-section {
+        padding: 80px 0;
+    }
+
+    .about-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        height: 100%;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .about-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+
+    .about-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, rgba(33, 147, 176, 0.1), rgba(109, 213, 237, 0.1));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .about-icon i {
+        font-size: 1.5rem;
+        color: #2193b0;
+    }
+
+    .team-section {
+        background: #f8f9fa;
+        padding: 80px 0;
+    }
+
+    .team-card {
+        text-align: center;
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        height: 100%;
+        transition: transform 0.3s ease;
+        border: none;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .team-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .team-image {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        overflow: hidden;
+    }
+
+    .team-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .social-links a {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        transition: all 0.3s ease;
+    }
+
+    .social-links a:hover {
+        background: #2193b0;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .about-header {
+            padding: 120px 0 60px;
+        }
+
+        .about-title {
+            font-size: 2rem;
+        }
+
+        .about-section {
+            padding: 60px 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- About Header -->
+<section class="about-header">
+    <div class="container">
+        <h1 class="about-title">About Kerala Tech Reach</h1>
+        <p class="about-subtitle">
+            Empowering students and professionals through technology education, resources, and opportunities.
+            We're building a stronger tech community in Kerala.
+        </p>
+    </div>
+</section>
+
+<!-- Mission & Vision -->
+<section class="about-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>To provide accessible, high-quality technology education and resources to every student in Kerala, fostering innovation and digital literacy.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3>Our Vision</h3>
+                    <p>To transform Kerala into a leading technology hub by empowering the next generation of tech professionals and innovators.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- What We Do -->
+<section class="about-section bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">What We Do</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3>Educational Resources</h3>
+                    <p>Curated study materials, question papers, and learning resources for students across different universities.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <h3>Tech Events</h3>
+                    <p>Organizing and promoting technology events, workshops, and seminars to enhance practical skills.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3>Government Initiatives</h3>
+                    <p>Bridging the gap between government tech initiatives and students, making opportunities more accessible.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Team -->
+<section class="team-section">
+    <div class="container">
+        <h2 class="text-center mb-5">Our Team</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="team-card">
+                    <div class="team-image">
+                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=2193b0&color=fff" alt="Team Member">
+                    </div>
+                    <h4>John Doe</h4>
+                    <p class="text-muted">Founder & CEO</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="team-card">
+                    <div class="team-image">
+                        <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=2193b0&color=fff" alt="Team Member">
+                    </div>
+                    <h4>Jane Smith</h4>
+                    <p class="text-muted">Technical Lead</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="team-card">
+                    <div class="team-image">
+                        <img src="https://ui-avatars.com/api/?name=Mike+Johnson&background=2193b0&color=fff" alt="Team Member">
+                    </div>
+                    <h4>Mike Johnson</h4>
+                    <p class="text-muted">Content Director</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

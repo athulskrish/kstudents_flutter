@@ -1,0 +1,107 @@
+{% extends 'admindashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3 mb-0">{{ title }}</h6>
+          </div>
+        </div>
+        <div class="card-body px-4">
+          <form method="post" class="text-start">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger text-white" role="alert">
+              {% for error in form.non_field_errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            {% for field in form %}
+              {% if field.name in 'is_staff,is_active' %}
+              <div class="form-check form-switch d-flex align-items-center mb-3">
+                <div class="ms-2">
+                  {{ field }}
+                  <label class="form-check-label ms-2" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                </div>
+                {% if field.errors %}
+                <div class="text-danger mt-1">
+                  {% for error in field.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </div>
+              {% else %}
+              <div class="mb-4">
+                <label class="form-label text-dark ms-0" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="input-group input-group-outline">
+                  {{ field }}
+                </div>
+                {% if field.errors %}
+                <div class="text-danger mt-1 small">
+                  {% for error in field.errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+                {% endif %}
+                {% if field.help_text %}
+                <div class="form-text text-muted small">
+                  {{ field.help_text }}
+                </div>
+                {% endif %}
+              </div>
+              {% endif %}
+            {% endfor %}
+
+            <div class="text-center mt-4">
+              <button type="submit" class="btn bg-gradient-dark w-100 mb-2">{{ button_text }}</button>
+              <a href="{% url 'admindashboard:user_list' %}" class="btn btn-outline-dark w-100">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Add 'is-filled' class to input groups with pre-filled values
+  document.querySelectorAll('.input-group-outline input, .input-group-outline textarea').forEach(function(input) {
+    if (input.value) {
+      input.parentElement.classList.add('is-filled');
+    }
+    
+    // Add event listeners to maintain the is-filled class
+    input.addEventListener('focus', function() {
+      this.parentElement.classList.add('is-focused');
+    });
+    
+    input.addEventListener('blur', function() {
+      this.parentElement.classList.remove('is-focused');
+      if (this.value) {
+        this.parentElement.classList.add('is-filled');
+      } else {
+        this.parentElement.classList.remove('is-filled');
+      }
+    });
+  });
+
+  // Initialize all fields with values as filled
+  document.querySelectorAll('.input-group-outline input, .input-group-outline textarea').forEach(function(input) {
+    if (input.value) {
+      input.parentElement.classList.add('is-filled');
+    }
+  });
+});
+</script>
+{% endblock %}
+{% endblock content %} 

@@ -1,0 +1,192 @@
+{% extends 'admindashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card my-4">
+                <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                    <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+                        <h6 class="text-white text-capitalize ps-3">{{ title }}</h6>
+                    </div>
+                </div>
+                <div class="card-body px-4 pb-2">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Name -->
+                        <div class="input-group input-group-static mb-4">
+                            <label>Name</label>
+                            {{ form.name }}
+                        </div>
+                        {% if form.name.errors %}
+                        <div class="text-danger mb-3">
+                            {{ form.name.errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Description -->
+                        <div class="input-group input-group-static mb-4">
+                            <label>Description</label>
+                            {{ form.description }}
+                        </div>
+                        {% if form.description.errors %}
+                        <div class="text-danger mb-3">
+                            {{ form.description.errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Event Start -->
+                                <div class="input-group input-group-static mb-4">
+                                    <label>Event Start</label>
+                                    {{ form.event_start }}
+                                </div>
+                                {% if form.event_start.errors %}
+                                <div class="text-danger mb-3">
+                                    {{ form.event_start.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Event End -->
+                                <div class="input-group input-group-static mb-4">
+                                    <label>Event End</label>
+                                    {{ form.event_end }}
+                                </div>
+                                {% if form.event_end.errors %}
+                                <div class="text-danger mb-3">
+                                    {{ form.event_end.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Place -->
+                                <div class="input-group input-group-static mb-4">
+                                    <label>Place</label>
+                                    {{ form.place }}
+                                </div>
+                                {% if form.place.errors %}
+                                <div class="text-danger mb-3">
+                                    {{ form.place.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <!-- District -->
+                                <div class="input-group input-group-static mb-4">
+                                    <label>District</label>
+                                    {{ form.district }}
+                                </div>
+                                {% if form.district.errors %}
+                                <div class="text-danger mb-3">
+                                    {{ form.district.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Category -->
+                                <div class="input-group input-group-static mb-4">
+                                    <label>Category</label>
+                                    {{ form.category }}
+                                </div>
+                                {% if form.category.errors %}
+                                <div class="text-danger mb-3">
+                                    {{ form.category.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Link -->
+                                <div class="input-group input-group-static mb-4">
+                                    <label>Link (Optional)</label>
+                                    {{ form.link }}
+                                </div>
+                                {% if form.link.errors %}
+                                <div class="text-danger mb-3">
+                                    {{ form.link.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Map Link -->
+                        <div class="input-group input-group-static mb-4">
+                            <label>Map Link (Optional)</label>
+                            {{ form.map_link }}
+                        </div>
+                        {% if form.map_link.errors %}
+                        <div class="text-danger mb-3">
+                            {{ form.map_link.errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Published Status -->
+                        <div class="form-check form-switch mb-4">
+                            {{ form.is_published }}
+                            <label class="form-check-label" for="{{ form.is_published.id_for_label }}">
+                                Published
+                            </label>
+                        </div>
+                        {% if form.is_published.errors %}
+                        <div class="text-danger mb-3">
+                            {{ form.is_published.errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn bg-gradient-primary w-100 my-4 mb-2">Save</button>
+                            <a href="{% url 'admindashboard:event_list' %}" class="btn bg-gradient-secondary w-100">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize datetime pickers
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#id_event_start", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true
+        });
+        
+        flatpickr("#id_event_end", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true
+        });
+
+        // Add focused class to input groups when they receive focus
+        document.querySelectorAll('.input-group-static input, .input-group-static select, .input-group-static textarea').forEach(input => {
+            if (input.value) {
+                input.parentElement.classList.add('is-filled');
+            }
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('focused');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.classList.remove('focused');
+                if (input.value) {
+                    input.parentElement.classList.add('is-filled');
+                } else {
+                    input.parentElement.classList.remove('is-filled');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 
