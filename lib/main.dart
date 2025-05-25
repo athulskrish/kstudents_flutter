@@ -6,6 +6,7 @@ import 'screens/job_list_screen.dart';
 import 'screens/question_papers_screen.dart';
 import 'screens/notes_screen.dart';
 import 'services/auth_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,32 +18,91 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final lightColorScheme = ColorScheme(
+      brightness: Brightness.light,
+      primary: const Color(0xFF2563EB), // Primary Blue
+      onPrimary: Colors.white,
+      primaryContainer: const Color(0xFF3B82F6), // Primary Blue Light
+      onPrimaryContainer: Colors.white,
+      secondary: const Color(0xFF10B981), // Soft Green
+      onSecondary: Colors.white,
+      secondaryContainer: const Color(0xFFF59E0B), // Warm Orange
+      onSecondaryContainer: Colors.white,
+      background: const Color(0xFFFAFAFA), // Main background
+      onBackground: const Color(0xFF1F2937), // Main text
+      surface: const Color(0xFFFFFFFF), // Card background
+      onSurface: const Color(0xFF1F2937), // Main text
+      error: const Color(0xFFEF4444), // Soft Red
+      onError: Colors.white,
+      outline: const Color(0xFFE5E7EB), // Border
+      surfaceVariant: const Color(0xFFF3F4F6), // Gray Light
+      onSurfaceVariant: const Color(0xFF6B7280), // Text Secondary
+      tertiary: const Color(0xFFFCD34D), // Reward Gold
+      onTertiary: Colors.black,
+      tertiaryContainer: const Color(0xFF6366F1), // Deep Learning
+      onTertiaryContainer: Colors.white,
+    );
+    final darkColorScheme = ColorScheme(
+      brightness: Brightness.dark,
+      primary: const Color(0xFF3B82F6),
+      onPrimary: Colors.black,
+      primaryContainer: const Color(0xFF1D4ED8),
+      onPrimaryContainer: Colors.white,
+      secondary: const Color(0xFF10B981),
+      onSecondary: Colors.black,
+      secondaryContainer: const Color(0xFFF59E0B),
+      onSecondaryContainer: Colors.black,
+      background: const Color(0xFF1F2937),
+      onBackground: Colors.white,
+      surface: const Color(0xFF111827),
+      onSurface: Colors.white,
+      error: const Color(0xFFEF4444),
+      onError: Colors.white,
+      outline: const Color(0xFF374151),
+      surfaceVariant: const Color(0xFF374151),
+      onSurfaceVariant: const Color(0xFF9CA3AF),
+      tertiary: const Color(0xFFFCD34D),
+      onTertiary: Colors.black,
+      tertiaryContainer: const Color(0xFF6366F1),
+      onTertiaryContainer: Colors.white,
+    );
     return MaterialApp(
       title: 'Kerala Tech Reach',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: lightColorScheme,
         useMaterial3: true,
-        brightness: Brightness.light,
+        textTheme: GoogleFonts.interTextTheme(),
+        scaffoldBackgroundColor: lightColorScheme.background,
+        cardColor: lightColorScheme.surface,
+        dividerColor: lightColorScheme.outline,
+        appBarTheme: AppBarTheme(
+          backgroundColor: lightColorScheme.primary,
+          foregroundColor: lightColorScheme.onPrimary,
+          elevation: 0,
+          titleTextStyle: GoogleFonts.inter(
+            color: lightColorScheme.onPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
       darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, brightness: Brightness.dark),
+        colorScheme: darkColorScheme,
         useMaterial3: true,
-        brightness: Brightness.dark,
+        textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+        scaffoldBackgroundColor: darkColorScheme.background,
+        cardColor: darkColorScheme.surface,
+        dividerColor: darkColorScheme.outline,
+        appBarTheme: AppBarTheme(
+          backgroundColor: darkColorScheme.primary,
+          foregroundColor: darkColorScheme.onPrimary,
+          elevation: 0,
+          titleTextStyle: GoogleFonts.inter(
+            color: darkColorScheme.onPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
       themeMode: ThemeMode.system,
       home: const AuthenticationWrapper(),
