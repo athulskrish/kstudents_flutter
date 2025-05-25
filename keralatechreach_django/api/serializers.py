@@ -7,7 +7,10 @@ from admindashboard.models import (
     Exam,
     EntranceNotification,
     News,
-    Job
+    Job,
+    AffiliateProduct,
+    AffiliateCategory,
+    ContactMessage
 )
 
 class UniversitySerializer(serializers.ModelSerializer):
@@ -129,3 +132,18 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username'] = user.username
         token['email'] = user.email
         return token
+
+class AffiliateProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AffiliateProduct
+        fields = '__all__'
+
+class AffiliateCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AffiliateCategory
+        fields = '__all__'
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactMessage
+        fields = ['id', 'name', 'email', 'subject', 'message', 'created_at']

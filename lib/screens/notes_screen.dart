@@ -181,18 +181,30 @@ class _NotesScreenState extends State<NotesScreen> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
     if (result != null && result.files.single.path != null) {
       File file = File(result.files.single.path!);
-      await _uploadPDF(file);
+      await _uploadPDF(file,
+        title: _searchController.text.isNotEmpty ? _searchController.text : 'Untitled',
+        module: '',
+        degree: _selectedDegree?.id,
+        semester: _selectedSemester,
+        year: _selectedYear,
+        university: _selectedUniversity?.id,
+      );
     }
   }
 
-  Future<void> _uploadPDF(File file) async {
+  Future<void> _uploadPDF(File file, {String? title, String? module, int? degree, int? semester, int? year, int? university}) async {
     setState(() => _isUploading = true);
     try {
       final dio = Dio();
-      const apiUrl = 'https://keralify.com/api/notes/upload/'; // Update if your backend URL is different
+      const apiUrl = 'https://keralify.com/api/notes/upload/';
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(file.path, filename: file.path.split('/').last),
-        // Add other fields as required by your backend, e.g. title, module, degree, semester, year, etc.
+        if (title != null) 'title': title,
+        if (module != null) 'module': module,
+        if (degree != null) 'degree': degree,
+        if (semester != null) 'semester': semester,
+        if (year != null) 'year': year,
+        if (university != null) 'university': university,
       });
       final response = await dio.post(apiUrl, data: formData);
       if (response.statusCode == 200 || response.statusCode == 201) {

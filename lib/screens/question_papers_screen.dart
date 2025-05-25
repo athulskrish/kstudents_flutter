@@ -256,18 +256,28 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
     if (result != null && result.files.single.path != null) {
       File file = File(result.files.single.path!);
-      await _uploadPDF(file);
+      await _uploadPDF(file,
+        subject: _searchController.text.isNotEmpty ? _searchController.text : 'Unknown',
+        degree: _selectedDegree?.id,
+        semester: _selectedSemester,
+        year: _selectedYear,
+        universityId: _selectedUniversity?.id,
+      );
     }
   }
 
-  Future<void> _uploadPDF(File file) async {
+  Future<void> _uploadPDF(File file, {String? subject, int? degree, int? semester, int? year, int? universityId}) async {
     setState(() => _isUploading = true);
     try {
       final dio = Dio();
-      const apiUrl = 'https://keralify.com/api/question-papers/upload/'; // Update if your backend URL is different
+      const apiUrl = 'https://keralify.com/api/question-papers/upload/';
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(file.path, filename: file.path.split('/').last),
-        // Add other fields as required by your backend, e.g. subject, degree, semester, year, etc.
+        if (subject != null) 'subject': subject,
+        if (degree != null) 'degree': degree,
+        if (semester != null) 'semester': semester,
+        if (year != null) 'year': year,
+        if (universityId != null) 'university_id': universityId,
       });
       final response = await dio.post(apiUrl, data: formData);
       if (response.statusCode == 200 || response.statusCode == 201) {
