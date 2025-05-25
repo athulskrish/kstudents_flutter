@@ -3,7 +3,7 @@ import '../models/faq.dart';
 import '../services/api_service.dart';
 
 class FAQScreen extends StatefulWidget {
-  const FAQScreen({Key? key}) : super(key: key);
+  const FAQScreen({super.key});
 
   @override
   State<FAQScreen> createState() => _FAQScreenState();

@@ -3,7 +3,7 @@ import 'package:kerala_tech_reach/models/news.dart';
 import 'package:kerala_tech_reach/services/api_service.dart';
 
 class NewsListScreen extends StatefulWidget {
-  const NewsListScreen({Key? key}) : super(key: key);
+  const NewsListScreen({super.key});
 
   @override
   _NewsListScreenState createState() => _NewsListScreenState();

@@ -6,7 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 class NewsDetailScreen extends StatefulWidget {
   final String newsSlug;
 
-  const NewsDetailScreen({Key? key, required this.newsSlug}) : super(key: key);
+  const NewsDetailScreen({super.key, required this.newsSlug});
 
   @override
   _NewsDetailScreenState createState() => _NewsDetailScreenState();

@@ -307,8 +307,14 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> {
     Share.share('Check out this question paper: ${paper.subject}\n${paper.filePath}');
   }
 
-  void _shareSavedPDF(SavedPDF pdf) {
-    Share.shareFiles([pdf.filePath], text: 'Check out this question paper: ${pdf.subject}');
+  void _shareSavedPDF(SavedPDF pdf) async {
+    try {
+      final file = XFile(pdf.filePath);
+      await Share.shareXFiles([file], text: 'Check out this question paper: ${pdf.subject}');
+    } catch (e) {
+      // Fallback to sharing text if file sharing fails
+      Share.share('Check out this question paper: ${pdf.subject}');
+    }
   }
 
   @override
@@ -548,4 +554,4 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> {
     _searchController.dispose();
     super.dispose();
   }
-} 
+}

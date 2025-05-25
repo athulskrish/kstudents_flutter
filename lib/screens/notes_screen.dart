@@ -237,10 +237,24 @@ class _NotesScreenState extends State<NotesScreen> {
     Share.share('Check out this note: ${note.title}\n${note.file}');
   }
 
-  void _shareSavedNote(SavedNote note) {
-    Share.shareFiles([note.filePath], text: 'Check out this note: ${note.title}');
+void _shareSavedNote(SavedNote note) async {
+  try {
+    // Create XFile from the local file path
+    final xFile = XFile(note.filePath);
+    
+    // Use shareXFiles with XFile object
+    await Share.shareXFiles(
+      [xFile], 
+      text: 'Check out this note: ${note.title}',
+      subject: note.title, // Optional: add subject for email sharing
+    );
+  } catch (e) {
+    // Handle any sharing errors
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to share note: $e')),
+    );
   }
-
+}
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),

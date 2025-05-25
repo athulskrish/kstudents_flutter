@@ -4,7 +4,7 @@ import '../services/api_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TechPicksScreen extends StatefulWidget {
-  const TechPicksScreen({Key? key}) : super(key: key);
+  const TechPicksScreen({super.key});
 
   @override
   State<TechPicksScreen> createState() => _TechPicksScreenState();

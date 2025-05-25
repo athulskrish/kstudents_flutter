@@ -3,7 +3,7 @@ import '../models/initiative.dart';
 import '../services/api_service.dart';
 
 class InitiativesScreen extends StatefulWidget {
-  const InitiativesScreen({Key? key}) : super(key: key);
+  const InitiativesScreen({super.key});
 
   @override
   State<InitiativesScreen> createState() => _InitiativesScreenState();
@@ -99,7 +99,7 @@ class _InitiativesScreenState extends State<InitiativesScreen> {
 
 class InitiativeDetailScreen extends StatelessWidget {
   final Initiative initiative;
-  const InitiativeDetailScreen({Key? key, required this.initiative}) : super(key: key);
+  const InitiativeDetailScreen({super.key, required this.initiative});
 
   @override
   Widget build(BuildContext context) {

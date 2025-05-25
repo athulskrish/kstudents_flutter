@@ -15,7 +15,7 @@ class SavedEvent {
 }
 
 class EventsScreen extends StatefulWidget {
-  const EventsScreen({Key? key}) : super(key: key);
+  const EventsScreen({super.key});
 
   @override
   State<EventsScreen> createState() => _EventsScreenState();
@@ -284,7 +284,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
 class EventDetailScreen extends StatelessWidget {
   final Event event;
-  const EventDetailScreen({Key? key, required this.event}) : super(key: key);
+  const EventDetailScreen({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {

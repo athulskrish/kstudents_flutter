@@ -6,7 +6,7 @@ import 'package:intl/intl.dart'; // Import for date formatting
 class JobDetailScreen extends StatefulWidget {
   final int jobId;
 
-  const JobDetailScreen({Key? key, required this.jobId}) : super(key: key);
+  const JobDetailScreen({super.key, required this.jobId});
 
   @override
   _JobDetailScreenState createState() => _JobDetailScreenState();

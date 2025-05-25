@@ -9,10 +9,10 @@ class PDFViewerScreen extends StatefulWidget {
   final String title;
 
   const PDFViewerScreen({
-    Key? key,
+    super.key,
     required this.url,
     required this.title,
-  }) : super(key: key);
+  });
 
   @override
   State<PDFViewerScreen> createState() => _PDFViewerScreenState();

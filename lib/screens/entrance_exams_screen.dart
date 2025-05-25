@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class EntranceExamsScreen extends StatefulWidget {
-  const EntranceExamsScreen({Key? key}) : super(key: key);
+  const EntranceExamsScreen({super.key});
 
   @override
   State<EntranceExamsScreen> createState() => _EntranceExamsScreenState();
@@ -91,7 +91,7 @@ class _EntranceExamsScreenState extends State<EntranceExamsScreen> {
 
 class EntranceExamDetailScreen extends StatelessWidget {
   final Exam exam;
-  const EntranceExamDetailScreen({Key? key, required this.exam}) : super(key: key);
+  const EntranceExamDetailScreen({super.key, required this.exam});
 
   @override
   Widget build(BuildContext context) {
