@@ -17,8 +17,8 @@ import '../utils/app_exception.dart';
 import '../utils/logger.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:8000/api'; // For local Django backend
-  // static const String baseUrl = 'https://keralify.com/api'; // For production
+  // static const String baseUrl = 'http://localhost:8000/api'; // For local Django backend
+  static const String baseUrl = 'https://keralify.com/api'; // For production
 
   // Generic GET method
   Future<List<T>> _getList<T>(String url, T Function(dynamic) fromJson) async {

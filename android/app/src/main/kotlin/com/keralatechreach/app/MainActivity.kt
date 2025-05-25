@@ -1,4 +1,4 @@
-package com.example.kerala_tech_reach
+package com.keralatechreach.app
 
 import io.flutter.embedding.android.FlutterActivity
 

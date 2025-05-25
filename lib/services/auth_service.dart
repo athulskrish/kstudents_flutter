@@ -5,7 +5,7 @@ import '../models/auth_response.dart';
 import '../utils/logger.dart';
 
 class AuthService {
-  static const String baseUrl = 'https://keralify.com /api';
+  static const String baseUrl = 'https://keralify.com/api';
   static const String tokenKey = 'auth_token';
   static const String refreshTokenKey = 'refresh_token';
   static const String userKey = 'user_data';
