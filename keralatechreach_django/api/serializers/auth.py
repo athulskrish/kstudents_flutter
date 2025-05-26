@@ -13,6 +13,17 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_password(self, value):
         validate_password(value)
+        # Custom strong password policy
+        if len(value) < 10:
+            raise serializers.ValidationError('Password must be at least 10 characters long.')
+        if not any(c.isupper() for c in value):
+            raise serializers.ValidationError('Password must contain an uppercase letter.')
+        if not any(c.islower() for c in value):
+            raise serializers.ValidationError('Password must contain a lowercase letter.')
+        if not any(c.isdigit() for c in value):
+            raise serializers.ValidationError('Password must contain a digit.')
+        if not any(c in '!@#$%^&*()_+-=[]{}|;:,.<>?/~' for c in value):
+            raise serializers.ValidationError('Password must contain a special character.')
         return value
 
     def create(self, validated_data):

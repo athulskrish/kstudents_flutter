@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Base config for all connections -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Trust the system's pre-installed CA certificates -->
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    
+    <!-- Domain-specific configurations -->
+    <domain-config>
+        <!-- Add your domains here -->
+        <domain includeSubdomains="true">keralify.com</domain>
+        <!-- Pin the certificate for these domains -->
+        <pin-set>
+            <!-- Add your certificate pins here (SHA-256 hashes) -->
+            <!-- Example: <pin digest="SHA-256">7HIpactkIAq2Y49orFOOQKurWxmmSFZhBCoQYcRhJ3Y=</pin> -->
+            <!-- Keep backup pins for certificate rotation -->
+        </pin-set>
+        <!-- Enforce TLS 1.2 or higher -->
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+    
+    <!-- Debug configuration for development -->
+    <debug-overrides>
+        <trust-anchors>
+            <!-- Trust user-added CAs as well for debugging -->
+            <certificates src="user" />
+            <certificates src="system" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config> 

@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/auth_response.dart';
 import '../utils/logger.dart';
+import 'secure_storage_service.dart';
 
 class AuthService {
   static const String baseUrl = 'https://keralify.com/api';
-  static const String tokenKey = 'auth_token';
-  static const String refreshTokenKey = 'refresh_token';
-  static const String userKey = 'user_data';
+  final SecureStorageService _secureStorage = SecureStorageService();
 
   // Login
   Future<AuthResponse> login(String username, String password) async {
@@ -24,7 +22,7 @@ class AuthService {
     AppLogger.debug('Login response [${response.statusCode}] for $username');
     if (response.statusCode == 200) {
       final authResponse = AuthResponse.fromJson(json.decode(response.body));
-      await _saveAuthData(authResponse);
+      await _secureStorage.saveAuthData(authResponse);
       return authResponse;
     } else {
       final error = json.decode(response.body);
@@ -46,6 +44,13 @@ class AuthService {
       AppLogger.warning('Password mismatch for $username');
       throw Exception('Passwords do not match');
     }
+    
+    // Password strength validation
+    if (!_isPasswordStrong(password)) {
+      AppLogger.warning('Weak password for $username');
+      throw Exception('Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters');
+    }
+    
     AppLogger.info('Register attempt for $username');
     final response = await http.post(
       Uri.parse('$baseUrl/auth/register/'),
@@ -62,7 +67,7 @@ class AuthService {
     AppLogger.debug('Register response [${response.statusCode}] for $username');
     if (response.statusCode == 201) {
       final authResponse = AuthResponse.fromJson(json.decode(response.body));
-      await _saveAuthData(authResponse);
+      await _secureStorage.saveAuthData(authResponse);
       return authResponse;
     } else {
       final error = json.decode(response.body);
@@ -71,9 +76,30 @@ class AuthService {
     }
   }
 
+  // Password strength validation
+  bool _isPasswordStrong(String password) {
+    // At least 8 characters
+    if (password.length < 8) return false;
+    
+    // Check for uppercase, lowercase, numbers, and special characters
+    bool hasUppercase = password.contains(RegExp(r'[A-Z]'));
+    bool hasLowercase = password.contains(RegExp(r'[a-z]'));
+    bool hasNumber = password.contains(RegExp(r'[0-9]'));
+    bool hasSpecial = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+    
+    return hasUppercase && hasLowercase && hasNumber && hasSpecial;
+  }
+
   // Refresh Token
-  Future<String> refreshToken(String refreshToken) async {
+  Future<String> refreshToken() async {
     AppLogger.info('Refreshing token');
+    final refreshToken = await _secureStorage.getRefreshToken();
+    
+    if (refreshToken == null) {
+      AppLogger.error('No refresh token available');
+      throw Exception('No refresh token available');
+    }
+    
     final response = await http.post(
       Uri.parse('$baseUrl/auth/token/refresh/'),
       headers: {'Content-Type': 'application/json'},
@@ -83,7 +109,7 @@ class AuthService {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final newAccessToken = data['access'];
-      await _saveAccessToken(newAccessToken);
+      await _secureStorage.saveAccessToken(newAccessToken);
       return newAccessToken;
     } else {
       AppLogger.error('Token refresh failed', response.body);
@@ -93,49 +119,33 @@ class AuthService {
 
   // Logout
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(tokenKey);
-    await prefs.remove(refreshTokenKey);
-    await prefs.remove(userKey);
+    await _secureStorage.clearAll();
   }
 
   // Get current user
   Future<UserProfile?> getCurrentUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userData = prefs.getString(userKey);
-    if (userData != null) {
-      return UserProfile.fromJson(json.decode(userData));
-    }
-    return null;
+    return _secureStorage.getCurrentUser();
   }
 
-  // Get access token
+  // Get access token with auto-refresh if expired
   Future<String?> getAccessToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(tokenKey);
-  }
-
-  // Save authentication data
-  Future<void> _saveAuthData(AuthResponse authResponse) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(tokenKey, authResponse.accessToken);
-    await prefs.setString(refreshTokenKey, authResponse.refreshToken);
-    if (authResponse.user != null) {
-      await prefs.setString(userKey, json.encode(authResponse.user!.toJson()));
-    } else {
-      await prefs.remove(userKey);
+    // Check if token is expired
+    if (await _secureStorage.isTokenExpired()) {
+      try {
+        // Try to refresh the token
+        await refreshToken();
+      } catch (e) {
+        // If refresh fails, return null (user needs to login again)
+        return null;
+      }
     }
-  }
-
-  // Save access token
-  Future<void> _saveAccessToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(tokenKey, token);
+    
+    // Return the (possibly refreshed) token
+    return _secureStorage.getAccessToken();
   }
 
   // Check if user is authenticated
   Future<bool> isAuthenticated() async {
-    final token = await getAccessToken();
-    return token != null;
+    return _secureStorage.isAuthenticated();
   }
 } 

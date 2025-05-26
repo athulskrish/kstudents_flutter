@@ -13,5 +13,6 @@ enum AppExceptionType {
   network,
   server,
   validation,
+  authentication,
   unknown,
 } 

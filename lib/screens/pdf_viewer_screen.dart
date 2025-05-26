@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:dio/dio.dart';
+import '../utils/secure_file_util.dart';
+import '../utils/logger.dart';
 
 class PDFViewerScreen extends StatefulWidget {
   final String url;
@@ -25,11 +25,30 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   int currentPage = 0;
   int totalPages = 0;
   late PDFViewController pdfViewController;
+  File? _pdfFile;
 
   @override
   void initState() {
     super.initState();
     downloadFile();
+  }
+
+  @override
+  void dispose() {
+    // Clean up temporary file when done
+    _cleanupTempFile();
+    super.dispose();
+  }
+
+  Future<void> _cleanupTempFile() async {
+    if (_pdfFile != null && await _pdfFile!.exists()) {
+      try {
+        await SecureFileUtil.secureDelete(_pdfFile!.path);
+        AppLogger.info('Temporary PDF file deleted: ${_pdfFile!.path}');
+      } catch (e) {
+        AppLogger.error('Failed to delete temporary PDF file', e);
+      }
+    }
   }
 
   Future<void> downloadFile() async {
@@ -39,42 +58,23 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     });
 
     try {
-      // Get the temporary directory path
-      final dir = await getTemporaryDirectory();
+      // Clean up previous file if exists
+      await _cleanupTempFile();
       
-      // Create a unique file name based on the URL
+      // Get filename from URL
       final fileName = widget.url.split('/').last;
-      final filePath = '${dir.path}/$fileName';
       
-      // Check if file already exists
-      final file = File(filePath);
-      if (await file.exists()) {
-        setState(() {
-          localPath = filePath;
-          isLoading = false;
-        });
-        return;
-      }
-      
-      // Download the file
-      final response = await Dio().get(
-        widget.url,
-        options: Options(
-          responseType: ResponseType.bytes,
-          followRedirects: true,
-          validateStatus: (status) => status! < 500,
-        ),
-      );
-      
-      // Save to local storage
-      final fileData = response.data;
-      await file.writeAsBytes(fileData);
+      // Download file securely
+      _pdfFile = await SecureFileUtil.secureDownload(widget.url, fileName);
       
       setState(() {
-        localPath = filePath;
+        localPath = _pdfFile!.path;
         isLoading = false;
       });
+      
+      AppLogger.info('PDF downloaded securely: ${_pdfFile!.path}');
     } catch (e) {
+      AppLogger.error('Error loading PDF', e);
       setState(() {
         errorMessage = 'Error loading PDF: $e';
         isLoading = false;
@@ -147,11 +147,13 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                 setState(() {
                   errorMessage = error.toString();
                 });
+                AppLogger.error('PDF render error', error);
               },
               onPageError: (page, error) {
                 setState(() {
                   errorMessage = 'Error loading page $page: $error';
                 });
+                AppLogger.error('PDF page error on page $page', error);
               },
               onViewCreated: (PDFViewController viewController) {
                 setState(() {

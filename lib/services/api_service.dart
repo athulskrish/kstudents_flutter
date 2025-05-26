@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:dio/io.dart';  // Import for IOHttpClientAdapter
 import '../models/university.dart';
 import '../models/degree.dart';
 import '../models/question_paper.dart';
@@ -15,24 +18,141 @@ import '../models/faq.dart';
 import '../models/tech_pick.dart';
 import '../utils/app_exception.dart';
 import '../utils/logger.dart';
+import 'auth_service.dart';
+import 'package:flutter/foundation.dart';
 
 class ApiService {
   // static const String baseUrl = 'http://localhost:8000/api'; // For local Django backend
   static const String baseUrl = 'https://keralify.com/api'; // For production
+  
+  final AuthService _authService = AuthService();
+  final Dio _dio = Dio();
+  
+  // Certificate fingerprints for certificate pinning
+  // These should be the SHA-256 fingerprints of your server's certificates
+  static const List<String> _certificateFingerprints = [
+    // Add your certificate fingerprints here
+    // Example: '5E:1E:3F:82:44:F9:5E:3D:7D:D8:A4:6A:B8:0A:98:77:CB:5A:16:5A:FF:5E:A0:2D:54:9C:7A:B0:F5:CD:8C:2A'
+  ];
+  
+  ApiService() {
+    _configureDio();
+  }
+  
+  void _configureDio() {
+    _dio.options.baseUrl = baseUrl;
+    _dio.options.connectTimeout = const Duration(seconds: 30);
+    _dio.options.receiveTimeout = const Duration(seconds: 30);
+    
+    // Add interceptors for authentication
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        // Add authentication token to all requests if available
+        final token = await _authService.getAccessToken();
+        if (token != null) {
+          options.headers['Authorization'] = 'Bearer $token';
+        }
+        return handler.next(options);
+      },
+      onError: (DioException error, handler) async {
+        // Handle 401 errors (token expired)
+        if (error.response?.statusCode == 401) {
+          try {
+            // Try to refresh the token
+            await _authService.refreshToken();
+            
+            // Retry the request with the new token
+            final token = await _authService.getAccessToken();
+            if (token != null) {
+              error.requestOptions.headers['Authorization'] = 'Bearer $token';
+              
+              // Create a new request with the updated token
+              final response = await _dio.request(
+                error.requestOptions.path,
+                options: Options(
+                  method: error.requestOptions.method,
+                  headers: error.requestOptions.headers,
+                ),
+                data: error.requestOptions.data,
+                queryParameters: error.requestOptions.queryParameters,
+              );
+              
+              return handler.resolve(response);
+            }
+          } catch (e) {
+            AppLogger.error('Token refresh failed during request retry', e);
+          }
+        }
+        return handler.next(error);
+      },
+    ));
+    
+    // Add certificate pinning for release builds
+    if (!kDebugMode) {
+      _dio.httpClientAdapter = IOHttpClientAdapter(
+        createHttpClient: () {
+          final client = HttpClient();
+          client.badCertificateCallback = (X509Certificate cert, String host, int port) {
+            // Skip pinning in debug mode
+            if (kDebugMode) return true;
+            
+            // If no fingerprints are defined, use default validation
+            if (_certificateFingerprints.isEmpty) return false;
+            
+            // Check if the certificate matches any of our pinned fingerprints
+            final fingerprint = _getFingerprint(cert);
+            return _certificateFingerprints.contains(fingerprint);
+          };
+          return client;
+        },
+      );
+    }
+  }
+  
+  // Extract fingerprint from certificate
+  String _getFingerprint(X509Certificate cert) {
+    // This is a simplified implementation
+    // In production, use a proper library to calculate SHA-256 fingerprint
+    final bytes = cert.sha1;
+    return bytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join(':').toUpperCase();
+  }
+
+  // Add authorization header to requests
+  Future<Map<String, String>> _getAuthHeaders() async {
+    final token = await _authService.getAccessToken();
+    final headers = {'Content-Type': 'application/json'};
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    return headers;
+  }
 
   // Generic GET method
   Future<List<T>> _getList<T>(String url, T Function(dynamic) fromJson) async {
     try {
+      final headers = await _getAuthHeaders();
       AppLogger.info('GET request: $url');
-      final response = await http.get(Uri.parse(url));
+      final response = await http.get(Uri.parse(url), headers: headers);
       AppLogger.debug('Response [${response.statusCode}]: $url');
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
         return data.map((json) => fromJson(json)).toList();
+      } else if (response.statusCode == 401) {
+        // Token expired, try to refresh
+        try {
+          await _authService.refreshToken();
+          // Retry with new token
+          return _getList(url, fromJson);
+        } catch (e) {
+          AppLogger.error('Token refresh failed', e);
+          throw AppException('Authentication failed', 
+            details: 'Please login again', 
+            type: AppExceptionType.authentication);
+        }
       } else {
         AppLogger.error('API error [${response.statusCode}]: $url', response.body);
         throw AppException('Failed to load data',
-          details: 'Status code: \\${response.statusCode}',
+          details: 'Status code: ${response.statusCode}',
           type: AppExceptionType.server);
       }
     } on http.ClientException catch (e, st) {
@@ -46,12 +166,24 @@ class ApiService {
 
   Future<T> _getItem<T>(String url, T Function(dynamic) fromJson) async {
     try {
-      final response = await http.get(Uri.parse(url));
+      final headers = await _getAuthHeaders();
+      final response = await http.get(Uri.parse(url), headers: headers);
       if (response.statusCode == 200) {
         return fromJson(json.decode(response.body));
+      } else if (response.statusCode == 401) {
+        // Token expired, try to refresh
+        try {
+          await _authService.refreshToken();
+          // Retry with new token
+          return _getItem(url, fromJson);
+        } catch (e) {
+          throw AppException('Authentication failed', 
+            details: 'Please login again', 
+            type: AppExceptionType.authentication);
+        }
       } else {
         throw AppException('Failed to load item',
-          details: 'Status code: \\${response.statusCode}',
+          details: 'Status code: ${response.statusCode}',
           type: AppExceptionType.server);
       }
     } on http.ClientException catch (e) {
@@ -94,12 +226,79 @@ class ApiService {
       url += '?${params.join('&')}';
     }
 
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((json) => QuestionPaper.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load question papers');
+    return _getList(url, (json) => QuestionPaper.fromJson(json));
+  }
+
+  // Secure file upload for question papers
+  Future<bool> uploadQuestionPaper({
+    required File file,
+    required String subject,
+    required int degreeId,
+    required int semester,
+    required int year,
+    required int universityId,
+  }) async {
+    try {
+      // Validate file type
+      final fileExtension = file.path.split('.').last.toLowerCase();
+      if (fileExtension != 'pdf') {
+        throw AppException('Invalid file type', 
+          details: 'Only PDF files are allowed', 
+          type: AppExceptionType.validation);
+      }
+      
+      // Validate file size (max 10MB)
+      final fileSize = await file.length();
+      if (fileSize > 10 * 1024 * 1024) {
+        throw AppException('File too large', 
+          details: 'Maximum file size is 10MB', 
+          type: AppExceptionType.validation);
+      }
+      
+      // Get authentication token
+      final token = await _authService.getAccessToken();
+      if (token == null) {
+        throw AppException('Authentication required', 
+          details: 'Please login to upload files', 
+          type: AppExceptionType.authentication);
+      }
+      
+      // Create form data
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(file.path),
+        'subject': subject,
+        'degree': degreeId,
+        'semester': semester,
+        'year': year,
+        'university_id': universityId,
+      });
+      
+      // Upload file
+      final response = await _dio.post(
+        '$baseUrl/question-papers/upload/',
+        data: formData,
+        options: Options(
+          headers: {'Authorization': 'Bearer $token'},
+        ),
+      );
+      
+      return response.statusCode == 200 || response.statusCode == 201;
+    } on DioException catch (e) {
+      AppLogger.error('File upload error', e);
+      if (e.response?.statusCode == 401) {
+        throw AppException('Authentication failed', 
+          details: 'Please login again', 
+          type: AppExceptionType.authentication);
+      } else {
+        throw AppException('Upload failed', 
+          details: e.message ?? 'Unknown error', 
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('File upload error', e);
+      throw AppException('Upload failed', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
     }
   }
 
@@ -122,13 +321,7 @@ class ApiService {
       url += '?${params.join('&')}';
     }
 
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Note.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load notes');
-    }
+    return _getList(url, (json) => Note.fromJson(json));
   }
 
   // Exams
