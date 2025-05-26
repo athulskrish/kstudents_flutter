@@ -152,7 +152,7 @@ class ApiService {
       } else {
         AppLogger.error('API error [${response.statusCode}]: $url', response.body);
         throw AppException('Failed to load data',
-          details: 'Status code: ${response.statusCode}',
+          details: 'Status code: [31m${response.statusCode}[0m\nBody: ${response.body}',
           type: AppExceptionType.server);
       }
     } on http.ClientException catch (e, st) {

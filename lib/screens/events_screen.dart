@@ -21,11 +21,10 @@ class EventsScreen extends StatefulWidget {
   State<EventsScreen> createState() => _EventsScreenState();
 }
 
-class _EventsScreenState extends State<EventsScreen> {
+class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderStateMixin {
   final ApiService _apiService = ApiService();
   List<Event> _allEvents = [];
   List<SavedEvent> _savedEvents = [];
-  int _tabIndex = 0;
   String _categoryFilter = '';
   DateTime? _dateFilter;
   int _adCounter = 0;
@@ -154,99 +153,100 @@ class _EventsScreenState extends State<EventsScreen> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
-      initialIndex: _tabIndex,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Events'),
-          bottom: TabBar(
-            onTap: (i) => setState(() => _tabIndex = i),
-            tabs: const [
+          bottom: const TabBar(
+            tabs: [
               Tab(text: 'All Events'),
               Tab(text: 'Saved Events'),
             ],
           ),
         ),
-        body: _tabIndex == 0
-            ? Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: const InputDecoration(labelText: 'Category'),
-                            onChanged: (v) => setState(() => _categoryFilter = v),
+        body: TabBarView(
+          children: [
+            // All Events Tab
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          decoration: const InputDecoration(labelText: 'Category'),
+                          onChanged: (v) => setState(() => _categoryFilter = v),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                            );
+                            if (picked != null) setState(() => _dateFilter = picked);
+                          },
+                          child: InputDecorator(
+                            decoration: const InputDecoration(labelText: 'Date'),
+                            child: Text(_dateFilter == null ? 'Any' : DateFormat('yyyy-MM-dd').format(_dateFilter!)),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () async {
-                              final picked = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2100),
-                              );
-                              if (picked != null) setState(() => _dateFilter = picked);
-                            },
-                            child: InputDecorator(
-                              decoration: const InputDecoration(labelText: 'Date'),
-                              child: Text(_dateFilter == null ? 'Any' : DateFormat('yyyy-MM-dd').format(_dateFilter!)),
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.clear),
-                          tooltip: 'Clear filters',
-                          onPressed: () => setState(() {
-                            _categoryFilter = '';
-                            _dateFilter = null;
-                          }),
-                        ),
-                      ],
-                    ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.clear),
+                        tooltip: 'Clear filters',
+                        onPressed: () => setState(() {
+                          _categoryFilter = '';
+                          _dateFilter = null;
+                        }),
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: _isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : _filteredEvents.isEmpty
-                            ? const Center(child: Text('No events available.'))
-                            : ListView.builder(
-                                itemCount: _filteredEvents.length,
-                                itemBuilder: (context, index) {
-                                  final event = _filteredEvents[index];
-                                  final isSaved = _savedEvents.any((se) => se.event.id == event.id);
-                                  return Card(
-                                    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    child: ListTile(
-                                      title: Text(event.title),
-                                      subtitle: Text(DateFormat('yyyy-MM-dd').format(event.date)),
-                                      onTap: () => _onEventTap(event),
-                                      trailing: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          IconButton(
-                                            icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border),
-                                            tooltip: isSaved ? 'Remove from saved' : 'Save event',
-                                            onPressed: () => isSaved ? _removeSavedEvent(event) : _saveEvent(event),
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.share),
-                                            tooltip: 'Share',
-                                            onPressed: () => _shareEvent(event),
-                                          ),
-                                        ],
-                                      ),
+                ),
+                Expanded(
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _filteredEvents.isEmpty
+                          ? const Center(child: Text('No events available.'))
+                          : ListView.builder(
+                              itemCount: _filteredEvents.length,
+                              itemBuilder: (context, index) {
+                                final event = _filteredEvents[index];
+                                final isSaved = _savedEvents.any((se) => se.event.id == event.id);
+                                return Card(
+                                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  child: ListTile(
+                                    title: Text(event.title),
+                                    subtitle: Text(DateFormat('yyyy-MM-dd').format(event.date)),
+                                    onTap: () => _onEventTap(event),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border),
+                                          tooltip: isSaved ? 'Remove from saved' : 'Save event',
+                                          onPressed: () => isSaved ? _removeSavedEvent(event) : _saveEvent(event),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.share),
+                                          tooltip: 'Share',
+                                          onPressed: () => _shareEvent(event),
+                                        ),
+                                      ],
                                     ),
-                                  );
-                                },
-                              ),
-                  ),
-                ],
-              )
-            : _savedEvents.isEmpty
+                                  ),
+                                );
+                              },
+                            ),
+                ),
+              ],
+            ),
+            // Saved Events Tab
+            _savedEvents.isEmpty
                 ? const Center(child: Text('No saved events.'))
                 : ListView.builder(
                     itemCount: _savedEvents.length,
@@ -277,6 +277,8 @@ class _EventsScreenState extends State<EventsScreen> {
                       );
                     },
                   ),
+          ],
+        ),
       ),
     );
   }

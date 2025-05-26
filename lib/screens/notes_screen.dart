@@ -47,7 +47,7 @@ class SavedNote {
   );
 }
 
-class _NotesScreenState extends State<NotesScreen> {
+class _NotesScreenState extends State<NotesScreen> with SingleTickerProviderStateMixin {
   final ApiService _apiService = ApiService();
   List<University> _universities = [];
   List<Degree> _degrees = [];
@@ -59,7 +59,6 @@ class _NotesScreenState extends State<NotesScreen> {
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
   bool _isUploading = false;
-  int _tabIndex = 0;
   List<SavedNote> _savedNotes = [];
   int _adCounter = 0;
   RewardedAd? _rewardedAd;
@@ -341,236 +340,235 @@ void _shareSavedNote(SavedNote note) async {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
-      initialIndex: _tabIndex,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Study Notes'),
-          bottom: TabBar(
-            onTap: (i) => setState(() => _tabIndex = i),
-            tabs: const [
+          bottom: const TabBar(
+            tabs: [
               Tab(text: 'Online'),
               Tab(text: 'Saved'),
             ],
           ),
         ),
-        body: Stack(
+        body: TabBarView(
           children: [
-            _tabIndex == 0
-                ? Column(
+            // Online Tab
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            TextField(
-                              controller: _searchController,
-                              decoration: InputDecoration(
-                                hintText: 'Search notes...',
-                                prefixIcon: const Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                              ),
-                              onChanged: _searchNotes,
-                            ),
-                            const SizedBox(height: 16.0),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: DropdownButtonFormField<University>(
-                                    value: _selectedUniversity,
-                                    decoration: const InputDecoration(
-                                      labelText: 'University',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                    items: _universities.map((university) {
-                                      return DropdownMenuItem(
-                                        value: university,
-                                        child: Text(university.name),
-                                      );
-                                    }).toList(),
-                                    onChanged: (university) {
-                                      setState(() {
-                                        _selectedUniversity = university;
-                                        _selectedDegree = null;
-                                        _degrees = [];
-                                      });
-                                      _loadDegrees();
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 16.0),
-                                Expanded(
-                                  child: DropdownButtonFormField<Degree>(
-                                    value: _selectedDegree,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Degree',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                    items: _degrees.map((degree) {
-                                      return DropdownMenuItem(
-                                        value: degree,
-                                        child: Text(degree.name),
-                                      );
-                                    }).toList(),
-                                    onChanged: (degree) {
-                                      setState(() => _selectedDegree = degree);
-                                      _loadNotes();
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16.0),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: DropdownButtonFormField<int>(
-                                    value: _selectedSemester,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Semester',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                    items: List.generate(8, (index) {
-                                      return DropdownMenuItem(
-                                        value: index + 1,
-                                        child: Text('Semester ${index + 1}'),
-                                      );
-                                    }),
-                                    onChanged: (semester) {
-                                      setState(() => _selectedSemester = semester);
-                                      _loadNotes();
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 16.0),
-                                Expanded(
-                                  child: DropdownButtonFormField<int>(
-                                    value: _selectedYear,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Year',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                    items: List.generate(10, (index) {
-                                      final year = DateTime.now().year - index;
-                                      return DropdownMenuItem(
-                                        value: year,
-                                        child: Text(year.toString()),
-                                      );
-                                    }),
-                                    onChanged: (year) {
-                                      setState(() => _selectedYear = year);
-                                      _loadNotes();
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                      TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search notes...',
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
                         ),
+                        onChanged: _searchNotes,
                       ),
-                      Expanded(
-                        child: _isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : _notes.isEmpty
-                                ? const Center(child: Text('No notes found'))
-                                : ListView.builder(
-                                    itemCount: _notes.length,
-                                    itemBuilder: (context, index) {
-                                      final note = _notes[index];
-                                      return Card(
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 16.0,
-                                          vertical: 8.0,
-                                        ),
-                                        child: ListTile(
-                                          title: Text(note.title),
-                                          subtitle: Text(
-                                            '${note.module}\n${note.degreeName} | Semester ${note.semester} | ${note.year}',
-                                          ),
-                                          isThreeLine: true,
-                                          trailing: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              IconButton(
-                                                icon: const Icon(Icons.visibility),
-                                                tooltip: 'View in app',
-                                                onPressed: () => _viewNoteOnline(note),
-                                              ),
-                                              IconButton(
-                                                icon: const Icon(Icons.download),
-                                                tooltip: 'Save locally',
-                                                onPressed: () => _saveNoteLocally(note),
-                                              ),
-                                              IconButton(
-                                                icon: const Icon(Icons.share),
-                                                tooltip: 'Share',
-                                                onPressed: () => _shareNote(note),
-                                              ),
-                                              IconButton(
-                                                icon: const Icon(Icons.open_in_browser),
-                                                tooltip: 'Open in browser',
-                                                onPressed: () => _openNote(note.file),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
+                      const SizedBox(height: 16.0),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: DropdownButtonFormField<University>(
+                              value: _selectedUniversity,
+                              decoration: const InputDecoration(
+                                labelText: 'University',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: _universities.map((university) {
+                                return DropdownMenuItem(
+                                  value: university,
+                                  child: Text(university.name),
+                                );
+                              }).toList(),
+                              onChanged: (university) {
+                                setState(() {
+                                  _selectedUniversity = university;
+                                  _selectedDegree = null;
+                                  _degrees = [];
+                                });
+                                _loadDegrees();
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: DropdownButtonFormField<Degree>(
+                              value: _selectedDegree,
+                              decoration: const InputDecoration(
+                                labelText: 'Degree',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: _degrees.map((degree) {
+                                return DropdownMenuItem(
+                                  value: degree,
+                                  child: Text(degree.name),
+                                );
+                              }).toList(),
+                              onChanged: (degree) {
+                                setState(() => _selectedDegree = degree);
+                                _loadNotes();
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16.0),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: DropdownButtonFormField<int>(
+                              value: _selectedSemester,
+                              decoration: const InputDecoration(
+                                labelText: 'Semester',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: List.generate(8, (index) {
+                                return DropdownMenuItem(
+                                  value: index + 1,
+                                  child: Text('Semester ${index + 1}'),
+                                );
+                              }),
+                              onChanged: (semester) {
+                                setState(() => _selectedSemester = semester);
+                                _loadNotes();
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: DropdownButtonFormField<int>(
+                              value: _selectedYear,
+                              decoration: const InputDecoration(
+                                labelText: 'Year',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: List.generate(10, (index) {
+                                final year = DateTime.now().year - index;
+                                return DropdownMenuItem(
+                                  value: year,
+                                  child: Text(year.toString()),
+                                );
+                              }),
+                              onChanged: (year) {
+                                setState(() => _selectedYear = year);
+                                _loadNotes();
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ],
-                  )
-                : _savedNotes.isEmpty
-                    ? const Center(child: Text('No saved notes'))
-                    : ListView.builder(
-                        itemCount: _savedNotes.length,
-                        itemBuilder: (context, index) {
-                          final note = _savedNotes[index];
-                          return Card(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                              vertical: 8.0,
-                            ),
-                            child: ListTile(
-                              title: Text(note.title),
-                              subtitle: Text(
-                                '${note.module}\n${note.degreeName} | Semester ${note.semester} | ${note.year}',
-                              ),
-                              isThreeLine: true,
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.visibility),
-                                    tooltip: 'View',
-                                    onPressed: () => _viewSavedNote(note),
+                  ),
+                ),
+                Expanded(
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _notes.isEmpty
+                          ? const Center(child: Text('No notes found'))
+                          : ListView.builder(
+                              itemCount: _notes.length,
+                              itemBuilder: (context, index) {
+                                final note = _notes[index];
+                                return Card(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                    vertical: 8.0,
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.share),
-                                    tooltip: 'Share',
-                                    onPressed: () => _shareSavedNote(note),
+                                  child: ListTile(
+                                    title: Text(note.title),
+                                    subtitle: Text(
+                                      '${note.module}\n${note.degreeName} | Semester ${note.semester} | ${note.year}',
+                                    ),
+                                    isThreeLine: true,
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.visibility),
+                                          tooltip: 'View in app',
+                                          onPressed: () => _viewNoteOnline(note),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.download),
+                                          tooltip: 'Save locally',
+                                          onPressed: () => _saveNoteLocally(note),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.share),
+                                          tooltip: 'Share',
+                                          onPressed: () => _shareNote(note),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.open_in_browser),
+                                          tooltip: 'Open in browser',
+                                          onPressed: () => _openNote(note.file),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
-            if (_isUploading)
-              Container(
-                color: Colors.black.withOpacity(0.3),
-                child: const Center(child: CircularProgressIndicator()),
-              ),
+                ),
+              ],
+            ),
+            // Saved Tab
+            _savedNotes.isEmpty
+                ? const Center(child: Text('No saved notes'))
+                : ListView.builder(
+                    itemCount: _savedNotes.length,
+                    itemBuilder: (context, index) {
+                      final note = _savedNotes[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 8.0,
+                        ),
+                        child: ListTile(
+                          title: Text(note.title),
+                          subtitle: Text(
+                            '${note.module}\n${note.degreeName} | Semester ${note.semester} | ${note.year}',
+                          ),
+                          isThreeLine: true,
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.visibility),
+                                tooltip: 'View',
+                                onPressed: () => _viewSavedNote(note),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.share),
+                                tooltip: 'Share',
+                                onPressed: () => _shareSavedNote(note),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ],
         ),
-        floatingActionButton: _tabIndex == 0
-            ? FloatingActionButton.extended(
-                onPressed: _pickAndUploadPDF,
-                icon: const Icon(Icons.upload_file),
-                label: const Text('Upload PDF'),
-              )
-            : null,
+        floatingActionButton: Builder(
+          builder: (context) {
+            final tabIndex = DefaultTabController.of(context)?.index ?? 0;
+            return tabIndex == 0
+                ? FloatingActionButton.extended(
+                    onPressed: _pickAndUploadPDF,
+                    icon: const Icon(Icons.upload_file),
+                    label: const Text('Upload PDF'),
+                  )
+                : const SizedBox.shrink();
+          },
+        ),
       ),
     );
   }

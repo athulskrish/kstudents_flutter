@@ -14,9 +14,9 @@
         <domain includeSubdomains="true">keralify.com</domain>
         <!-- Pin the certificate for these domains -->
         <pin-set>
-            <!-- Add your certificate pins here (SHA-256 hashes) -->
-            <!-- Example: <pin digest="SHA-256">7HIpactkIAq2Y49orFOOQKurWxmmSFZhBCoQYcRhJ3Y=</pin> -->
-            <!-- Keep backup pins for certificate rotation -->
+            <!-- TODO: Replace this with your real certificate's SHA-256 hash before production -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            <!-- Optionally, add backup pins for certificate rotation -->
         </pin-set>
         <!-- Enforce TLS 1.2 or higher -->
         <trust-anchors>

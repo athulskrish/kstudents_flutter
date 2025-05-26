@@ -152,7 +152,13 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
         ),
       );
     }
-    return _isAuthenticated ? const MainScreen() : const LoginScreen();
+    return _isAuthenticated
+        ? const MainScreen()
+        : LoginScreen(
+            onLoginSuccess: () async {
+              await _checkAuthenticationStatus();
+            },
+          );
   }
 }
 
