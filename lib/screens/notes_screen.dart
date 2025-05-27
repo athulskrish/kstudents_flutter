@@ -559,7 +559,7 @@ void _shareSavedNote(SavedNote note) async {
         ),
         floatingActionButton: Builder(
           builder: (context) {
-            final tabIndex = DefaultTabController.of(context)?.index ?? 0;
+            final tabIndex = DefaultTabController.of(context).index ?? 0;
             return tabIndex == 0
                 ? FloatingActionButton.extended(
                     onPressed: _pickAndUploadPDF,

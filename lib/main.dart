@@ -5,8 +5,12 @@ import 'screens/events_screen.dart';
 import 'screens/job_list_screen.dart';
 import 'screens/question_papers_screen.dart';
 import 'screens/notes_screen.dart';
+import 'screens/privacy_screen.dart';
 import 'services/auth_service.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'utils/consent_util.dart';
+import 'screens/consent_dialog.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,15 +31,13 @@ class MyApp extends StatelessWidget {
       secondary: const Color(0xFF10B981), // Soft Green
       onSecondary: Colors.white,
       secondaryContainer: const Color(0xFFF59E0B), // Warm Orange
-      onSecondaryContainer: Colors.white,
-      background: const Color(0xFFFAFAFA), // Main background
-      onBackground: const Color(0xFF1F2937), // Main text
+      onSecondaryContainer: Colors.white, // Main text
       surface: const Color(0xFFFFFFFF), // Card background
       onSurface: const Color(0xFF1F2937), // Main text
       error: const Color(0xFFEF4444), // Soft Red
       onError: Colors.white,
       outline: const Color(0xFFE5E7EB), // Border
-      surfaceVariant: const Color(0xFFF3F4F6), // Gray Light
+      surfaceContainerHighest: const Color(0xFFF3F4F6), // Gray Light
       onSurfaceVariant: const Color(0xFF6B7280), // Text Secondary
       tertiary: const Color(0xFFFCD34D), // Reward Gold
       onTertiary: Colors.black,
@@ -52,14 +54,12 @@ class MyApp extends StatelessWidget {
       onSecondary: Colors.black,
       secondaryContainer: const Color(0xFFF59E0B),
       onSecondaryContainer: Colors.black,
-      background: const Color(0xFF1F2937),
-      onBackground: Colors.white,
       surface: const Color(0xFF111827),
       onSurface: Colors.white,
       error: const Color(0xFFEF4444),
       onError: Colors.white,
       outline: const Color(0xFF374151),
-      surfaceVariant: const Color(0xFF374151),
+      surfaceContainerHighest: const Color(0xFF374151),
       onSurfaceVariant: const Color(0xFF9CA3AF),
       tertiary: const Color(0xFFFCD34D),
       onTertiary: Colors.black,
@@ -72,7 +72,7 @@ class MyApp extends StatelessWidget {
         colorScheme: lightColorScheme,
         useMaterial3: true,
         textTheme: GoogleFonts.interTextTheme(),
-        scaffoldBackgroundColor: lightColorScheme.background,
+        scaffoldBackgroundColor: lightColorScheme.surface,
         cardColor: lightColorScheme.surface,
         dividerColor: lightColorScheme.outline,
         appBarTheme: AppBarTheme(
@@ -90,7 +90,7 @@ class MyApp extends StatelessWidget {
         colorScheme: darkColorScheme,
         useMaterial3: true,
         textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
-        scaffoldBackgroundColor: darkColorScheme.background,
+        scaffoldBackgroundColor: darkColorScheme.surface,
         cardColor: darkColorScheme.surface,
         dividerColor: darkColorScheme.outline,
         appBarTheme: AppBarTheme(
@@ -121,11 +121,30 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   final _authService = AuthService();
   bool _isLoading = true;
   bool _isAuthenticated = false;
+  bool _consentChecked = false;
+  ConsentStatus _consentStatus = ConsentStatus.unknown;
 
   @override
   void initState() {
     super.initState();
-    _checkAuthenticationStatus();
+    _checkConsentAndAuth();
+  }
+
+  Future<void> _checkConsentAndAuth() async {
+    final consentStatus = await ConsentUtil.getConsentStatus();
+    if (consentStatus == ConsentStatus.unknown) {
+      setState(() {
+        _consentChecked = true;
+        _consentStatus = ConsentStatus.unknown;
+        _isLoading = false;
+      });
+      return;
+    }
+    await _checkAuthenticationStatus();
+    setState(() {
+      _consentChecked = true;
+      _consentStatus = consentStatus;
+    });
   }
 
   Future<void> _checkAuthenticationStatus() async {
@@ -143,6 +162,23 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
     }
   }
 
+  void _handleConsent(ConsentStatus status) async {
+    await ConsentUtil.setConsentStatus(status);
+    setState(() {
+      _consentStatus = status;
+      _consentChecked = true;
+    });
+    if (status == ConsentStatus.accepted) {
+      await _checkAuthenticationStatus();
+    } else {
+      // Optionally: Disable analytics/crash reporting here
+      setState(() {
+        _isAuthenticated = false;
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -151,6 +187,19 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
           child: CircularProgressIndicator(),
         ),
       );
+    }
+    if (!_consentChecked || _consentStatus == ConsentStatus.unknown) {
+      return Scaffold(
+        body: Center(
+          child: ConsentDialog(
+            onAction: _handleConsent,
+          ),
+        ),
+      );
+    }
+    if (_consentStatus == ConsentStatus.declined) {
+      // Minimal functionality: show privacy policy only
+      return const PrivacyScreen();
     }
     return _isAuthenticated
         ? const MainScreen()

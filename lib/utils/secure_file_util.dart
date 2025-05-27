@@ -43,7 +43,7 @@ class SecureFileUtil {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final random = timestamp.toString();
     final extension = originalFilename.split('.').last.toLowerCase();
-    return 'secure_${random}_${timestamp}.$extension';
+    return 'secure_${random}_$timestamp.$extension';
   }
   
   // Calculate file hash (for integrity verification)

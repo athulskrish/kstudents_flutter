@@ -72,6 +72,17 @@ class HomeScreen extends StatelessWidget {
                 );
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.privacy_tip),
+              title: const Text('Privacy Policy'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PrivacyScreen()),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -138,18 +149,6 @@ class HomeScreen extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => const FAQScreen(),
-              ),
-            ),
-          ),
-          _buildFeatureCard(
-            context,
-            'Privacy Policy',
-            Icons.privacy_tip,
-            Colors.grey,
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PrivacyScreen(),
               ),
             ),
           ),

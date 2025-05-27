@@ -289,3 +289,12 @@
 - Crash reporting set up using Firebase Crashlytics for real-time error monitoring.
 - Analytics configured using Firebase Analytics to track user engagement and app usage.
 - Marked all Deployment tasks as completed in todo.md.
+
+# Implemented: Explicit User Consent for Data Collection
+
+- Added a consent dialog shown on first launch, explaining what data is collected (analytics, crash reporting, uploaded files, contact form data, local storage, ad tracking) and why.
+- Users can Accept or Decline. If declined, analytics/crash reporting are disabled and only minimal functionality (privacy policy view) is available.
+- Consent status is stored using SharedPreferences.
+- Added a detailed in-app Privacy Policy page, accessible from the home screen grid and the app drawer menu.
+- Privacy Policy page outlines all data collection and usage in clear language.
+- Updated home_screen.dart to add Privacy Policy to the drawer menu.

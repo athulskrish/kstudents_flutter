@@ -547,7 +547,7 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
         ),
         floatingActionButton: Builder(
           builder: (context) {
-            final tabIndex = DefaultTabController.of(context)?.index ?? 0;
+            final tabIndex = DefaultTabController.of(context).index ?? 0;
             return tabIndex == 0
                 ? FloatingActionButton.extended(
                     onPressed: _pickAndUploadPDF,

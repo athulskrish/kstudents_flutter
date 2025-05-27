@@ -1,6 +1,5 @@
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cross_file/cross_file.dart';
 
 class ShareAppLink {
   static Future<void> shareText(String text) async {

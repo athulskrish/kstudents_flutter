@@ -117,6 +117,11 @@ Apply these principles across all features:
 - [x] P2: Add comprehensive error handling
 - [x] P3: Implement proper logging
 - [x] P3: Add unit and integration tests
+- [x] P4: Implement explicit user consent for data collection (consent dialog, privacy policy page, minimal mode)
+
+// Added consent dialog on first launch, detailed privacy policy page, and minimal mode for declined consent.
+// Users can access the privacy policy from the home screen and drawer menu.
+// Consent status is stored in SharedPreferences.
 
 ### Performance Optimization [STATUS: COMPLETED]
 - [x] P1: Optimize image loading and caching
