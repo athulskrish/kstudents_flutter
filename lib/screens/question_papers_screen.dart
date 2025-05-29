@@ -269,7 +269,7 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
     setState(() => _isUploading = true);
     try {
       final dio = Dio();
-      const apiUrl = 'https://keralify.com/api/question-papers/upload/';
+      const apiUrl = 'https://103.235.106.114:8000/api/question-papers/upload/';
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(file.path, filename: file.path.split('/').last),
         if (subject != null) 'subject': subject,

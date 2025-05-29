@@ -35,11 +35,12 @@ ALLOWED_HOSTS = [
     'www.keralify.com',
     'keralatechreach.in',
     'www.keralatechreach.in',
-    '192.168.3.123',  # Adding your physical device IP
+     # Adding your physical device IP
+    '103.235.106.114',
     '*'  # This will allow all hosts - only use during development!
 ]
 
-
+#  '192.168.3.123',
 # Application definition
 
 INSTALLED_APPS = [

@@ -195,7 +195,7 @@ class _NotesScreenState extends State<NotesScreen> with SingleTickerProviderStat
     setState(() => _isUploading = true);
     try {
       final dio = Dio();
-      const apiUrl = 'https://keralify.com/api/notes/upload/';
+      const apiUrl = 'https://103.235.106.114:8000/api/notes/upload/';
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(file.path, filename: file.path.split('/').last),
         if (title != null) 'title': title,

@@ -70,7 +70,7 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                     const SizedBox(height: 16.0),
                     Center(
                       child: CachedNetworkImage(
-                        imageUrl: '${ApiService.baseUrl.replaceFirst('/api', '')}${news.image}',
+                        imageUrl: '${_apiService.baseUrl.replaceFirst('/api', '')}${news.image}',
                         fit: BoxFit.cover,
                         placeholder: (context, url) => const CircularProgressIndicator(),
                         errorWidget: (context, url, error) => const Icon(Icons.error),

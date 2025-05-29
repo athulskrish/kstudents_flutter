@@ -5,7 +5,9 @@ import '../utils/logger.dart';
 import 'secure_storage_service.dart';
 
 class AuthService {
-  static const String baseUrl = 'https://keralify.com/api';
+  // static const String baseUrl = 'https://keralify.com/api';
+  // static const String baseUrl = 'http://192.168.1.4:8000/api';
+  static const String baseUrl = 'http://103.235.106.114:8000/api';
   final SecureStorageService _secureStorage = SecureStorageService();
 
   // Login

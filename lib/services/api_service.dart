@@ -23,8 +23,9 @@ import 'package:flutter/foundation.dart';
 
 class ApiService {
   // static const String baseUrl = 'http://localhost:8000/api'; // For local Django backend
-  static const String baseUrl = 'https://keralify.com/api'; // For production
-  
+  // static const String baseUrl = 'https://keralify.com/api'; // For production
+  // String baseUrl = 'http://192.168.1.4:8000/api';
+  String baseUrl = 'http://103.235.106.114:8000/api';
   final AuthService _authService = AuthService();
   final Dio _dio = Dio();
   

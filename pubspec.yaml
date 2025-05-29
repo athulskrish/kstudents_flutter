@@ -35,7 +35,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   
   # Network & HTTP
-  http: ^1.2.1
+  http: ^1.4.0
   dio: ^5.4.3+1
   
   # File & Storage
