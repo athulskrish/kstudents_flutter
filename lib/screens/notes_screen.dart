@@ -23,16 +23,16 @@ class NotesScreen extends StatefulWidget {
 class SavedNote {
   final String filePath;
   final String title;
-  final String module;
+  final String subject;
   final String degreeName;
   final int semester;
   final int year;
-  SavedNote({required this.filePath, required this.title, required this.module, required this.degreeName, required this.semester, required this.year});
+  SavedNote({required this.filePath, required this.title, required this.subject, required this.degreeName, required this.semester, required this.year});
 
   Map<String, dynamic> toJson() => {
     'filePath': filePath,
     'title': title,
-    'module': module,
+    'subject': subject,
     'degreeName': degreeName,
     'semester': semester,
     'year': year,
@@ -40,10 +40,10 @@ class SavedNote {
   static SavedNote fromJson(Map<String, dynamic> json) => SavedNote(
     filePath: json['filePath'],
     title: json['title'],
-    module: json['module'],
+    subject: json['module'] ?? json['subject'], // Support both old and new format
     degreeName: json['degreeName'],
-    semester: json['semester'],
-    year: json['year'],
+    semester: int.parse(json['semester']),
+    year: int.parse(json['year']),
   );
 }
 
@@ -71,6 +71,7 @@ class _NotesScreenState extends State<NotesScreen> with SingleTickerProviderStat
     _loadSavedNotes();
     _loadAdCounter();
     _initRewardedAd();
+    _loadUserSelections();
   }
 
   Future<void> _loadUniversities() async {
@@ -160,7 +161,7 @@ class _NotesScreenState extends State<NotesScreen> with SingleTickerProviderStat
       final savedNote = SavedNote(
         filePath: filePath,
         title: note.title,
-        module: note.module,
+        subject: note.subject,
         degreeName: note.degreeName,
         semester: note.semester,
         year: note.year,
@@ -177,12 +178,195 @@ class _NotesScreenState extends State<NotesScreen> with SingleTickerProviderStat
   }
 
   Future<void> _pickAndUploadPDF() async {
+    // Check if all required fields are selected
+    bool allFieldsSelected = _selectedUniversity != null && 
+                            _selectedDegree != null && 
+                            _selectedSemester != null && 
+                            _selectedYear != null;
+    
+    // Prepare variables for dialog
+    String noteTitle = '';
+    String noteSubject = '';
+    
+    // If not all fields are selected, show dialog
+    if (!allFieldsSelected) {
+      final result = await showDialog<Map<String, dynamic>>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Upload Study Note'),
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              University? tempUniversity = _selectedUniversity;
+              Degree? tempDegree = _selectedDegree;
+              int? tempSemester = _selectedSemester;
+              int? tempYear = _selectedYear;
+              List<Degree> tempDegrees = _degrees;
+              
+              void loadTempDegrees() async {
+                if (tempUniversity == null) return;
+                try {
+                  final degrees = await _apiService.getDegrees(universityId: tempUniversity!.id);
+                  setState(() {
+                    tempDegrees = degrees;
+                  });
+                } catch (e) {
+                  // Ignore errors in the dialog
+                }
+              }
+              
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      decoration: InputDecoration(
+                        labelText: 'Title',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        noteTitle = value;
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    TextField(
+                      decoration: InputDecoration(
+                        labelText: 'Subject',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        noteSubject = value;
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    DropdownButtonFormField<University>(
+                      decoration: const InputDecoration(
+                        labelText: 'University',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: tempUniversity,
+                      items: _universities.map((university) {
+                        return DropdownMenuItem<University>(
+                          value: university,
+                          child: Text(university.name),
+                        );
+                      }).toList(),
+                      onChanged: (university) {
+                        setState(() {
+                          tempUniversity = university;
+                          tempDegree = null;
+                        });
+                        loadTempDegrees();
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    DropdownButtonFormField<Degree>(
+                      decoration: const InputDecoration(
+                        labelText: 'Degree',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: tempDegree,
+                      items: tempDegrees.map((degree) {
+                        return DropdownMenuItem<Degree>(
+                          value: degree,
+                          child: Text(degree.name),
+                        );
+                      }).toList(),
+                      onChanged: (degree) {
+                        setState(() {
+                          tempDegree = degree;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    DropdownButtonFormField<int>(
+                      decoration: const InputDecoration(
+                        labelText: 'Semester',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: tempSemester,
+                      items: [1, 2, 3, 4, 5, 6, 7, 8].map((semester) {
+                        return DropdownMenuItem<int>(
+                          value: semester,
+                          child: Text('Semester $semester'),
+                        );
+                      }).toList(),
+                      onChanged: (semester) {
+                        setState(() {
+                          tempSemester = semester;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    DropdownButtonFormField<int>(
+                      decoration: const InputDecoration(
+                        labelText: 'Year',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: tempYear,
+                      items: List.generate(10, (index) => DateTime.now().year - index).map((year) {
+                        return DropdownMenuItem<int>(
+                          value: year,
+                          child: Text(year.toString()),
+                        );
+                      }).toList(),
+                      onChanged: (year) {
+                        setState(() {
+                          tempYear = year;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Return the selected values
+                Navigator.of(context).pop({
+                  'university': _selectedUniversity,
+                  'degree': _selectedDegree,
+                  'semester': _selectedSemester,
+                  'year': _selectedYear,
+                  'title': noteTitle,
+                  'subject': noteSubject,
+                });
+              },
+              child: Text('Upload'),
+            ),
+          ],
+        ),
+      );
+      
+      // If dialog was cancelled
+      if (result == null) {
+        return;
+      }
+      
+      // Update selected values if returned from dialog
+      if (result['university'] != null) _selectedUniversity = result['university'];
+      if (result['degree'] != null) _selectedDegree = result['degree'];
+      if (result['semester'] != null) _selectedSemester = result['semester'];
+      if (result['year'] != null) _selectedYear = result['year'];
+      noteTitle = result['title'] ?? '';
+      noteSubject = result['subject'] ?? '';
+      
+      // Save selections
+      _saveUserSelections();
+    }
+    
+    // Now pick and upload the file
     FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
     if (result != null && result.files.single.path != null) {
       File file = File(result.files.single.path!);
       await _uploadPDF(file,
-        title: _searchController.text.isNotEmpty ? _searchController.text : 'Untitled',
-        module: '',
+        title: noteTitle.isNotEmpty ? noteTitle : (_searchController.text.isNotEmpty ? _searchController.text : 'Untitled'),
+        subject: noteSubject.isNotEmpty ? noteSubject : '',
         degree: _selectedDegree?.id,
         semester: _selectedSemester,
         year: _selectedYear,
@@ -191,7 +375,7 @@ class _NotesScreenState extends State<NotesScreen> with SingleTickerProviderStat
     }
   }
 
-  Future<void> _uploadPDF(File file, {String? title, String? module, int? degree, int? semester, int? year, int? university}) async {
+  Future<void> _uploadPDF(File file, {String? title, String? subject, int? degree, int? semester, int? year, int? university}) async {
     setState(() => _isUploading = true);
     try {
       final dio = Dio();
@@ -199,7 +383,7 @@ class _NotesScreenState extends State<NotesScreen> with SingleTickerProviderStat
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(file.path, filename: file.path.split('/').last),
         if (title != null) 'title': title,
-        if (module != null) 'module': module,
+        if (subject != null) 'module': subject,
         if (degree != null) 'degree': degree,
         if (semester != null) 'semester': semester,
         if (year != null) 'year': year,
@@ -338,9 +522,127 @@ void _shareSavedNote(SavedNote note) async {
 
   Future<void> _loadNotesIfReady() async {
     // Only load notes when all required filters are selected
-    if (_selectedUniversity != null && _selectedDegree != null && _selectedSemester != null) {
+    if (_selectedUniversity != null && _selectedDegree != null && _selectedSemester != null && _selectedYear != null) {
       _loadNotes();
     }
+  }
+
+  // Save user selections to shared preferences
+  Future<void> _saveUserSelections() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_selectedUniversity != null) {
+      await prefs.setInt('selected_university_id', _selectedUniversity!.id);
+      await prefs.setString('selected_university_name', _selectedUniversity!.name);
+    }
+    if (_selectedDegree != null) {
+      await prefs.setInt('selected_degree_id', _selectedDegree!.id);
+      await prefs.setString('selected_degree_name', _selectedDegree!.name);
+    }
+    if (_selectedSemester != null) {
+      await prefs.setInt('selected_semester', _selectedSemester!);
+    }
+    if (_selectedYear != null) {
+      await prefs.setInt('selected_year', _selectedYear!);
+    }
+  }
+
+  // Load user selections from shared preferences
+  Future<void> _loadUserSelections() async {
+    final prefs = await SharedPreferences.getInstance();
+    final universityId = prefs.getInt('selected_university_id');
+    final universityName = prefs.getString('selected_university_name');
+    final degreeId = prefs.getInt('selected_degree_id');
+    final degreeName = prefs.getString('selected_degree_name');
+    final semester = prefs.getInt('selected_semester');
+    final year = prefs.getInt('selected_year');
+
+    if (universityId != null && universityName != null) {
+      setState(() {
+        _selectedUniversity = University(id: universityId, name: universityName);
+      });
+      // Load degrees based on the saved university
+      await _loadDegrees();
+    }
+
+    if (degreeId != null && degreeName != null && _degrees.isNotEmpty) {
+      // Try to find the degree in the loaded degrees
+      Degree? foundDegree;
+      try {
+        foundDegree = _degrees.firstWhere((d) => d.id == degreeId);
+      } catch (_) {
+        // If not found and we have the university, create a placeholder
+        if (universityId != null) {
+          foundDegree = Degree(
+            id: degreeId, 
+            name: degreeName, 
+            university: universityId,
+            universityName: universityName ?? 'Unknown University'
+          );
+        }
+      }
+      
+      if (foundDegree != null) {
+        setState(() {
+          _selectedDegree = foundDegree;
+        });
+      }
+    }
+
+    if (semester != null) {
+      setState(() {
+        _selectedSemester = semester;
+      });
+    }
+
+    if (year != null) {
+      setState(() {
+        _selectedYear = year;
+      });
+    }
+
+    // If we have all selections, load the notes
+    _loadNotesIfReady();
+  }
+
+  // Modified methods to save selections when they change
+  void _onUniversityChanged(University? university) {
+    setState(() {
+      _selectedUniversity = university;
+      _selectedDegree = null;
+      _selectedSemester = null;
+      _selectedYear = null;
+      _notes = [];
+    });
+    _saveUserSelections();
+    _loadDegrees();
+  }
+
+  void _onDegreeChanged(Degree? degree) {
+    setState(() {
+      _selectedDegree = degree;
+      _selectedSemester = null;
+      _selectedYear = null;
+      _notes = [];
+    });
+    _saveUserSelections();
+  }
+
+  void _onSemesterChanged(int? semester) {
+    setState(() {
+      _selectedSemester = semester;
+      _selectedYear = null;
+      _notes = [];
+    });
+    _saveUserSelections();
+  }
+
+  void _onYearChanged(int? year) {
+    setState(() {
+      _selectedYear = year;
+      _notes = [];
+    });
+    _saveUserSelections();
+    _loadNotesIfReady();
   }
 
   @override
@@ -393,14 +695,7 @@ void _shareSavedNote(SavedNote note) async {
                                   child: Text(university.name),
                                 );
                               }).toList(),
-                              onChanged: (university) {
-                                setState(() {
-                                  _selectedUniversity = university;
-                                  _selectedDegree = null;
-                                  _degrees = [];
-                                });
-                                _loadDegrees();
-                              },
+                              onChanged: _onUniversityChanged,
                             ),
                           ),
                           const SizedBox(width: 16.0),
@@ -417,10 +712,7 @@ void _shareSavedNote(SavedNote note) async {
                                   child: Text(degree.name),
                                 );
                               }).toList(),
-                              onChanged: (degree) {
-                                setState(() => _selectedDegree = degree);
-                                _loadNotesIfReady();
-                              },
+                              onChanged: _onDegreeChanged,
                             ),
                           ),
                         ],
@@ -435,16 +727,13 @@ void _shareSavedNote(SavedNote note) async {
                                 labelText: 'Semester',
                                 border: OutlineInputBorder(),
                               ),
-                              items: List.generate(8, (index) {
+                              items: [1, 2, 3, 4, 5, 6, 7, 8].map((semester) {
                                 return DropdownMenuItem(
-                                  value: index + 1,
-                                  child: Text('Semester ${index + 1}'),
+                                  value: semester,
+                                  child: Text('Semester $semester'),
                                 );
-                              }),
-                              onChanged: (semester) {
-                                setState(() => _selectedSemester = semester);
-                                _loadNotesIfReady();
-                              },
+                              }).toList(),
+                              onChanged: _onSemesterChanged,
                             ),
                           ),
                           const SizedBox(width: 16.0),
@@ -455,20 +744,13 @@ void _shareSavedNote(SavedNote note) async {
                                 labelText: 'Year',
                                 border: OutlineInputBorder(),
                               ),
-                              items: List.generate(10, (index) {
-                                final year = DateTime.now().year - index;
+                              items: List.generate(10, (index) => DateTime.now().year - index).map((year) {
                                 return DropdownMenuItem(
                                   value: year,
                                   child: Text(year.toString()),
                                 );
-                              }),
-                              onChanged: (year) {
-                                setState(() => _selectedYear = year);
-                                // Always make API call when year is selected since all other filters are already set
-                                if (_selectedUniversity != null && _selectedDegree != null && _selectedSemester != null) {
-                                  _loadNotes();
-                                }
-                              },
+                              }).toList(),
+                              onChanged: _onYearChanged,
                             ),
                           ),
                         ],
@@ -491,10 +773,8 @@ void _shareSavedNote(SavedNote note) async {
                                     vertical: 8.0,
                                   ),
                                   child: ListTile(
-                                    title: Text(note.title),
-                                    subtitle: Text(
-                                      '${note.module}\n${note.degreeName} | Semester ${note.semester} | ${note.year}',
-                                    ),
+                                    title: Text(note.title, style: TextStyle(fontWeight: FontWeight.bold)),
+                                    subtitle: Text('Subject: ${note.subject}\n${note.degreeName} | Semester ${note.semester} | ${note.year}'),
                                     isThreeLine: true,
                                     trailing: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -541,10 +821,8 @@ void _shareSavedNote(SavedNote note) async {
                           vertical: 8.0,
                         ),
                         child: ListTile(
-                          title: Text(note.title),
-                          subtitle: Text(
-                            '${note.module}\n${note.degreeName} | Semester ${note.semester} | ${note.year}',
-                          ),
+                          title: Text(note.title, style: TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text('Subject: ${note.subject}\n${note.degreeName} | Semester ${note.semester} | ${note.year}'),
                           isThreeLine: true,
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,

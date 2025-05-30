@@ -58,10 +58,10 @@ class ExamForm(forms.ModelForm):
 class NoteForm(forms.ModelForm):
     class Meta:
         model = Note
-        fields = ['title', 'module', 'degree', 'semester', 'year', 'university', 'file', 'is_published']
+        fields = ['title', 'subject', 'degree', 'semester', 'year', 'university', 'file', 'is_published']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'module': forms.TextInput(attrs={'class': 'form-control'}),
+            'subject': forms.TextInput(attrs={'class': 'form-control'}),
             'degree': forms.Select(attrs={'class': 'form-select'}),
             'semester': forms.NumberInput(attrs={'class': 'form-control'}),
             'year': forms.NumberInput(attrs={'class': 'form-control'}),

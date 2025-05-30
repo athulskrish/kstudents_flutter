@@ -241,7 +241,7 @@ class ActivityLog(models.Model):
 
 class Note(models.Model):
     title = models.CharField(max_length=255)
-    module = models.CharField(max_length=255)
+    subject = models.CharField(max_length=255)
     degree = models.ForeignKey('Degree', on_delete=models.CASCADE)
     semester = models.PositiveIntegerField()
     year = models.PositiveIntegerField()

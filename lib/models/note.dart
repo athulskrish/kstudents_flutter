@@ -1,7 +1,7 @@
 class Note {
   final int id;
   final String title;
-  final String module;
+  final String subject;
   final int degree;
   final String degreeName;
   final int semester;
@@ -13,7 +13,7 @@ class Note {
   Note({
     required this.id,
     required this.title,
-    required this.module,
+    required this.subject,
     required this.degree,
     required this.degreeName,
     required this.semester,
@@ -27,7 +27,7 @@ class Note {
     return Note(
       id: json['id'],
       title: json['title'],
-      module: json['module'],
+      subject: json['module'],
       degree: json['degree'],
       degreeName: json['degree_name'],
       semester: json['semester'],
@@ -42,7 +42,7 @@ class Note {
     return {
       'id': id,
       'title': title,
-      'module': module,
+      'module': subject,
       'degree': degree,
       'degree_name': degreeName,
       'semester': semester,

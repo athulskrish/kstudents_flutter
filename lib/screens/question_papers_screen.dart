@@ -68,6 +68,7 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
     _loadSavedPDFs();
     _loadAdCounter();
     _initRewardedAd();
+    _loadUserSelections();
   }
 
   Future<void> _loadUniversities() async {
@@ -252,6 +253,171 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
   }
 
   Future<void> _pickAndUploadPDF() async {
+    // Check if all required fields are selected
+    bool allFieldsSelected = _selectedUniversity != null && 
+                            _selectedDegree != null && 
+                            _selectedSemester != null && 
+                            _selectedYear != null;
+    
+    // If not all fields are selected, show dialog
+    if (!allFieldsSelected) {
+      final result = await showDialog<Map<String, dynamic>>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Upload Question Paper'),
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              University? tempUniversity = _selectedUniversity;
+              Degree? tempDegree = _selectedDegree;
+              int? tempSemester = _selectedSemester;
+              int? tempYear = _selectedYear;
+              List<Degree> tempDegrees = _degrees;
+              
+              void loadTempDegrees() async {
+                if (tempUniversity == null) return;
+                try {
+                  final degrees = await _apiService.getDegrees(universityId: tempUniversity!.id);
+                  setState(() {
+                    tempDegrees = degrees;
+                  });
+                } catch (e) {
+                  // Ignore errors in the dialog
+                }
+              }
+              
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButtonFormField<University>(
+                      decoration: const InputDecoration(
+                        labelText: 'University',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: tempUniversity,
+                      items: _universities.map((university) {
+                        return DropdownMenuItem<University>(
+                          value: university,
+                          child: Text(university.name),
+                        );
+                      }).toList(),
+                      onChanged: (university) {
+                        setState(() {
+                          tempUniversity = university;
+                          tempDegree = null;
+                        });
+                        loadTempDegrees();
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    DropdownButtonFormField<Degree>(
+                      decoration: const InputDecoration(
+                        labelText: 'Degree',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: tempDegree,
+                      items: tempDegrees.map((degree) {
+                        return DropdownMenuItem<Degree>(
+                          value: degree,
+                          child: Text(degree.name),
+                        );
+                      }).toList(),
+                      onChanged: (degree) {
+                        setState(() {
+                          tempDegree = degree;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    DropdownButtonFormField<int>(
+                      decoration: const InputDecoration(
+                        labelText: 'Semester',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: tempSemester,
+                      items: [1, 2, 3, 4, 5, 6, 7, 8].map((semester) {
+                        return DropdownMenuItem<int>(
+                          value: semester,
+                          child: Text('Semester $semester'),
+                        );
+                      }).toList(),
+                      onChanged: (semester) {
+                        setState(() {
+                          tempSemester = semester;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    DropdownButtonFormField<int>(
+                      decoration: const InputDecoration(
+                        labelText: 'Year',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: tempYear,
+                      items: List.generate(10, (index) => DateTime.now().year - index).map((year) {
+                        return DropdownMenuItem<int>(
+                          value: year,
+                          child: Text(year.toString()),
+                        );
+                      }).toList(),
+                      onChanged: (year) {
+                        setState(() {
+                          tempYear = year;
+                        });
+                      },
+                    ),
+                    TextField(
+                      decoration: InputDecoration(
+                        labelText: 'Subject',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        // Store in the controller for later use
+                        _searchController.text = value;
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Return the selected values
+                Navigator.of(context).pop({
+                  'university': _selectedUniversity,
+                  'degree': _selectedDegree,
+                  'semester': _selectedSemester,
+                  'year': _selectedYear,
+                });
+              },
+              child: Text('Upload'),
+            ),
+          ],
+        ),
+      );
+      
+      // If dialog was cancelled
+      if (result == null) {
+        return;
+      }
+      
+      // Update selected values if returned from dialog
+      if (result['university'] != null) _selectedUniversity = result['university'];
+      if (result['degree'] != null) _selectedDegree = result['degree'];
+      if (result['semester'] != null) _selectedSemester = result['semester'];
+      if (result['year'] != null) _selectedYear = result['year'];
+      
+      // Save selections
+      _saveUserSelections();
+    }
+    
+    // Now pick and upload the file
     FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
     if (result != null && result.files.single.path != null) {
       File file = File(result.files.single.path!);
@@ -326,10 +492,127 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
     }
   }
 
+  Future<void> _loadUserSelections() async {
+    final prefs = await SharedPreferences.getInstance();
+    final universityId = prefs.getInt('selected_university_id');
+    final universityName = prefs.getString('selected_university_name');
+    final degreeId = prefs.getInt('selected_degree_id');
+    final degreeName = prefs.getString('selected_degree_name');
+    final semester = prefs.getInt('selected_semester');
+    final year = prefs.getInt('selected_year');
+
+    if (universityId != null && universityName != null) {
+      setState(() {
+        _selectedUniversity = University(id: universityId, name: universityName);
+      });
+      // Load degrees based on the saved university
+      await _loadDegrees();
+    }
+
+    if (degreeId != null && degreeName != null && _degrees.isNotEmpty) {
+      // Try to find the degree in the loaded degrees
+      Degree? foundDegree;
+      try {
+        foundDegree = _degrees.firstWhere((d) => d.id == degreeId);
+      } catch (_) {
+        // If not found and we have the university, create a placeholder
+        if (universityId != null) {
+          foundDegree = Degree(
+            id: degreeId, 
+            name: degreeName, 
+            university: universityId,
+            universityName: universityName ?? 'Unknown University'
+          );
+        }
+      }
+      
+      if (foundDegree != null) {
+        setState(() {
+          _selectedDegree = foundDegree;
+        });
+      }
+    }
+
+    if (semester != null) {
+      setState(() {
+        _selectedSemester = semester;
+      });
+    }
+
+    if (year != null) {
+      setState(() {
+        _selectedYear = year;
+      });
+    }
+
+    // If we have all selections, load the question papers
+    _loadQuestionPapersIfReady();
+  }
+
   Future<void> _loadQuestionPapersIfReady() async {
     // Only load question papers when all required filters are selected
-    if (_selectedUniversity != null && _selectedDegree != null && _selectedSemester != null) {
+    if (_selectedUniversity != null && _selectedDegree != null && _selectedSemester != null && _selectedYear != null) {
       _loadQuestionPapers();
+    }
+  }
+
+  // Modified methods to save selections when they change
+  void _onUniversityChanged(University? university) {
+    setState(() {
+      _selectedUniversity = university;
+      _selectedDegree = null;
+      _selectedSemester = null;
+      _selectedYear = null;
+      _questionPapers = [];
+    });
+    _saveUserSelections();
+    _loadDegrees();
+  }
+
+  void _onDegreeChanged(Degree? degree) {
+    setState(() {
+      _selectedDegree = degree;
+      _selectedSemester = null;
+      _selectedYear = null;
+      _questionPapers = [];
+    });
+    _saveUserSelections();
+  }
+
+  void _onSemesterChanged(int? semester) {
+    setState(() {
+      _selectedSemester = semester;
+      _selectedYear = null;
+      _questionPapers = [];
+    });
+    _saveUserSelections();
+  }
+
+  void _onYearChanged(int? year) {
+    setState(() {
+      _selectedYear = year;
+      _questionPapers = [];
+    });
+    _saveUserSelections();
+    _loadQuestionPapersIfReady();
+  }
+
+  // Save user selections to shared preferences
+  Future<void> _saveUserSelections() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_selectedUniversity != null) {
+      await prefs.setInt('selected_university_id', _selectedUniversity!.id);
+      await prefs.setString('selected_university_name', _selectedUniversity!.name);
+    }
+    if (_selectedDegree != null) {
+      await prefs.setInt('selected_degree_id', _selectedDegree!.id);
+      await prefs.setString('selected_degree_name', _selectedDegree!.name);
+    }
+    if (_selectedSemester != null) {
+      await prefs.setInt('selected_semester', _selectedSemester!);
+    }
+    if (_selectedYear != null) {
+      await prefs.setInt('selected_year', _selectedYear!);
     }
   }
 
@@ -368,100 +651,64 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                         onChanged: _searchQuestionPapers,
                       ),
                       const SizedBox(height: 16.0),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: DropdownButtonFormField<University>(
-                              value: _selectedUniversity,
-                              decoration: const InputDecoration(
-                                labelText: 'University',
-                                border: OutlineInputBorder(),
-                              ),
-                              items: _universities.map((university) {
-                                return DropdownMenuItem(
-                                  value: university,
-                                  child: Text(university.name),
-                                );
-                              }).toList(),
-                              onChanged: (university) {
-                                setState(() {
-                                  _selectedUniversity = university;
-                                  _selectedDegree = null;
-                                  _degrees = [];
-                                });
-                                _loadDegrees();
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 16.0),
-                          Expanded(
-                            child: DropdownButtonFormField<Degree>(
-                              value: _selectedDegree,
-                              decoration: const InputDecoration(
-                                labelText: 'Degree',
-                                border: OutlineInputBorder(),
-                              ),
-                              items: _degrees.map((degree) {
-                                return DropdownMenuItem(
-                                  value: degree,
-                                  child: Text(degree.name),
-                                );
-                              }).toList(),
-                              onChanged: (degree) {
-                                setState(() => _selectedDegree = degree);
-                                _loadQuestionPapersIfReady();
-                              },
-                            ),
-                          ),
-                        ],
+                      DropdownButtonFormField<University>(
+                        decoration: const InputDecoration(
+                          labelText: 'University',
+                          border: OutlineInputBorder(),
+                        ),
+                        value: _selectedUniversity,
+                        items: _universities.map((university) {
+                          return DropdownMenuItem<University>(
+                            value: university,
+                            child: Text(university.name),
+                          );
+                        }).toList(),
+                        onChanged: _onUniversityChanged,
                       ),
                       const SizedBox(height: 16.0),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: DropdownButtonFormField<int>(
-                              value: _selectedSemester,
-                              decoration: const InputDecoration(
-                                labelText: 'Semester',
-                                border: OutlineInputBorder(),
-                              ),
-                              items: List.generate(8, (index) {
-                                return DropdownMenuItem(
-                                  value: index + 1,
-                                  child: Text('Semester ${index + 1}'),
-                                );
-                              }),
-                              onChanged: (semester) {
-                                setState(() => _selectedSemester = semester);
-                                _loadQuestionPapersIfReady();
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 16.0),
-                          Expanded(
-                            child: DropdownButtonFormField<int>(
-                              value: _selectedYear,
-                              decoration: const InputDecoration(
-                                labelText: 'Year',
-                                border: OutlineInputBorder(),
-                              ),
-                              items: List.generate(10, (index) {
-                                final year = DateTime.now().year - index;
-                                return DropdownMenuItem(
-                                  value: year,
-                                  child: Text(year.toString()),
-                                );
-                              }),
-                              onChanged: (year) {
-                                setState(() => _selectedYear = year);
-                                // Always make API call when year is selected since all other filters are already set
-                                if (_selectedUniversity != null && _selectedDegree != null && _selectedSemester != null) {
-                                  _loadQuestionPapers();
-                                }
-                              },
-                            ),
-                          ),
-                        ],
+                      DropdownButtonFormField<Degree>(
+                        decoration: const InputDecoration(
+                          labelText: 'Degree',
+                          border: OutlineInputBorder(),
+                        ),
+                        value: _selectedDegree,
+                        items: _degrees.map((degree) {
+                          return DropdownMenuItem<Degree>(
+                            value: degree,
+                            child: Text(degree.name),
+                          );
+                        }).toList(),
+                        onChanged: _onDegreeChanged,
+                      ),
+                      const SizedBox(height: 16.0),
+                      DropdownButtonFormField<int>(
+                        decoration: const InputDecoration(
+                          labelText: 'Semester',
+                          border: OutlineInputBorder(),
+                        ),
+                        value: _selectedSemester,
+                        items: [1, 2, 3, 4, 5, 6, 7, 8].map((semester) {
+                          return DropdownMenuItem<int>(
+                            value: semester,
+                            child: Text('Semester $semester'),
+                          );
+                        }).toList(),
+                        onChanged: _onSemesterChanged,
+                      ),
+                      const SizedBox(height: 16.0),
+                      DropdownButtonFormField<int>(
+                        decoration: const InputDecoration(
+                          labelText: 'Year',
+                          border: OutlineInputBorder(),
+                        ),
+                        value: _selectedYear,
+                        items: List.generate(10, (index) => DateTime.now().year - index).map((year) {
+                          return DropdownMenuItem<int>(
+                            value: year,
+                            child: Text(year.toString()),
+                          );
+                        }).toList(),
+                        onChanged: _onYearChanged,
                       ),
                     ],
                   ),
