@@ -27,7 +27,7 @@ class Note {
     return Note(
       id: json['id'],
       title: json['title'],
-      subject: json['module'],
+      subject: json['module'] ?? json['subject'] ?? '',
       degree: json['degree'],
       degreeName: json['degree_name'],
       semester: json['semester'],

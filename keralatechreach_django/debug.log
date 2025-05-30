@@ -411,3 +411,4 @@ Not Found: /api/events/
 "GET /api/degrees/?university=1 HTTP/1.1" 200 487
 Method Not Allowed: /api/question-papers/upload/
 "POST /api/question-papers/upload/ HTTP/1.1" 405 41
+Watching for file changes with StatReloader

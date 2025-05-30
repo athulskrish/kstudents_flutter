@@ -41,6 +41,7 @@ class QuestionPaperSerializer(serializers.ModelSerializer):
 class NoteSerializer(serializers.ModelSerializer):
     degree_name = serializers.CharField(source='degree.name', read_only=True)
     university_name = serializers.CharField(source='university.name', read_only=True)
+    module = serializers.CharField(source='subject', read_only=True)
     
     class Meta:
         model = Note
