@@ -5,6 +5,7 @@ the backend is at keralatechreach_django, change it if necessary.
 The documentation of backend is available at keralatechreach_django/django_doc.md if any changes are made to the backend update it.
 if  any api call look at Api.md
 SecurityTodo.md contains the security measures .
+Design2.txt contains the design concepts.
 <!-- do not write command prompts as it brings errors skip it and tell me at last. i will tell if there is an error. -->
 
 

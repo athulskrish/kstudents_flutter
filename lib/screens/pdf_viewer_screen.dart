@@ -26,22 +26,25 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   int totalPages = 0;
   late PDFViewController pdfViewController;
   File? _pdfFile;
+  bool _isLocalFile = false;
 
   @override
   void initState() {
     super.initState();
-    downloadFile();
+    _loadPdf();
   }
 
   @override
   void dispose() {
-    // Clean up temporary file when done
-    _cleanupTempFile();
+    // Clean up temporary file when done, but only if we downloaded it
+    if (!_isLocalFile) {
+      _cleanupTempFile();
+    }
     super.dispose();
   }
 
   Future<void> _cleanupTempFile() async {
-    if (_pdfFile != null && await _pdfFile!.exists()) {
+    if (_pdfFile != null && await _pdfFile!.exists() && !_isLocalFile) {
       try {
         await SecureFileUtil.secureDelete(_pdfFile!.path);
         AppLogger.info('Temporary PDF file deleted: ${_pdfFile!.path}');
@@ -51,28 +54,54 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
     }
   }
 
-  Future<void> downloadFile() async {
+  Future<void> _loadPdf() async {
     setState(() {
       isLoading = true;
       errorMessage = '';
     });
 
     try {
-      // Clean up previous file if exists
-      await _cleanupTempFile();
-      
-      // Get filename from URL
-      final fileName = widget.url.split('/').last;
-      
-      // Download file securely
-      _pdfFile = await SecureFileUtil.secureDownload(widget.url, fileName);
-      
-      setState(() {
-        localPath = _pdfFile!.path;
-        isLoading = false;
-      });
-      
-      AppLogger.info('PDF downloaded securely: ${_pdfFile!.path}');
+      // Check if the URL is a local file path
+      if (widget.url.startsWith('/data/') || 
+          widget.url.startsWith('/storage/') ||
+          widget.url.startsWith('/var/') ||
+          widget.url.startsWith('/private/')) {
+        
+        // It's a local file, use it directly
+        final file = File(widget.url);
+        
+        if (await file.exists()) {
+          _pdfFile = file;
+          _isLocalFile = true;
+          
+          setState(() {
+            localPath = widget.url;
+            isLoading = false;
+          });
+          
+          AppLogger.info('Using local PDF file: ${widget.url}');
+        } else {
+          throw Exception('Local file does not exist: ${widget.url}');
+        }
+      } else {
+        // It's a remote URL, download it
+        // Clean up previous file if exists
+        await _cleanupTempFile();
+        
+        // Get filename from URL
+        final fileName = widget.url.split('/').last;
+        
+        // Download file securely
+        _pdfFile = await SecureFileUtil.secureDownload(widget.url, fileName);
+        _isLocalFile = false;
+        
+        setState(() {
+          localPath = _pdfFile!.path;
+          isLoading = false;
+        });
+        
+        AppLogger.info('PDF downloaded securely: ${_pdfFile!.path}');
+      }
     } catch (e) {
       AppLogger.error('Error loading PDF', e);
       setState(() {
@@ -90,7 +119,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: downloadFile,
+            onPressed: _loadPdf,
           ),
           IconButton(
             icon: const Icon(Icons.share),
@@ -121,7 +150,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: downloadFile,
+                    onPressed: _loadPdf,
                     child: const Text('Retry'),
                   ),
                 ],

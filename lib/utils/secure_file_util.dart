@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';  // Import for IOHttpClientAdapter
 import 'logger.dart';
 
 class SecureFileUtil {
@@ -61,6 +62,24 @@ class SecureFileUtil {
   // Securely download file
   static Future<File> secureDownload(String url, String filename) async {
     try {
+      // Check if this is a local file path
+      if (url.startsWith('/data/') || 
+          url.startsWith('/storage/') || 
+          url.startsWith('/var/') ||
+          url.startsWith('/private/')) {
+        // It's a local file, verify it exists and return it
+        final file = File(url);
+        if (await file.exists()) {
+          // Validate the file
+          if (!await validateFile(file)) {
+            throw Exception('Local file validation failed');
+          }
+          return file;
+        } else {
+          throw Exception('Local file does not exist: $url');
+        }
+      }
+      
       // Get secure local path
       final dir = await getApplicationDocumentsDirectory();
       final secureFilename = generateSecureFilename(filename);
@@ -68,6 +87,15 @@ class SecureFileUtil {
       
       // Download file with Dio
       final dio = Dio();
+      
+      // Handle potential HTTP/HTTPS issues
+      if (url.startsWith('http://')) {
+        (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate = (client) {
+          client.badCertificateCallback = (cert, host, port) => true;
+          return client;
+        };
+      }
+      
       await dio.download(url, filePath);
       
       // Verify downloaded file
