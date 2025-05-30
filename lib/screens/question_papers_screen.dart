@@ -12,9 +12,15 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'question_paper_upload_screen.dart';
 
 class QuestionPapersScreen extends StatefulWidget {
-  const QuestionPapersScreen({super.key});
+  final bool showBottomBar;
+  
+  const QuestionPapersScreen({
+    super.key,
+    this.showBottomBar = true,
+  });
 
   @override
   State<QuestionPapersScreen> createState() => _QuestionPapersScreenState();
@@ -253,210 +259,21 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
   }
 
   Future<void> _pickAndUploadPDF() async {
-    // Check if all required fields are selected
-    bool allFieldsSelected = _selectedUniversity != null && 
-                            _selectedDegree != null && 
-                            _selectedSemester != null && 
-                            _selectedYear != null;
-    
-    // If not all fields are selected, show dialog
-    if (!allFieldsSelected) {
-      final result = await showDialog<Map<String, dynamic>>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Upload Question Paper'),
-          content: StatefulBuilder(
-            builder: (context, setState) {
-              University? tempUniversity = _selectedUniversity;
-              Degree? tempDegree = _selectedDegree;
-              int? tempSemester = _selectedSemester;
-              int? tempYear = _selectedYear;
-              List<Degree> tempDegrees = _degrees;
-              
-              void loadTempDegrees() async {
-                if (tempUniversity == null) return;
-                try {
-                  final degrees = await _apiService.getDegrees(universityId: tempUniversity!.id);
-                  setState(() {
-                    tempDegrees = degrees;
-                  });
-                } catch (e) {
-                  // Ignore errors in the dialog
-                }
-              }
-              
-              return SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    DropdownButtonFormField<University>(
-                      decoration: const InputDecoration(
-                        labelText: 'University',
-                        border: OutlineInputBorder(),
-                      ),
-                      value: tempUniversity,
-                      items: _universities.map((university) {
-                        return DropdownMenuItem<University>(
-                          value: university,
-                          child: Text(university.name),
-                        );
-                      }).toList(),
-                      onChanged: (university) {
-                        setState(() {
-                          tempUniversity = university;
-                          tempDegree = null;
-                        });
-                        loadTempDegrees();
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    DropdownButtonFormField<Degree>(
-                      decoration: const InputDecoration(
-                        labelText: 'Degree',
-                        border: OutlineInputBorder(),
-                      ),
-                      value: tempDegree,
-                      items: tempDegrees.map((degree) {
-                        return DropdownMenuItem<Degree>(
-                          value: degree,
-                          child: Text(degree.name),
-                        );
-                      }).toList(),
-                      onChanged: (degree) {
-                        setState(() {
-                          tempDegree = degree;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    DropdownButtonFormField<int>(
-                      decoration: const InputDecoration(
-                        labelText: 'Semester',
-                        border: OutlineInputBorder(),
-                      ),
-                      value: tempSemester,
-                      items: [1, 2, 3, 4, 5, 6, 7, 8].map((semester) {
-                        return DropdownMenuItem<int>(
-                          value: semester,
-                          child: Text('Semester $semester'),
-                        );
-                      }).toList(),
-                      onChanged: (semester) {
-                        setState(() {
-                          tempSemester = semester;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    DropdownButtonFormField<int>(
-                      decoration: const InputDecoration(
-                        labelText: 'Year',
-                        border: OutlineInputBorder(),
-                      ),
-                      value: tempYear,
-                      items: List.generate(10, (index) => DateTime.now().year - index).map((year) {
-                        return DropdownMenuItem<int>(
-                          value: year,
-                          child: Text(year.toString()),
-                        );
-                      }).toList(),
-                      onChanged: (year) {
-                        setState(() {
-                          tempYear = year;
-                        });
-                      },
-                    ),
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Subject',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (value) {
-                        // Store in the controller for later use
-                        _searchController.text = value;
-                      },
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                // Return the selected values
-                Navigator.of(context).pop({
-                  'university': _selectedUniversity,
-                  'degree': _selectedDegree,
-                  'semester': _selectedSemester,
-                  'year': _selectedYear,
-                });
-              },
-              child: Text('Upload'),
-            ),
-          ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => QuestionPaperUploadScreen(
+          initialUniversity: _selectedUniversity,
+          initialDegree: _selectedDegree,
+          initialSemester: _selectedSemester,
+          initialYear: _selectedYear,
         ),
-      );
-      
-      // If dialog was cancelled
-      if (result == null) {
-        return;
-      }
-      
-      // Update selected values if returned from dialog
-      if (result['university'] != null) _selectedUniversity = result['university'];
-      if (result['degree'] != null) _selectedDegree = result['degree'];
-      if (result['semester'] != null) _selectedSemester = result['semester'];
-      if (result['year'] != null) _selectedYear = result['year'];
-      
-      // Save selections
-      _saveUserSelections();
-    }
-    
-    // Now pick and upload the file
-    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
-    if (result != null && result.files.single.path != null) {
-      File file = File(result.files.single.path!);
-      await _uploadPDF(file,
-        subject: _searchController.text.isNotEmpty ? _searchController.text : 'Unknown',
-        degree: _selectedDegree?.id,
-        semester: _selectedSemester,
-        year: _selectedYear,
-        universityId: _selectedUniversity?.id,
-      );
-    }
-  }
-
-  Future<void> _uploadPDF(File file, {String? subject, int? degree, int? semester, int? year, int? universityId}) async {
-    setState(() => _isUploading = true);
-    try {
-      final dio = Dio();
-      const apiUrl = 'https://103.235.106.114:8000/api/question-papers/upload/';
-      final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(file.path, filename: file.path.split('/').last),
-        if (subject != null) 'subject': subject,
-        if (degree != null) 'degree': degree,
-        if (semester != null) 'semester': semester,
-        if (year != null) 'year': year,
-        if (universityId != null) 'university_id': universityId,
-      });
-      final response = await dio.post(apiUrl, data: formData);
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        setState(() => _isUploading = false);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PDF uploaded successfully!')));
+      ),
+    ).then((result) {
+      if (result == true) {
         _loadQuestionPapers();
-      } else {
-        setState(() => _isUploading = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: ${response.statusMessage}')));
       }
-    } catch (e) {
-      setState(() => _isUploading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
-    }
+    });
   }
 
   void _viewSavedPDF(SavedPDF pdf) async {
@@ -814,6 +631,40 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                 : const SizedBox.shrink();
           },
         ),
+        bottomNavigationBar: widget.showBottomBar
+            ? BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                currentIndex: 1, // Set to 1 for Questions
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.description),
+                    label: 'Questions',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.event),
+                    label: 'Events',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.work),
+                    label: 'Jobs',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.note),
+                    label: 'Notes',
+                  ),
+                ],
+                onTap: (index) {
+                  if (index != 1) { // If not Questions tab
+                    Navigator.pop(context);
+                    // Let parent handle navigation
+                  }
+                },
+              )
+            : null,
       ),
     );
   }

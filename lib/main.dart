@@ -273,7 +273,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = const [
     HomeScreen(),
-    QuestionPapersScreen(),
+    QuestionPapersScreen(showBottomBar: true),
     EventsScreen(),
     JobListScreen(),
     NotesScreen(),

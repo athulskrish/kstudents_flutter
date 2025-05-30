@@ -119,10 +119,14 @@ Apply these principles across all features:
 - [x] P3: Implement proper logging
 - [x] P3: Add unit and integration tests
 - [x] P4: Implement explicit user consent for data collection (consent dialog, privacy policy page, minimal mode)
+- [x] P5: Fix bottom navigation bar inconsistency in QuestionPapersScreen
+- [x] P5: Improve question paper upload UX with dedicated screen
 
 // Added consent dialog on first launch, detailed privacy policy page, and minimal mode for declined consent.
 // Users can access the privacy policy from the home screen and drawer menu.
 // Consent status is stored in SharedPreferences.
+// Fixed navigation bar inconsistency when accessing question papers from home vs bottom navbar
+// Improved question paper upload UX with a dedicated screen instead of a dialog
 
 ### Performance Optimization [STATUS: COMPLETED]
 - [x] P1: Optimize image loading and caching

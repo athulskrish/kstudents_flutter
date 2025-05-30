@@ -348,3 +348,29 @@
   - Improved user experience with fewer loading indicators
 - More predictable loading behavior for users
 - Maintained functionality while optimizing network usage
+
+---
+
+## UI/UX Improvements: QuestionPapersScreen (Technical Debt)
+
+### Navigation Bar Consistency
+- Fixed an inconsistency where the bottom navigation bar would appear when accessing the question papers screen from the bottom navbar, but would be missing when accessing it from the home screen.
+- Added a `showBottomBar` parameter to the `QuestionPapersScreen` constructor that defaults to `true`.
+- Updated the home screen to pass `showBottomBar: false` when navigating to the question papers screen.
+- Updated the main screen to explicitly set `showBottomBar: true` for its instance of the question papers screen.
+
+### PDF Upload UX Enhancement
+- Replaced the dialog-based PDF upload with a dedicated full-screen upload page.
+- Created a new screen `QuestionPaperUploadScreen` with improved UI/UX for uploading PDFs.
+- The upload screen maintains the same form fields and functionality but provides a better user experience.
+- Added form validation and error handling to guide users through the upload process.
+- The upload screen passes back a result to the question papers screen to refresh the list after a successful upload.
+
+### Impact
+- More consistent navigation experience across the app.
+- Enhanced usability for the PDF upload feature.
+- Better error feedback and guidance for users.
+- Completed Technical Debt items P5 in the todo.md file.
+
+### Next Steps
+- Consider applying similar UX improvements to the Notes upload feature.
