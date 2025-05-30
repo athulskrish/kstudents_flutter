@@ -38,15 +38,15 @@ class SavedPDF {
     'filePath': filePath,
     'subject': subject,
     'degreeName': degreeName,
-    'semester': semester,
-    'year': year,
+    'semester': semester.toString(),
+    'year': year.toString(),
   };
   static SavedPDF fromJson(Map<String, dynamic> json) => SavedPDF(
     filePath: json['filePath'],
     subject: json['subject'],
     degreeName: json['degreeName'],
-    semester: json['semester'],
-    year: json['year'],
+    semester: int.parse(json['semester']),
+    year: int.parse(json['year']),
   );
 }
 

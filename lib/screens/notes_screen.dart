@@ -40,8 +40,8 @@ class SavedNote {
     'title': title,
     'subject': subject,
     'degreeName': degreeName,
-    'semester': semester,
-    'year': year,
+    'semester': semester.toString(),
+    'year': year.toString(),
   };
   static SavedNote fromJson(Map<String, dynamic> json) => SavedNote(
     filePath: json['filePath'],

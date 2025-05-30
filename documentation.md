@@ -1,4 +1,9 @@
 # Documentation
+All changes should be documented here.if any api changes document at Api.md
+any backend changes document at keralatechreach_django/django_doc.md.
+
+---
+
 
 ## Implemented Feature: PDF Viewer for Questions from Server
 
