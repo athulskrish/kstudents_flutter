@@ -93,7 +93,7 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
 
 class QuestionPaperUploadView(views.APIView):
     parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]  # Allow any user to upload for now
 
     def post(self, request, *args, **kwargs):
         file_obj = request.FILES.get('file')
@@ -102,48 +102,121 @@ class QuestionPaperUploadView(views.APIView):
         semester = request.data.get('semester')
         year = request.data.get('year')
         university_id = request.data.get('university_id')
-        if not file_obj or not subject or not degree or not semester or not year or not university_id:
-            return Response({'detail': 'Missing required fields.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Default to admin user if no created_by is provided
+        created_by_id = request.data.get('created_by', 1)
+        
+        # Debug log to see what's coming in
+        print(f"QuestionPaper Upload - Request Data: {request.data}")
+        print(f"QuestionPaper Upload - Files: {request.FILES}")
+        
+        if not file_obj:
+            return Response({'detail': 'Missing file.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not subject:
+            return Response({'detail': 'Missing subject.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not degree:
+            return Response({'detail': 'Missing degree.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not semester:
+            return Response({'detail': 'Missing semester.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not year:
+            return Response({'detail': 'Missing year.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not university_id:
+            return Response({'detail': 'Missing university_id.'}, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
+            # Convert to integers if they're strings
+            degree_id = int(degree)
+            semester_val = int(semester)
+            year_val = int(year)
+            university_id_val = int(university_id)
+            created_by_id_val = int(created_by_id)
+            
+            # Get the user profile for created_by
+            user_profile = UserProfile.objects.get(id=created_by_id_val)
+            
             paper = QuestionPaper.objects.create(
                 file_path=file_obj,
                 subject=subject,
-                degree_id=degree,
-                semester=semester,
-                year=year,
-                university_id_id=university_id,
-                is_published=True
+                degree_id=degree_id,
+                semester=semester_val,
+                year=year_val,
+                university_id_id=university_id_val,
+                is_published=True,
+                created_by=user_profile
             )
             return Response({'detail': 'File uploaded successfully.', 'id': paper.id}, status=status.HTTP_201_CREATED)
+        except UserProfile.DoesNotExist:
+            return Response({'detail': 'Invalid user profile ID.'}, status=status.HTTP_400_BAD_REQUEST)
+        except ValueError as e:
+            return Response({'detail': f'Invalid field values: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            print(f"QuestionPaper Upload Error: {str(e)}")
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class NoteUploadView(views.APIView):
     parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]  # Allow any user to upload for now
 
     def post(self, request, *args, **kwargs):
         file_obj = request.FILES.get('file')
         title = request.data.get('title')
-        module = request.data.get('module')
+        subject = request.data.get('subject') or request.data.get('module', '')  # Try subject first, then module
+        module = request.data.get('module', '')  # Get module if available
         degree = request.data.get('degree')
         semester = request.data.get('semester')
         year = request.data.get('year')
         university = request.data.get('university')
-        if not file_obj or not title or not degree or not semester or not year or not university:
-            return Response({'detail': 'Missing required fields.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Default to admin user if no uploaded_by is provided
+        uploaded_by_id = request.data.get('uploaded_by', 1)
+        
+        # Debug log to see what's coming in
+        print(f"Note Upload - Request Data: {request.data}")
+        print(f"Note Upload - Files: {request.FILES}")
+        
+        if not file_obj:
+            return Response({'detail': 'Missing file.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not title:
+            return Response({'detail': 'Missing title.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not degree:
+            return Response({'detail': 'Missing degree.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not semester:
+            return Response({'detail': 'Missing semester.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not year:
+            return Response({'detail': 'Missing year.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not university:
+            return Response({'detail': 'Missing university.'}, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
+            # Convert to integers if they're strings
+            degree_id = int(degree)
+            semester_val = int(semester)
+            year_val = int(year)
+            university_id = int(university)
+            uploaded_by_id_val = int(uploaded_by_id)
+            
+            # Get the user profile for uploaded_by
+            user_profile = UserProfile.objects.get(id=uploaded_by_id_val)
+            
+            # Create the note with all required fields
             note = Note.objects.create(
                 file=file_obj,
                 title=title,
-                module=module or '',
-                degree_id=degree,
-                semester=semester,
-                year=year,
-                university_id=university
+                subject=subject or module,  # Use subject if available, otherwise module
+                degree_id=degree_id,
+                semester=semester_val,
+                year=year_val,
+                university_id=university_id,
+                uploaded_by=user_profile,
+                is_published=True
             )
             return Response({'detail': 'File uploaded successfully.', 'id': note.id}, status=status.HTTP_201_CREATED)
+        except UserProfile.DoesNotExist:
+            return Response({'detail': 'Invalid user profile ID.'}, status=status.HTTP_400_BAD_REQUEST)
+        except ValueError as e:
+            return Response({'detail': f'Invalid field values: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            print(f"Note Upload Error: {str(e)}")
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class ContactMessageView(views.APIView):

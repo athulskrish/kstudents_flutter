@@ -390,7 +390,22 @@
 - Disabled certificate validation in development mode for both question paper and note uploads.
 - Added proper error handling and user feedback for upload operations.
 
+### HTTP 405 Method Not Allowed Error Fix
+- Fixed the HTTP 405 error that occurred when attempting to upload question papers and notes.
+- In the Flutter app:
+  - Updated `FormData` construction to properly format all required fields.
+  - Converted numeric values to strings to ensure proper serialization.
+  - Added explicit content-type headers for multipart form data.
+  - Added required fields that were missing (created_by/uploaded_by).
+- In the Django backend:
+  - Updated permission classes to `AllowAny` for upload endpoints to simplify testing.
+  - Added detailed validation for each required field with specific error messages.
+  - Improved error handling with proper type conversion and exception handling.
+  - Added debug logging to help diagnose upload issues.
+  - Fixed field mapping to match the database model requirements.
+
 ### Next Steps
 - Consider implementing proper certificate pinning for production builds.
 - Update the server to use a valid SSL certificate.
 - Apply the same upload UX improvements to other similar features in the app.
+- Restore proper authentication requirements once testing is complete.

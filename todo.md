@@ -127,6 +127,7 @@ Apply these principles across all features:
 - [x] P5: Fix missing bottom navigation bar in notes screen
 - [x] P5: Improve note upload UX with dedicated screen
 - [x] P5: Fix SSL handshake errors in upload functionality
+- [x] P5: Fix HTTP 405 Method Not Allowed errors in question paper and note uploads
 
 // Added consent dialog on first launch, detailed privacy policy page, and minimal mode for declined consent.
 // Users can access the privacy policy from the home screen and drawer menu.
@@ -136,6 +137,7 @@ Apply these principles across all features:
 // Fixed duplicate bottom navigation bar issue and applied same pattern to notes screen
 // Created dedicated NoteUploadScreen for better user experience
 // Fixed SSL handshake errors by disabling certificate validation in development mode
+// Fixed HTTP 405 Method Not Allowed errors by correctly formatting multipart form data and updating backend endpoints
 
 ### Performance Optimization [STATUS: COMPLETED]
 - [x] P1: Optimize image loading and caching

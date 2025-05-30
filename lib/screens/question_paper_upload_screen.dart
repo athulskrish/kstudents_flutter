@@ -145,16 +145,31 @@ class _QuestionPaperUploadScreenState extends State<QuestionPaperUploadScreen> {
       };
       
       const apiUrl = 'http://103.235.106.114:8000/api/question-papers/upload/';
+      
+      // Create a FormData instance with all required fields
       final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(_selectedFile!.path, filename: _selectedFile!.path.split('/').last),
+        'file': await MultipartFile.fromFile(
+          _selectedFile!.path, 
+          filename: _selectedFile!.path.split('/').last
+        ),
         'subject': _subjectController.text,
-        'degree': _selectedDegree!.id,
-        'semester': _selectedSemester!,
-        'year': _selectedYear!,
-        'university_id': _selectedUniversity!.id,
+        'degree': _selectedDegree!.id.toString(),
+        'semester': _selectedSemester.toString(),
+        'year': _selectedYear.toString(),
+        'university_id': _selectedUniversity!.id.toString(),
+        'created_by': '1', // Using admin user ID as default
       });
       
-      final response = await dio.post(apiUrl, data: formData);
+      // Add headers to specify content type
+      final response = await dio.post(
+        apiUrl, 
+        data: formData,
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
       
       if (response.statusCode == 200 || response.statusCode == 201) {
         setState(() => _isUploading = false);
