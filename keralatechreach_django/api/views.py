@@ -1,5 +1,5 @@
 from rest_framework import viewsets, filters
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from admindashboard.models import (
     QuestionPaper,
@@ -34,14 +34,14 @@ from rest_framework.response import Response
 class UniversityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = University.objects.all()
     serializer_class = UniversitySerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
 
 class DegreeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Degree.objects.all()
     serializer_class = DegreeSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['university']
     search_fields = ['name']
@@ -49,7 +49,7 @@ class DegreeViewSet(viewsets.ReadOnlyModelViewSet):
 class QuestionPaperViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = QuestionPaper.objects.filter(is_published=True)
     serializer_class = QuestionPaperSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['degree', 'semester', 'year', 'university_id']
     search_fields = ['subject']
@@ -57,7 +57,7 @@ class QuestionPaperViewSet(viewsets.ReadOnlyModelViewSet):
 class NoteViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Note.objects.all()
     serializer_class = NoteSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['degree', 'semester', 'year', 'university']
     search_fields = ['title', 'module']
@@ -65,7 +65,7 @@ class NoteViewSet(viewsets.ReadOnlyModelViewSet):
 class ExamViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Exam.objects.filter(is_published=True)
     serializer_class = ExamSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['degree_name', 'semester', 'admission_year', 'university']
     search_fields = ['exam_name']
@@ -73,21 +73,21 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
 class EntranceNotificationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = EntranceNotification.objects.filter(is_published=True)
     serializer_class = EntranceNotificationSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'description']
 
 class NewsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = News.objects.filter(is_published=True)
     serializer_class = NewsSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'content', 'excerpt']
 
 class JobViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Job.objects.filter(is_published=True)
     serializer_class = JobSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'description']
 

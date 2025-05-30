@@ -176,3 +176,5 @@ Apply these principles across all features:
 // Added logger utility using the logger package. Integrated logging in API/auth services and registration screen for key events and errors.
 
 // Added unit tests for ApiService and JobListProvider in the test/ directory. 
+
+// Fixed authentication issue with API endpoints. Modified UniversityViewSet, DegreeViewSet, and other ViewSets to use [AllowAny] permission in the Django API, and updated the Flutter app's ApiService to bypass authentication for basic data retrieval methods (getUniversities, getDegrees, getQuestionPapers, getNotes). 

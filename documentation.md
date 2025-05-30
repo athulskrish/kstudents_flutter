@@ -298,3 +298,27 @@
 - Added a detailed in-app Privacy Policy page, accessible from the home screen grid and the app drawer menu.
 - Privacy Policy page outlines all data collection and usage in clear language.
 - Updated home_screen.dart to add Privacy Policy to the drawer menu.
+
+# Fixed: API Authentication Issue for Universities and Other Data
+
+## Problem
+- Universities and other basic data were not loading in the Flutter app due to authentication requirements.
+- The Django API had a global authentication requirement (`IsAuthenticated`) which conflicted with the view-level setting (`IsAuthenticatedOrReadOnly`).
+
+## Solution
+- Modified Django API ViewSets (UniversityViewSet, DegreeViewSet, QuestionPaperViewSet, NoteViewSet, etc.) to explicitly use `AllowAny` permission.
+- Updated Flutter ApiService to bypass authentication for basic data retrieval methods:
+  - getUniversities()
+  - getDegrees()
+  - getQuestionPapers()
+  - getNotes()
+
+## Benefits
+- App can now load universities, degrees, question papers, and notes without requiring user authentication.
+- Better user experience for first-time users who haven't yet created an account.
+- Improved app stability and reliability.
+
+## Implementation Details
+- Changed permission_classes in Django API ViewSets from `IsAuthenticatedOrReadOnly` to `AllowAny`.
+- Updated Flutter ApiService methods to make direct HTTP requests instead of using the authenticated _getList method.
+- Added proper error handling and logging to the updated methods.

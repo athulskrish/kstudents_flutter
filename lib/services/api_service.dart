@@ -196,16 +196,51 @@ class ApiService {
 
   // Universities
   Future<List<University>> getUniversities() async {
-    return _getList('$baseUrl/universities/', (json) => University.fromJson(json));
+    try {
+      AppLogger.info('Fetching universities without auth requirement');
+      final response = await http.get(Uri.parse('$baseUrl/universities/'));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => University.fromJson(json)).toList();
+      } else {
+        AppLogger.error('Failed to load universities [${response.statusCode}]', response.body);
+        throw AppException('Failed to load universities',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching universities', e);
+      throw AppException('Failed to load universities', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
+    }
   }
 
   // Degrees
   Future<List<Degree>> getDegrees({int? universityId}) async {
-    String url = '$baseUrl/degrees/';
-    if (universityId != null) {
-      url += '?university=$universityId';
+    try {
+      String url = '$baseUrl/degrees/';
+      if (universityId != null) {
+        url += '?university=$universityId';
+      }
+      
+      AppLogger.info('Fetching degrees without auth requirement: $url');
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Degree.fromJson(json)).toList();
+      } else {
+        AppLogger.error('Failed to load degrees [${response.statusCode}]', response.body);
+        throw AppException('Failed to load degrees',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching degrees', e);
+      throw AppException('Failed to load degrees', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
     }
-    return _getList(url, (json) => Degree.fromJson(json));
   }
 
   // Question Papers
@@ -215,19 +250,36 @@ class ApiService {
     int? year,
     int? universityId,
   }) async {
-    String url = '$baseUrl/question-papers/';
-    List<String> params = [];
-    
-    if (degreeId != null) params.add('degree=$degreeId');
-    if (semester != null) params.add('semester=$semester');
-    if (year != null) params.add('year=$year');
-    if (universityId != null) params.add('university_id=$universityId');
-    
-    if (params.isNotEmpty) {
-      url += '?${params.join('&')}';
-    }
+    try {
+      String url = '$baseUrl/question-papers/';
+      List<String> params = [];
+      
+      if (degreeId != null) params.add('degree=$degreeId');
+      if (semester != null) params.add('semester=$semester');
+      if (year != null) params.add('year=$year');
+      if (universityId != null) params.add('university_id=$universityId');
+      
+      if (params.isNotEmpty) {
+        url += '?${params.join('&')}';
+      }
 
-    return _getList(url, (json) => QuestionPaper.fromJson(json));
+      AppLogger.info('Fetching question papers without auth requirement: $url');
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => QuestionPaper.fromJson(json)).toList();
+      } else {
+        AppLogger.error('Failed to load question papers [${response.statusCode}]', response.body);
+        throw AppException('Failed to load question papers',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching question papers', e);
+      throw AppException('Failed to load question papers', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
+    }
   }
 
   // Secure file upload for question papers
@@ -310,19 +362,36 @@ class ApiService {
     int? year,
     int? universityId,
   }) async {
-    String url = '$baseUrl/notes/';
-    List<String> params = [];
-    
-    if (degreeId != null) params.add('degree=$degreeId');
-    if (semester != null) params.add('semester=$semester');
-    if (year != null) params.add('year=$year');
-    if (universityId != null) params.add('university=$universityId');
-    
-    if (params.isNotEmpty) {
-      url += '?${params.join('&')}';
-    }
+    try {
+      String url = '$baseUrl/notes/';
+      List<String> params = [];
+      
+      if (degreeId != null) params.add('degree=$degreeId');
+      if (semester != null) params.add('semester=$semester');
+      if (year != null) params.add('year=$year');
+      if (universityId != null) params.add('university=$universityId');
+      
+      if (params.isNotEmpty) {
+        url += '?${params.join('&')}';
+      }
 
-    return _getList(url, (json) => Note.fromJson(json));
+      AppLogger.info('Fetching notes without auth requirement: $url');
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Note.fromJson(json)).toList();
+      } else {
+        AppLogger.error('Failed to load notes [${response.statusCode}]', response.body);
+        throw AppException('Failed to load notes',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching notes', e);
+      throw AppException('Failed to load notes', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
+    }
   }
 
   // Exams
