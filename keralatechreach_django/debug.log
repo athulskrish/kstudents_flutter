@@ -236,3 +236,178 @@ Unauthorized: /api/universities/
 "GET /api/universities/ HTTP/1.1" 401 172
 Not Found: /api/auth/token/refresh/
 "POST /api/auth/token/refresh/ HTTP/1.1" 404 23678
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Not Found: /api/events/
+"GET /api/events/ HTTP/1.1" 404 23645
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2024&university=1 HTTP/1.1" 200 2
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /media/question_papers/Anandhu_S_resume-1.pdf HTTP/1.1" 200 85495
+"GET /media/question_papers/Anandhu_S_resume-1.pdf HTTP/1.1" 200 85495
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+code 400, message Bad request syntax ('\x16\x03\x01\x00÷\x01\x00\x00ó\x03\x03\x8a»÷|gÀ\x98')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad HTTP/0.9 request type ("\x16\x03\x01\x00÷\x01\x00\x00ó\x03\x03Å·À:&'\\\x0e7úþÑÖ`8uöp/ø7²\x15;\x12ô\x1bj-\xad\x06U")
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request syntax ('\x16\x03\x01\x00÷\x01\x00\x00ó\x03\x03)i')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+code 400, message Bad request version ('À\x13À')
+You're accessing the development server over HTTPS, but it only supports HTTP.
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/universities/ HTTP/1.1" 200 40
+Not Found: /api/events/
+"GET /api/events/ HTTP/1.1" 404 23645
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /api/notes/?degree=1&semester=1&year=2024&university=1 HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+Watching for file changes with StatReloader
+"GET /api/universities/ HTTP/1.1" 200 40
+Not Found: /api/events/
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/events/ HTTP/1.1" 404 23645
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2024&university=1 HTTP/1.1" 200 2
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /media/question_papers/Anandhu_S_resume-1.pdf HTTP/1.1" 200 85495
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+Method Not Allowed: /api/question-papers/upload/
+"POST /api/question-papers/upload/ HTTP/1.1" 405 41
+Method Not Allowed: /api/question-papers/upload/
+"POST /api/question-papers/upload/ HTTP/1.1" 405 41
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+Method Not Allowed: /api/question-papers/upload/
+"POST /api/question-papers/upload/ HTTP/1.1" 405 41
+Method Not Allowed: /api/question-papers/upload/
+"POST /api/question-papers/upload/ HTTP/1.1" 405 41
+Method Not Allowed: /api/question-papers/upload/
+"POST /api/question-papers/upload/ HTTP/1.1" 405 41
+Method Not Allowed: /api/question-papers/upload/
+"POST /api/question-papers/upload/ HTTP/1.1" 405 41
+Method Not Allowed: /api/question-papers/upload/
+"POST /api/question-papers/upload/ HTTP/1.1" 405 41
+Method Not Allowed: /api/question-papers/upload/
+"POST /api/question-papers/upload/ HTTP/1.1" 405 41
+Method Not Allowed: /api/question-papers/upload/
+"POST /api/question-papers/upload/ HTTP/1.1" 405 41
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+Method Not Allowed: /api/notes/upload/
+"POST /api/notes/upload/ HTTP/1.1" 405 41
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2066
+"POST /api/auth/login/ HTTP/1.1" 200 697
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+Not Found: /api/events/
+"GET /api/events/ HTTP/1.1" 404 23645
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+Not Found: /api/events/
+"GET /api/events/ HTTP/1.1" 404 23645
+"GET /api/notes/?degree=1&semester=1&year=2024&university=1 HTTP/1.1" 200 2
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+Method Not Allowed: /api/question-papers/upload/
+"POST /api/question-papers/upload/ HTTP/1.1" 405 41
+Watching for file changes with StatReloader
+Not Found: /api/events/
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/events/ HTTP/1.1" 404 23645
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /api/notes/?degree=1&semester=1&year=2024&university=1 HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 249
+"GET /media/question_papers/Anandhu_S_resume-1.pdf HTTP/1.1" 200 85495
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+Method Not Allowed: /api/question-papers/upload/
+"POST /api/question-papers/upload/ HTTP/1.1" 405 41

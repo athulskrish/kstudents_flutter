@@ -136,6 +136,13 @@ class _QuestionPaperUploadScreenState extends State<QuestionPaperUploadScreen> {
     try {
       final dio = Dio();
       
+      // Enable detailed logging
+      dio.interceptors.add(LogInterceptor(
+        requestBody: true,
+        responseBody: true,
+        error: true,
+      ));
+      
       // Disable SSL validation for the upload request
       (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate = (client) {
         client.badCertificateCallback = (X509Certificate cert, String host, int port) {
@@ -144,7 +151,11 @@ class _QuestionPaperUploadScreenState extends State<QuestionPaperUploadScreen> {
         return client;
       };
       
+      // Make sure to use HTTP (not HTTPS) for local development
       const apiUrl = 'http://103.235.106.114:8000/api/question-papers/upload/';
+      
+      // Print debug info
+      print('Starting upload to: $apiUrl');
       
       // Create a FormData instance with all required fields
       final formData = FormData.fromMap({
@@ -160,29 +171,56 @@ class _QuestionPaperUploadScreenState extends State<QuestionPaperUploadScreen> {
         'created_by': '1', // Using admin user ID as default
       });
       
-      // Add headers to specify content type
-      final response = await dio.post(
-        apiUrl, 
-        data: formData,
-        options: Options(
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        ),
-      );
+      print('Form data created successfully');
       
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        setState(() => _isUploading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('PDF uploaded successfully!')),
+      try {
+        // Add headers to specify content type
+        final response = await dio.post(
+          apiUrl, 
+          data: formData,
+          options: Options(
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              'Accept': 'application/json',
+            },
+          ),
         );
-        Navigator.pop(context, true); // Return true to indicate successful upload
-      } else {
+        
+        print('Response status: ${response.statusCode}');
+        print('Response data: ${response.data}');
+        
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          setState(() => _isUploading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('PDF uploaded successfully!')),
+          );
+          Navigator.pop(context, true); // Return true to indicate successful upload
+        } else {
+          setState(() => _isUploading = false);
+          _showError('Upload failed: ${response.statusMessage}');
+        }
+      } on DioException catch (dioError) {
         setState(() => _isUploading = false);
-        _showError('Upload failed: ${response.statusMessage}');
+        print('Dio error: ${dioError.type}');
+        print('Dio error message: ${dioError.message}');
+        print('Dio error response: ${dioError.response?.data}');
+        print('Dio error status code: ${dioError.response?.statusCode}');
+        
+        String errorMsg = 'Upload failed: ';
+        if (dioError.response?.statusCode == 405) {
+          errorMsg += 'Method Not Allowed. The server doesn\'t accept POST requests at this endpoint.';
+        } else if (dioError.type == DioExceptionType.connectionTimeout) {
+          errorMsg += 'Connection timeout. Server might be down.';
+        } else if (dioError.type == DioExceptionType.badResponse) {
+          errorMsg += 'Server returned error: ${dioError.response?.statusCode} - ${dioError.response?.statusMessage}';
+        } else {
+          errorMsg += dioError.message ?? 'Unknown error';
+        }
+        _showError(errorMsg);
       }
     } catch (e) {
       setState(() => _isUploading = false);
+      print('General error: $e');
       _showError('Upload failed: $e');
     }
   }

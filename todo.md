@@ -137,7 +137,8 @@ Apply these principles across all features:
 // Fixed duplicate bottom navigation bar issue and applied same pattern to notes screen
 // Created dedicated NoteUploadScreen for better user experience
 // Fixed SSL handshake errors by disabling certificate validation in development mode
-// Fixed HTTP 405 Method Not Allowed errors by correctly formatting multipart form data and updating backend endpoints
+// Fixed HTTP 405 Method Not Allowed errors by correctly formatting multipart form data, updating backend endpoints, 
+// fixing URL routing conflicts, and adding proper debugging for upload issues
 
 ### Performance Optimization [STATUS: COMPLETED]
 - [x] P1: Optimize image loading and caching

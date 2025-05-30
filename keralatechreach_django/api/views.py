@@ -96,6 +96,15 @@ class QuestionPaperUploadView(views.APIView):
     permission_classes = [AllowAny]  # Allow any user to upload for now
 
     def post(self, request, *args, **kwargs):
+        print("="*80)
+        print("QuestionPaperUploadView.post() called")
+        print(f"Request content type: {request.content_type}")
+        print(f"Request headers: {request.headers}")
+        print(f"Request method: {request.method}")
+        print(f"Request data: {request.data}")
+        print(f"Request files: {request.FILES}")
+        print("="*80)
+        
         file_obj = request.FILES.get('file')
         subject = request.data.get('subject')
         degree = request.data.get('degree')
@@ -105,10 +114,6 @@ class QuestionPaperUploadView(views.APIView):
         
         # Default to admin user if no created_by is provided
         created_by_id = request.data.get('created_by', 1)
-        
-        # Debug log to see what's coming in
-        print(f"QuestionPaper Upload - Request Data: {request.data}")
-        print(f"QuestionPaper Upload - Files: {request.FILES}")
         
         if not file_obj:
             return Response({'detail': 'Missing file.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -131,7 +136,10 @@ class QuestionPaperUploadView(views.APIView):
             university_id_val = int(university_id)
             created_by_id_val = int(created_by_id)
             
+            print(f"Creating QuestionPaper with: degree_id={degree_id}, semester={semester_val}, year={year_val}, university_id={university_id_val}")
+            
             # Get the user profile for created_by
+            from admindashboard.models import UserProfile
             user_profile = UserProfile.objects.get(id=created_by_id_val)
             
             paper = QuestionPaper.objects.create(
@@ -146,18 +154,41 @@ class QuestionPaperUploadView(views.APIView):
             )
             return Response({'detail': 'File uploaded successfully.', 'id': paper.id}, status=status.HTTP_201_CREATED)
         except UserProfile.DoesNotExist:
+            print("UserProfile does not exist")
             return Response({'detail': 'Invalid user profile ID.'}, status=status.HTTP_400_BAD_REQUEST)
         except ValueError as e:
+            print(f"ValueError: {str(e)}")
             return Response({'detail': f'Invalid field values: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            print(f"QuestionPaper Upload Error: {str(e)}")
+            print(f"Exception: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Add this to debug why OPTIONS/GET requests might be coming through
+    def get(self, request, *args, **kwargs):
+        return Response({'detail': 'GET method not allowed. Use POST for file uploads.'}, 
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def options(self, request, *args, **kwargs):
+        response = super().options(request, *args, **kwargs)
+        print("OPTIONS request received", response)
+        return response
 
 class NoteUploadView(views.APIView):
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [AllowAny]  # Allow any user to upload for now
 
     def post(self, request, *args, **kwargs):
+        print("="*80)
+        print("NoteUploadView.post() called")
+        print(f"Request content type: {request.content_type}")
+        print(f"Request headers: {request.headers}")
+        print(f"Request method: {request.method}")
+        print(f"Request data: {request.data}")
+        print(f"Request files: {request.FILES}")
+        print("="*80)
+        
         file_obj = request.FILES.get('file')
         title = request.data.get('title')
         subject = request.data.get('subject') or request.data.get('module', '')  # Try subject first, then module
@@ -169,10 +200,6 @@ class NoteUploadView(views.APIView):
         
         # Default to admin user if no uploaded_by is provided
         uploaded_by_id = request.data.get('uploaded_by', 1)
-        
-        # Debug log to see what's coming in
-        print(f"Note Upload - Request Data: {request.data}")
-        print(f"Note Upload - Files: {request.FILES}")
         
         if not file_obj:
             return Response({'detail': 'Missing file.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -195,7 +222,10 @@ class NoteUploadView(views.APIView):
             university_id = int(university)
             uploaded_by_id_val = int(uploaded_by_id)
             
+            print(f"Creating Note with: title={title}, degree_id={degree_id}, semester={semester_val}, year={year_val}, university_id={university_id}")
+            
             # Get the user profile for uploaded_by
+            from admindashboard.models import UserProfile
             user_profile = UserProfile.objects.get(id=uploaded_by_id_val)
             
             # Create the note with all required fields
@@ -212,12 +242,26 @@ class NoteUploadView(views.APIView):
             )
             return Response({'detail': 'File uploaded successfully.', 'id': note.id}, status=status.HTTP_201_CREATED)
         except UserProfile.DoesNotExist:
+            print("UserProfile does not exist")
             return Response({'detail': 'Invalid user profile ID.'}, status=status.HTTP_400_BAD_REQUEST)
         except ValueError as e:
+            print(f"ValueError: {str(e)}")
             return Response({'detail': f'Invalid field values: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            print(f"Note Upload Error: {str(e)}")
+            print(f"Exception: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Add this to debug why OPTIONS/GET requests might be coming through
+    def get(self, request, *args, **kwargs):
+        return Response({'detail': 'GET method not allowed. Use POST for file uploads.'}, 
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def options(self, request, *args, **kwargs):
+        response = super().options(request, *args, **kwargs)
+        print("OPTIONS request received", response)
+        return response
 
 class ContactMessageView(views.APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]

@@ -397,11 +397,16 @@
   - Converted numeric values to strings to ensure proper serialization.
   - Added explicit content-type headers for multipart form data.
   - Added required fields that were missing (created_by/uploaded_by).
+  - Enhanced error handling with detailed debugging information.
+  - Added specific error messages for different types of upload failures.
 - In the Django backend:
+  - Fixed URL routing conflicts by restructuring URL patterns.
+  - Moved upload endpoints before router.urls inclusion to ensure they take precedence.
+  - Added explicit method handlers (GET, POST, OPTIONS) to the API views.
   - Updated permission classes to `AllowAny` for upload endpoints to simplify testing.
   - Added detailed validation for each required field with specific error messages.
   - Improved error handling with proper type conversion and exception handling.
-  - Added debug logging to help diagnose upload issues.
+  - Added comprehensive debug logging to help diagnose upload issues.
   - Fixed field mapping to match the database model requirements.
 
 ### Next Steps

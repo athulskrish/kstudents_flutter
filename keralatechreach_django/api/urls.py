@@ -19,6 +19,7 @@ from .views import (
     AffiliateCategoryViewSet
 )
 
+# Create the router for ViewSets
 router = DefaultRouter()
 router.register(r'universities', UniversityViewSet)
 router.register(r'degrees', DegreeViewSet)
@@ -31,12 +32,18 @@ router.register(r'jobs', JobViewSet)
 router.register(r'affiliate-products', AffiliateProductViewSet)
 router.register(r'affiliate-categories', AffiliateCategoryViewSet)
 
+# Define custom endpoints first
 urlpatterns = [
-    path('', include(router.urls)),
+    # Authentication endpoints
     path('auth/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/register/', RegisterView.as_view(), name='auth_register'),
+    
+    # Upload endpoints - these must come before router.urls to avoid conflicts
     path('question-papers/upload/', QuestionPaperUploadView.as_view(), name='questionpaper-upload'),
     path('notes/upload/', NoteUploadView.as_view(), name='note-upload'),
     path('contact/', ContactMessageView.as_view(), name='contact-message'),
+    
+    # Include router URLs last
+    path('', include(router.urls)),
 ]
