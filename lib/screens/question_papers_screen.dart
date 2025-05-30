@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'question_paper_upload_screen.dart';
+import '../utils/secure_file_util.dart';
 
 class QuestionPapersScreen extends StatefulWidget {
   final bool showBottomBar;
@@ -306,6 +307,68 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
     } catch (e) {
       // Fallback to sharing text if file sharing fails
       Share.share('Check out this question paper: ${pdf.subject}');
+    }
+  }
+
+  Future<void> _deleteSavedPDF(SavedPDF pdf) async {
+    // Show confirmation dialog
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete PDF'),
+        content: Text('Are you sure you want to delete "${pdf.subject}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    
+    if (confirm != true) return;
+    
+    try {
+      // Delete the file from storage
+      final file = File(pdf.filePath);
+      if (await file.exists()) {
+        await SecureFileUtil.secureDelete(pdf.filePath);
+      }
+      
+      // Remove from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getStringList('saved_pdfs') ?? [];
+      
+      // Find and remove the item
+      final queryString = Uri(queryParameters: {
+        'filePath': pdf.filePath,
+        'subject': pdf.subject,
+        'degreeName': pdf.degreeName,
+        'semester': pdf.semester.toString(),
+        'year': pdf.year.toString(),
+      }).query;
+      
+      saved.remove(queryString);
+      
+      // Save the updated list
+      await prefs.setStringList('saved_pdfs', saved);
+      
+      // Update the UI
+      setState(() {
+        _savedPDFs.removeWhere((item) => item.filePath == pdf.filePath);
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('PDF deleted successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete PDF: $e')),
+      );
     }
   }
 
@@ -610,6 +673,11 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                                 icon: const Icon(Icons.share),
                                 tooltip: 'Share',
                                 onPressed: () => _shareSavedPDF(pdf),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                tooltip: 'Delete',
+                                onPressed: () => _deleteSavedPDF(pdf),
                               ),
                             ],
                           ),

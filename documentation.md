@@ -420,3 +420,45 @@ update the todo.md .
 - Update the server to use a valid SSL certificate.
 - Apply the same upload UX improvements to other similar features in the app.
 - Restore proper authentication requirements once testing is complete.
+
+
+Perfect! I've successfully added delete functionality to both the saved question papers and saved notes screens. Here's what I implemented:
+In both screens, I added:
+A delete button icon in the trailing row of buttons for each saved item
+A confirmation dialog to prevent accidental deletions
+Proper error handling with user feedback
+The delete process includes:
+Securely deleting the local file using SecureFileUtil.secureDelete()
+Removing the item's metadata from SharedPreferences
+Updating the UI by removing the item from the displayed list
+Showing success/error feedback to the user
+Specific implementation details:
+Used the same query string format used for saving to find and remove items from SharedPreferences
+Added proper type conversions for integer values (semester and year)
+Used SecureFileUtil for secure file deletion
+Added appropriate import statements
+Now users will be able to manage their saved PDFs more effectively by:
+Viewing the PDF
+Sharing the PDF with others
+Deleting the PDF when no longer needed
+This completes the local file management lifecycle (save, view, share, delete) for both question papers and notes in your app.
+
+Now you should be able to view saved PDFs (both notes and question papers) without any errors. Let me explain the changes I made:
+Fixed PDF Viewer for Local Files:
+Modified PDFViewerScreen to detect if the file path is local (starting with /data/, /storage/, etc.)
+For local files, it now uses the file directly instead of trying to download it
+Added a flag _isLocalFile to track whether the file is local or remote
+Renamed downloadFile() to _loadPdf() to better reflect its purpose
+Enhanced SecureFileUtil:
+Updated secureDownload method to detect local file paths
+When a local path is detected, it validates the file and returns it directly
+Added proper handling for HTTP/HTTPS connections
+Fixed import for IOHttpClientAdapter from the dio package
+Improved Error Handling:
+Added specific error messages for local files that don't exist
+Maintained validation for both local and remote files
+These changes ensure that:
+When you save a note or question paper locally
+And then try to view it from the "Saved" tab
+The app will correctly load the file from the local storage instead of trying to download it as a URL
+The error "Loading PDF: Dio Exception[unknown]: null" and "No host specified in the URI" should now be resolved, as the app can properly distinguish between remote URLs and local file paths.

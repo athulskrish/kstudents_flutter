@@ -13,6 +13,7 @@ import 'pdf_viewer_screen.dart';
 import 'dart:io';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'note_upload_screen.dart';
+import '../utils/secure_file_util.dart';
 
 class NotesScreen extends StatefulWidget {
   final bool showBottomBar;
@@ -249,6 +250,70 @@ void _shareSavedNote(SavedNote note) async {
     );
   }
 }
+
+Future<void> _deleteSavedNote(SavedNote note) async {
+  // Show confirmation dialog
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Delete Note'),
+      content: Text('Are you sure you want to delete "${note.title}"?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+  
+  if (confirm != true) return;
+  
+  try {
+    // Delete the file from storage
+    final file = File(note.filePath);
+    if (await file.exists()) {
+      await SecureFileUtil.secureDelete(note.filePath);
+    }
+    
+    // Remove from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList('saved_notes') ?? [];
+    
+    // Find and remove the item
+    final queryString = Uri(queryParameters: {
+      'filePath': note.filePath,
+      'title': note.title,
+      'subject': note.subject,
+      'degreeName': note.degreeName,
+      'semester': note.semester.toString(),
+      'year': note.year.toString(),
+    }).query;
+    
+    saved.remove(queryString);
+    
+    // Save the updated list
+    await prefs.setStringList('saved_notes', saved);
+    
+    // Update the UI
+    setState(() {
+      _savedNotes.removeWhere((item) => item.filePath == note.filePath);
+    });
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Note deleted successfully')),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to delete note: $e')),
+    );
+  }
+}
+
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
@@ -644,6 +709,11 @@ void _shareSavedNote(SavedNote note) async {
                                 icon: const Icon(Icons.share),
                                 tooltip: 'Share',
                                 onPressed: () => _shareSavedNote(note),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                tooltip: 'Delete',
+                                onPressed: () => _deleteSavedNote(note),
                               ),
                             ],
                           ),
