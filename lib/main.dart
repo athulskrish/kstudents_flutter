@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'utils/consent_util.dart';
 import 'screens/consent_dialog.dart';
+import 'debug_note_api.dart';
 
 void main() {
   runApp(const MyApp());
@@ -109,6 +110,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const AuthenticationWrapper(),
         '/main': (context) => const MainScreen(),
+        '/debug_notes': (context) => const DebugNoteApiScreen(),
       },
     );
   }

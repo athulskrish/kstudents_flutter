@@ -24,10 +24,21 @@ class Note {
   });
 
   factory Note.fromJson(Map<String, dynamic> json) {
+    // For debugging
+    print('Note.fromJson processing: $json');
+    
+    // Handle the subject field which might come as 'module' or 'subject'
+    String subjectValue = '';
+    if (json.containsKey('module') && json['module'] != null) {
+      subjectValue = json['module'];
+    } else if (json.containsKey('subject') && json['subject'] != null) {
+      subjectValue = json['subject'];
+    }
+    
     return Note(
       id: json['id'],
       title: json['title'],
-      subject: json['module'] ?? json['subject'] ?? '',
+      subject: subjectValue,
       degree: json['degree'],
       degreeName: json['degree_name'],
       semester: json['semester'],
@@ -42,7 +53,8 @@ class Note {
     return {
       'id': id,
       'title': title,
-      'module': subject,
+      'module': subject, // Use module key for compatibility
+      'subject': subject, // Include both for flexibility
       'degree': degree,
       'degree_name': degreeName,
       'semester': semester,

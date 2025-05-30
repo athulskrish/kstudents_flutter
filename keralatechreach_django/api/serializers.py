@@ -42,11 +42,18 @@ class NoteSerializer(serializers.ModelSerializer):
     degree_name = serializers.CharField(source='degree.name', read_only=True)
     university_name = serializers.CharField(source='university.name', read_only=True)
     module = serializers.CharField(source='subject', read_only=True)
+    subject = serializers.CharField(read_only=True)
+    
+    def to_representation(self, instance):
+        print(f"DEBUG - Note instance: id={instance.id}, title={instance.title}, subject={instance.subject}")
+        ret = super().to_representation(instance)
+        print(f"DEBUG - Serialized note: {ret}")
+        return ret
     
     class Meta:
         model = Note
         fields = [
-            'id', 'title', 'module', 'degree',
+            'id', 'title', 'module', 'subject', 'degree',
             'degree_name', 'semester', 'year',
             'university', 'university_name', 'file'
         ]

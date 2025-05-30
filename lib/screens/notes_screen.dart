@@ -451,6 +451,15 @@ void _shareSavedNote(SavedNote note) async {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Study Notes'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.bug_report),
+              tooltip: 'Debug API',
+              onPressed: () {
+                Navigator.pushNamed(context, '/debug_notes');
+              },
+            ),
+          ],
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Online'),

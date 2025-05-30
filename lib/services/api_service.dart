@@ -386,18 +386,40 @@ class ApiService {
       }
 
       AppLogger.info('Fetching notes without auth requirement: $url');
+      print('DEBUG: Calling getNotes with URL: $url');
+      
       final response = await http.get(Uri.parse(url));
+      print('DEBUG: getNotes response status: ${response.statusCode}');
+      
       if (response.statusCode == 200) {
+        print('DEBUG: getNotes response body: ${response.body}');
         List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Note.fromJson(json)).toList();
+        print('DEBUG: getNotes parsed JSON data: $data');
+        
+        final notes = data.map((json) {
+          print('DEBUG: Parsing note JSON: $json');
+          try {
+            final note = Note.fromJson(json);
+            print('DEBUG: Successfully parsed note: id=${note.id}, title=${note.title}, subject=${note.subject}');
+            return note;
+          } catch (e) {
+            print('DEBUG: Error parsing note: $e');
+            rethrow;
+          }
+        }).toList();
+        
+        print('DEBUG: getNotes returning ${notes.length} notes');
+        return notes;
       } else {
         AppLogger.error('Failed to load notes [${response.statusCode}]', response.body);
+        print('DEBUG: getNotes error response: ${response.body}');
         throw AppException('Failed to load notes',
           details: 'Status code: ${response.statusCode}',
           type: AppExceptionType.server);
       }
     } catch (e) {
       AppLogger.error('Error fetching notes', e);
+      print('DEBUG: getNotes exception: $e');
       throw AppException('Failed to load notes', 
         details: e.toString(), 
         type: AppExceptionType.unknown);

@@ -1,0 +1,1 @@
+"GET /api/notes/?degree=1&semester=1&year=2024&university=1 HTTP/1.1" 200 2
