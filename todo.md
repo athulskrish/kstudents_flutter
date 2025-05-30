@@ -2,7 +2,8 @@
 
 from todo.md select one task and  do it. Always update todo.md. and write it on documentation.md after completing the task. and then iterate.
 the backend is at keralatechreach_django. change it if necessary.
-do not write command prompts as it brings errors skip it and tell me at last. i will tell if there is an error.
+the documentation of backend is available at keralatechreach_django/django_doc.md if any changes are made to the backend update it.
+<!-- do not write command prompts as it brings errors skip it and tell me at last. i will tell if there is an error. -->
 
 
 
