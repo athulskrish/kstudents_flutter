@@ -1,0 +1,129 @@
+{% extends 'admindashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">{{ title }}</h6>
+          </div>
+        </div>
+        <div class="card-body px-0 pb-2">
+          <div class="container">
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Title</label>
+                    {{ form.title }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Module</label>
+                    {{ form.module }}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="input-group input-group-static my-3">
+                    <label>University</label>
+                    {{ form.university }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="input-group input-group-static my-3">
+                    <label>Degree</label>
+                    {{ form.degree }}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Semester</label>
+                    {{ form.semester }}
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="input-group input-group-outline my-3">
+                    <label class="form-label">Year</label>
+                    {{ form.year }}
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-check form-switch ps-0 my-4">
+                    {{ form.is_published }}
+                    <label class="form-check-label ms-3" for="{{ form.is_published.id_for_label }}">Published</label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="input-group input-group-static my-3">
+                    <label>Note File</label>
+                    {{ form.file }}
+                    {% if note and note.file %}
+                      <p class="mt-2 mb-0">Current file: <a href="{{ note.file.url }}" target="_blank">{{ note.file.name }}</a></p>
+                    {% endif %}
+                    <small class="form-text text-muted">Upload PDF, Word, or other document files.</small>
+                  </div>
+                </div>
+              </div>
+              <div class="row mt-4">
+                <div class="col-12 text-end">
+                  <a href="{% url 'admindashboard:note_list' %}" class="btn btn-outline-primary">Cancel</a>
+                  <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+  $(document).ready(function() {
+    // Initialize select2 for university and degree
+    $('#id_university').select2({
+      placeholder: 'Select University',
+      width: '100%'
+    });
+    $('#id_degree').select2({
+      placeholder: 'Select Degree',
+      width: '100%'
+    });
+
+    // Handle university change to filter degrees
+    $('#id_university').on('change', function() {
+      var universityId = $(this).val();
+      if (universityId) {
+        $.ajax({
+          url: "{% url 'api:get_degrees_by_university' %}",
+          data: { 'university_id': universityId },
+          success: function(data) {
+            $('#id_degree').empty();
+            $.each(data, function(index, degree) {
+              $('#id_degree').append($('<option></option>').attr('value', degree.id).text(degree.name));
+            });
+            $('#id_degree').trigger('change');
+          }
+        });
+      } else {
+        $('#id_degree').empty();
+      }
+    });
+  });
+</script>
+{% endblock %} 

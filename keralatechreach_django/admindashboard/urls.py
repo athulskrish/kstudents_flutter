@@ -5,7 +5,8 @@ from .views.academic import (
     question_list, question_create, question_edit, question_delete,
     university_list, university_create, university_edit, university_delete,
     degree_list, degree_create, degree_edit, degree_delete,
-    exam_list, exam_create, exam_edit, exam_delete
+    exam_list, exam_create, exam_edit, exam_delete,
+    note_list, note_create, note_edit, note_delete
 )
 from .views.content import (
     news_list, news_create, news_edit, news_delete,
@@ -75,6 +76,12 @@ urlpatterns = [
     path('questions/create/', question_create, name='question_create'),
     path('questions/<int:pk>/edit/', question_edit, name='question_edit'),
     path('questions/<int:pk>/delete/', question_delete, name='question_delete'),
+    
+    # Note URLs
+    path('notes/', note_list, name='note_list'),
+    path('notes/create/', note_create, name='note_create'),
+    path('notes/<int:pk>/edit/', note_edit, name='note_edit'),
+    path('notes/<int:pk>/delete/', note_delete, name='note_delete'),
     
     # University URLs
     path('universities/', university_list, name='university_list'),

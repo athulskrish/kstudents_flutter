@@ -56,6 +56,14 @@
           </a>
         </li>
         <li class="nav-item mb-2">
+          <a class="nav-link {% if 'note' in request.resolver_match.url_name %}active bg-gradient-dark text-white{% else %}text-dark{% endif %}" href="{% url 'admindashboard:note_list' %}">
+            <div class="text-center me-2 d-flex align-items-center justify-content-center">
+              <i class="material-symbols-rounded opacity-10">description</i>
+            </div>
+            <span class="nav-link-text ms-1">Notes</span>
+          </a>
+        </li>
+        <li class="nav-item mb-2">
           <a class="nav-link {% if 'exam' in request.resolver_match.url_name %}active bg-gradient-dark text-white{% else %}text-dark{% endif %}" href="{% url 'admindashboard:exam_list' %}">
             <div class="text-center me-2 d-flex align-items-center justify-content-center">
               <i class="material-symbols-rounded opacity-10">school</i>

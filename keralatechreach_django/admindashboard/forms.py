@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from .models import (
     QuestionPaper, University, Degree, Exam, Job, District,
     Initiative, EventCategory, Event, News, ContactMessage,
-    Gallery, SiteSetting, UserProfile, AdSettings
+    Gallery, SiteSetting, UserProfile, AdSettings, Note
 )
 from django.utils.text import slugify
 
@@ -52,6 +52,21 @@ class ExamForm(forms.ModelForm):
             'admission_year': forms.NumberInput(attrs={'class': 'form-control'}),
             'university': forms.Select(attrs={'class': 'form-select'}),
             'degree_name': forms.Select(attrs={'class': 'form-select'}),
+            'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class NoteForm(forms.ModelForm):
+    class Meta:
+        model = Note
+        fields = ['title', 'module', 'degree', 'semester', 'year', 'university', 'file', 'is_published']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'module': forms.TextInput(attrs={'class': 'form-control'}),
+            'degree': forms.Select(attrs={'class': 'form-select'}),
+            'semester': forms.NumberInput(attrs={'class': 'form-control'}),
+            'year': forms.NumberInput(attrs={'class': 'form-control'}),
+            'university': forms.Select(attrs={'class': 'form-select'}),
+            'file': forms.FileInput(attrs={'class': 'form-control'}),
             'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 

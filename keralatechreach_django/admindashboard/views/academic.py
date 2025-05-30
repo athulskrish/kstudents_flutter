@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from ..models import QuestionPaper, University, Degree, Exam
-from ..forms import QuestionPaperForm, UniversityForm, DegreeForm, ExamForm
+from ..models import QuestionPaper, University, Degree, Exam, Note
+from ..forms import QuestionPaperForm, UniversityForm, DegreeForm, ExamForm, NoteForm
 from .activity_log import log_activity
 
 # QuestionPaper Views
@@ -257,4 +257,76 @@ def exam_delete(request, pk):
         )
         messages.success(request, 'Exam deleted successfully.')
         return redirect('admindashboard:exam_list')
-    return render(request, 'admindashboard/exam/delete.html', {'exam': exam}) 
+    return render(request, 'admindashboard/exam/delete.html', {'exam': exam})
+
+# Note Views
+@login_required
+def note_list(request):
+    notes = Note.objects.all().order_by('-updated_at')
+    context = {
+        'notes': notes,
+        'note_table': render(request, 'admindashboard/academic/note_table.html', {'notes': notes}).content.decode('utf-8')
+    }
+    return render(request, 'admindashboard/academic/note_list.html', context)
+
+@login_required
+def note_create(request):
+    if request.method == 'POST':
+        form = NoteForm(request.POST, request.FILES)
+        if form.is_valid():
+            note = form.save(commit=False)
+            note.uploaded_by = request.user.userprofile
+            note.save()
+            log_activity(
+                user=request.user,
+                action="Created note",
+                details=f"Created note for {note.title} - {note.degree}",
+                request=request
+            )
+            messages.success(request, 'Note created successfully.')
+            return redirect('admindashboard:note_list')
+    else:
+        form = NoteForm()
+    
+    return render(request, 'admindashboard/academic/note_form.html', {
+        'form': form,
+        'title': 'Add Note'
+    })
+
+@login_required
+def note_edit(request, pk):
+    note = get_object_or_404(Note, pk=pk)
+    if request.method == 'POST':
+        form = NoteForm(request.POST, request.FILES, instance=note)
+        if form.is_valid():
+            form.save()
+            log_activity(
+                user=request.user,
+                action="Updated note",
+                details=f"Updated note for {note.title} - {note.degree}",
+                request=request
+            )
+            messages.success(request, 'Note updated successfully.')
+            return redirect('admindashboard:note_list')
+    else:
+        form = NoteForm(instance=note)
+    
+    return render(request, 'admindashboard/academic/note_form.html', {
+        'form': form,
+        'title': 'Edit Note',
+        'note': note
+    })
+
+@login_required
+def note_delete(request, pk):
+    note = get_object_or_404(Note, pk=pk)
+    details = f"Deleted note for {note.title} - {note.degree}"
+    note.delete()
+    log_activity(
+        user=request.user,
+        action="Deleted note",
+        details=details,
+        request=request
+    )
+    messages.success(request, 'Note deleted successfully.')
+    return redirect('admindashboard:note_list') 

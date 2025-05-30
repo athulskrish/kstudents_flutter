@@ -159,3 +159,21 @@ Potential areas for enhancement:
 - More educational resource types
 - Improved search functionality
 - Social media integration 
+
+
+I've successfully implemented a Notes option in the admin dashboard's sidebar, positioned right after the Questions option. The implementation includes:
+Added note-related view functions (note_list, note_create, note_edit, note_delete) in admindashboard/views/academic.py
+Added the NoteForm class in admindashboard/forms.py
+Added the note-related URL routes in admindashboard/urls.py
+Added the Notes link in the sidebar navigation in base.html
+Created the following templates:
+note_list.html: Main page for viewing all notes
+note_form.html: Form for adding and editing notes
+note_table.html: Partial template for rendering the notes table
+These changes allow administrators to:
+View a list of all notes
+Add new notes
+Edit existing notes
+Delete notes
+Download note files
+The notes feature follows the same pattern as the existing question papers feature, maintaining consistency in the UI and functionality.
