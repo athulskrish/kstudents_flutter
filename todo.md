@@ -178,3 +178,5 @@ Apply these principles across all features:
 // Added unit tests for ApiService and JobListProvider in the test/ directory. 
 
 // Fixed authentication issue with API endpoints. Modified UniversityViewSet, DegreeViewSet, and other ViewSets to use [AllowAny] permission in the Django API, and updated the Flutter app's ApiService to bypass authentication for basic data retrieval methods (getUniversities, getDegrees, getQuestionPapers, getNotes). 
+
+// Optimized API calls in question papers and notes screens to reduce unnecessary network requests. Added helper methods (_loadQuestionPapersIfReady and _loadNotesIfReady) that trigger API calls only when all required filters (university, degree, semester) are selected, with additional calls when year is changed. This improves performance and reduces data usage while maintaining the same functionality. 

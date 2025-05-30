@@ -322,3 +322,29 @@
 - Changed permission_classes in Django API ViewSets from `IsAuthenticatedOrReadOnly` to `AllowAny`.
 - Updated Flutter ApiService methods to make direct HTTP requests instead of using the authenticated _getList method.
 - Added proper error handling and logging to the updated methods.
+
+# Optimized: API Calls for Question Papers and Notes
+
+## Problem
+- The app was making unnecessary API calls after every selection change in dropdowns (university, degree, semester, year).
+- This resulted in excessive network requests and potential performance issues.
+
+## Solution
+- Implemented a smarter approach to trigger API calls only when essential filters are set.
+- Created helper methods (`_loadQuestionPapersIfReady()` and `_loadNotesIfReady()`) that check if all required filters are selected before making API calls.
+
+## Implementation Details
+- Modified question_papers_screen.dart and notes_screen.dart to include new helper methods.
+- Updated the dropdown `onChanged` handlers to use the new helper methods.
+- API calls for question papers and notes now occur only when:
+  1. University, degree, and semester are all selected (minimum required filters)
+  2. Year is selected or changed (after the required filters are already set)
+
+## Benefits
+- Reduced number of API calls, resulting in:
+  - Lower server load
+  - Reduced mobile data usage
+  - Better app performance
+  - Improved user experience with fewer loading indicators
+- More predictable loading behavior for users
+- Maintained functionality while optimizing network usage

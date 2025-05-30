@@ -336,6 +336,13 @@ void _shareSavedNote(SavedNote note) async {
     _viewNoteInApp(note);
   }
 
+  Future<void> _loadNotesIfReady() async {
+    // Only load notes when all required filters are selected
+    if (_selectedUniversity != null && _selectedDegree != null && _selectedSemester != null) {
+      _loadNotes();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -412,7 +419,7 @@ void _shareSavedNote(SavedNote note) async {
                               }).toList(),
                               onChanged: (degree) {
                                 setState(() => _selectedDegree = degree);
-                                _loadNotes();
+                                _loadNotesIfReady();
                               },
                             ),
                           ),
@@ -436,7 +443,7 @@ void _shareSavedNote(SavedNote note) async {
                               }),
                               onChanged: (semester) {
                                 setState(() => _selectedSemester = semester);
-                                _loadNotes();
+                                _loadNotesIfReady();
                               },
                             ),
                           ),
@@ -457,7 +464,10 @@ void _shareSavedNote(SavedNote note) async {
                               }),
                               onChanged: (year) {
                                 setState(() => _selectedYear = year);
-                                _loadNotes();
+                                // Always make API call when year is selected since all other filters are already set
+                                if (_selectedUniversity != null && _selectedDegree != null && _selectedSemester != null) {
+                                  _loadNotes();
+                                }
                               },
                             ),
                           ),

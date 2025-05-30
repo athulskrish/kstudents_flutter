@@ -326,6 +326,13 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
     }
   }
 
+  Future<void> _loadQuestionPapersIfReady() async {
+    // Only load question papers when all required filters are selected
+    if (_selectedUniversity != null && _selectedDegree != null && _selectedSemester != null) {
+      _loadQuestionPapers();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -402,7 +409,7 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                               }).toList(),
                               onChanged: (degree) {
                                 setState(() => _selectedDegree = degree);
-                                _loadQuestionPapers();
+                                _loadQuestionPapersIfReady();
                               },
                             ),
                           ),
@@ -426,7 +433,7 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                               }),
                               onChanged: (semester) {
                                 setState(() => _selectedSemester = semester);
-                                _loadQuestionPapers();
+                                _loadQuestionPapersIfReady();
                               },
                             ),
                           ),
@@ -447,7 +454,10 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                               }),
                               onChanged: (year) {
                                 setState(() => _selectedYear = year);
-                                _loadQuestionPapers();
+                                // Always make API call when year is selected since all other filters are already set
+                                if (_selectedUniversity != null && _selectedDegree != null && _selectedSemester != null) {
+                                  _loadQuestionPapers();
+                                }
                               },
                             ),
                           ),
