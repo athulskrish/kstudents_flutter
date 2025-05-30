@@ -112,7 +112,7 @@ class HomeScreen extends StatelessWidget {
             () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const NotesScreen(),
+                builder: (context) => const NotesScreen(showBottomBar: false),
               ),
             ),
           ),

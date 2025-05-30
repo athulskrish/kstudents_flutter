@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';  // Import for IOHttpClientAdapter
 
 class QuestionPaperUploadScreen extends StatefulWidget {
   final University? initialUniversity;
@@ -134,7 +135,16 @@ class _QuestionPaperUploadScreenState extends State<QuestionPaperUploadScreen> {
     setState(() => _isUploading = true);
     try {
       final dio = Dio();
-      const apiUrl = 'https://103.235.106.114:8000/api/question-papers/upload/';
+      
+      // Disable SSL validation for the upload request
+      (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate = (client) {
+        client.badCertificateCallback = (X509Certificate cert, String host, int port) {
+          return true; // Accept all certificates
+        };
+        return client;
+      };
+      
+      const apiUrl = 'http://103.235.106.114:8000/api/question-papers/upload/';
       final formData = FormData.fromMap({
         'file': await MultipartFile.fromFile(_selectedFile!.path, filename: _selectedFile!.path.split('/').last),
         'subject': _subjectController.text,

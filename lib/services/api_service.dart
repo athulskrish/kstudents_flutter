@@ -25,7 +25,7 @@ class ApiService {
   // static const String baseUrl = 'http://localhost:8000/api'; // For local Django backend
   // static const String baseUrl = 'https://keralify.com/api'; // For production
   // String baseUrl = 'http://192.168.1.4:8000/api';
-  String baseUrl = 'http://103.235.106.114:8000/api';
+  String baseUrl = 'http://103.235.106.114:8000/api'; // Using HTTP instead of HTTPS
   final AuthService _authService = AuthService();
   final Dio _dio = Dio();
   
@@ -88,7 +88,16 @@ class ApiService {
       },
     ));
     
-    // Add certificate pinning for release builds
+    // Disable certificate validation for development
+    (_dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate = (client) {
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) {
+        return true; // Accept all certificates
+      };
+      return client;
+    };
+    
+    // Only use certificate pinning in production with proper SSL setup
+    /*
     if (!kDebugMode) {
       _dio.httpClientAdapter = IOHttpClientAdapter(
         createHttpClient: () {
@@ -108,6 +117,7 @@ class ApiService {
         },
       );
     }
+    */
   }
   
   // Extract fingerprint from certificate

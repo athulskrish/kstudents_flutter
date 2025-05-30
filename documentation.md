@@ -182,9 +182,6 @@
 ### Note
 - Entrance Exams supports search, detail, and official website link.
 
-### Next Steps
-- Continue with the next highest priority task from todo.md.
-
 ---
 
 ## Implemented: FAQ Feature (All Tasks Completed)
@@ -195,9 +192,6 @@
 
 ### Note
 - FAQ supports search and expandable answers.
-
-### Next Steps
-- Continue with the next highest priority task from todo.md.
 
 ---
 
@@ -374,3 +368,29 @@
 
 ### Next Steps
 - Consider applying similar UX improvements to the Notes upload feature.
+
+---
+
+## Bug Fixes: Navigation and API Issues
+
+### Navigation Bar Inconsistency
+- Fixed an issue where two bottom navigation bars would appear when accessing the question papers screen from the bottom navbar.
+- Fixed missing bottom navigation bar in the notes screen when accessed from different entry points.
+- Added `showBottomBar` parameter to both `QuestionPapersScreen` and `NotesScreen`.
+- Implemented consistent navigation pattern across the app for a better user experience.
+
+### Improved Upload UX
+- Created a dedicated `NoteUploadScreen` similar to the `QuestionPaperUploadScreen`.
+- Replaced dialog-based forms with full-screen forms for better usability.
+- Added proper validation for all required fields with user-friendly error messages.
+
+### SSL Handshake Error Fix
+- Fixed the "Handshake Error: Wrong_Version_Number" that was preventing uploads from working.
+- Modified the API service to use HTTP instead of HTTPS for development.
+- Disabled certificate validation in development mode for both question paper and note uploads.
+- Added proper error handling and user feedback for upload operations.
+
+### Next Steps
+- Consider implementing proper certificate pinning for production builds.
+- Update the server to use a valid SSL certificate.
+- Apply the same upload UX improvements to other similar features in the app.

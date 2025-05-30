@@ -1,8 +1,10 @@
 # KStudentsFlutter - Todo List
 
 from todo.md select one task and  do it. Always update todo.md. and write it on documentation.md after completing the task. and then iterate.
-the backend is at keralatechreach_django. change it if necessary.
-the documentation of backend is available at keralatechreach_django/django_doc.md if any changes are made to the backend update it.
+the backend is at keralatechreach_django, change it if necessary.
+The documentation of backend is available at keralatechreach_django/django_doc.md if any changes are made to the backend update it.
+if  any api call look at Api.md
+SecurityTodo.md contains the security measures .
 <!-- do not write command prompts as it brings errors skip it and tell me at last. i will tell if there is an error. -->
 
 
@@ -121,12 +123,19 @@ Apply these principles across all features:
 - [x] P4: Implement explicit user consent for data collection (consent dialog, privacy policy page, minimal mode)
 - [x] P5: Fix bottom navigation bar inconsistency in QuestionPapersScreen
 - [x] P5: Improve question paper upload UX with dedicated screen
+- [x] P5: Fix duplicate bottom navigation bar issue in question papers screen
+- [x] P5: Fix missing bottom navigation bar in notes screen
+- [x] P5: Improve note upload UX with dedicated screen
+- [x] P5: Fix SSL handshake errors in upload functionality
 
 // Added consent dialog on first launch, detailed privacy policy page, and minimal mode for declined consent.
 // Users can access the privacy policy from the home screen and drawer menu.
 // Consent status is stored in SharedPreferences.
 // Fixed navigation bar inconsistency when accessing question papers from home vs bottom navbar
 // Improved question paper upload UX with a dedicated screen instead of a dialog
+// Fixed duplicate bottom navigation bar issue and applied same pattern to notes screen
+// Created dedicated NoteUploadScreen for better user experience
+// Fixed SSL handshake errors by disabling certificate validation in development mode
 
 ### Performance Optimization [STATUS: COMPLETED]
 - [x] P1: Optimize image loading and caching

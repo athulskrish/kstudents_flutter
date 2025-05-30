@@ -276,7 +276,7 @@ class _MainScreenState extends State<MainScreen> {
     QuestionPapersScreen(showBottomBar: true),
     EventsScreen(),
     JobListScreen(),
-    NotesScreen(),
+    NotesScreen(showBottomBar: true),
   ];
 
   void _onItemTapped(int index) {

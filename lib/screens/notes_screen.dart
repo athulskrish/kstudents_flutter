@@ -12,9 +12,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'pdf_viewer_screen.dart';
 import 'dart:io';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'note_upload_screen.dart';
 
 class NotesScreen extends StatefulWidget {
-  const NotesScreen({super.key});
+  final bool showBottomBar;
+  
+  const NotesScreen({
+    super.key,
+    this.showBottomBar = true,
+  });
 
   @override
   State<NotesScreen> createState() => _NotesScreenState();
@@ -178,230 +184,23 @@ class _NotesScreenState extends State<NotesScreen> with SingleTickerProviderStat
   }
 
   Future<void> _pickAndUploadPDF() async {
-    // Check if all required fields are selected
-    bool allFieldsSelected = _selectedUniversity != null && 
-                            _selectedDegree != null && 
-                            _selectedSemester != null && 
-                            _selectedYear != null;
-    
-    // Prepare variables for dialog
-    String noteTitle = '';
-    String noteSubject = '';
-    
-    // If not all fields are selected, show dialog
-    if (!allFieldsSelected) {
-      final result = await showDialog<Map<String, dynamic>>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Upload Study Note'),
-          content: StatefulBuilder(
-            builder: (context, setState) {
-              University? tempUniversity = _selectedUniversity;
-              Degree? tempDegree = _selectedDegree;
-              int? tempSemester = _selectedSemester;
-              int? tempYear = _selectedYear;
-              List<Degree> tempDegrees = _degrees;
-              
-              void loadTempDegrees() async {
-                if (tempUniversity == null) return;
-                try {
-                  final degrees = await _apiService.getDegrees(universityId: tempUniversity!.id);
-                  setState(() {
-                    tempDegrees = degrees;
-                  });
-                } catch (e) {
-                  // Ignore errors in the dialog
-                }
-              }
-              
-              return SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Title',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (value) {
-                        noteTitle = value;
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Subject',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (value) {
-                        noteSubject = value;
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    DropdownButtonFormField<University>(
-                      decoration: const InputDecoration(
-                        labelText: 'University',
-                        border: OutlineInputBorder(),
-                      ),
-                      value: tempUniversity,
-                      items: _universities.map((university) {
-                        return DropdownMenuItem<University>(
-                          value: university,
-                          child: Text(university.name),
-                        );
-                      }).toList(),
-                      onChanged: (university) {
-                        setState(() {
-                          tempUniversity = university;
-                          tempDegree = null;
-                        });
-                        loadTempDegrees();
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    DropdownButtonFormField<Degree>(
-                      decoration: const InputDecoration(
-                        labelText: 'Degree',
-                        border: OutlineInputBorder(),
-                      ),
-                      value: tempDegree,
-                      items: tempDegrees.map((degree) {
-                        return DropdownMenuItem<Degree>(
-                          value: degree,
-                          child: Text(degree.name),
-                        );
-                      }).toList(),
-                      onChanged: (degree) {
-                        setState(() {
-                          tempDegree = degree;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    DropdownButtonFormField<int>(
-                      decoration: const InputDecoration(
-                        labelText: 'Semester',
-                        border: OutlineInputBorder(),
-                      ),
-                      value: tempSemester,
-                      items: [1, 2, 3, 4, 5, 6, 7, 8].map((semester) {
-                        return DropdownMenuItem<int>(
-                          value: semester,
-                          child: Text('Semester $semester'),
-                        );
-                      }).toList(),
-                      onChanged: (semester) {
-                        setState(() {
-                          tempSemester = semester;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    DropdownButtonFormField<int>(
-                      decoration: const InputDecoration(
-                        labelText: 'Year',
-                        border: OutlineInputBorder(),
-                      ),
-                      value: tempYear,
-                      items: List.generate(10, (index) => DateTime.now().year - index).map((year) {
-                        return DropdownMenuItem<int>(
-                          value: year,
-                          child: Text(year.toString()),
-                        );
-                      }).toList(),
-                      onChanged: (year) {
-                        setState(() {
-                          tempYear = year;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                // Return the selected values
-                Navigator.of(context).pop({
-                  'university': _selectedUniversity,
-                  'degree': _selectedDegree,
-                  'semester': _selectedSemester,
-                  'year': _selectedYear,
-                  'title': noteTitle,
-                  'subject': noteSubject,
-                });
-              },
-              child: Text('Upload'),
-            ),
-          ],
+    // Navigate to upload screen instead of showing dialog
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NoteUploadScreen(
+          initialUniversity: _selectedUniversity,
+          initialDegree: _selectedDegree,
+          initialSemester: _selectedSemester,
+          initialYear: _selectedYear,
         ),
-      );
-      
-      // If dialog was cancelled
-      if (result == null) {
-        return;
-      }
-      
-      // Update selected values if returned from dialog
-      if (result['university'] != null) _selectedUniversity = result['university'];
-      if (result['degree'] != null) _selectedDegree = result['degree'];
-      if (result['semester'] != null) _selectedSemester = result['semester'];
-      if (result['year'] != null) _selectedYear = result['year'];
-      noteTitle = result['title'] ?? '';
-      noteSubject = result['subject'] ?? '';
-      
-      // Save selections
-      _saveUserSelections();
-    }
-    
-    // Now pick and upload the file
-    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
-    if (result != null && result.files.single.path != null) {
-      File file = File(result.files.single.path!);
-      await _uploadPDF(file,
-        title: noteTitle.isNotEmpty ? noteTitle : (_searchController.text.isNotEmpty ? _searchController.text : 'Untitled'),
-        subject: noteSubject.isNotEmpty ? noteSubject : '',
-        degree: _selectedDegree?.id,
-        semester: _selectedSemester,
-        year: _selectedYear,
-        university: _selectedUniversity?.id,
-      );
-    }
-  }
-
-  Future<void> _uploadPDF(File file, {String? title, String? subject, int? degree, int? semester, int? year, int? university}) async {
-    setState(() => _isUploading = true);
-    try {
-      final dio = Dio();
-      const apiUrl = 'https://103.235.106.114:8000/api/notes/upload/';
-      final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(file.path, filename: file.path.split('/').last),
-        if (title != null) 'title': title,
-        if (subject != null) 'module': subject,
-        if (degree != null) 'degree': degree,
-        if (semester != null) 'semester': semester,
-        if (year != null) 'year': year,
-        if (university != null) 'university': university,
-      });
-      final response = await dio.post(apiUrl, data: formData);
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        setState(() => _isUploading = false);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Note uploaded successfully!')));
+      ),
+    ).then((result) {
+      // If we got a true result, refresh the notes list
+      if (result == true) {
         _loadNotes();
-      } else {
-        setState(() => _isUploading = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: ${response.statusMessage}')));
       }
-    } catch (e) {
-      setState(() => _isUploading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
-    }
+    });
   }
 
   void _viewNoteInApp(Note note) {
@@ -728,7 +527,7 @@ void _shareSavedNote(SavedNote note) async {
                                 border: OutlineInputBorder(),
                               ),
                               items: [1, 2, 3, 4, 5, 6, 7, 8].map((semester) {
-                                return DropdownMenuItem(
+                                return DropdownMenuItem<int>(
                                   value: semester,
                                   child: Text('Semester $semester'),
                                 );
@@ -857,6 +656,41 @@ void _shareSavedNote(SavedNote note) async {
                 : const SizedBox.shrink();
           },
         ),
+        // Only show bottom navigation bar if showBottomBar is true
+        bottomNavigationBar: widget.showBottomBar
+            ? BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                currentIndex: 4, // Set to 4 for Notes
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.home),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.description),
+                    label: 'Questions',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.event),
+                    label: 'Events',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.work),
+                    label: 'Jobs',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.note),
+                    label: 'Notes',
+                  ),
+                ],
+                onTap: (index) {
+                  if (index != 4) { // If not Notes tab
+                    Navigator.pop(context);
+                    // Let parent handle navigation
+                  }
+                },
+              )
+            : null,
       ),
     );
   }
