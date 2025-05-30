@@ -1,5 +1,5 @@
 # Kerala Tech Reach - Django Project Documentation
-
+changes in the Backend should be updated here.
 ## Project Overview
 
 This is a Django-based web application for Kerala Tech Reach, a platform that provides educational resources, news, events, and other services for students. The application consists of multiple modules including an admin dashboard, API endpoints, and public-facing pages.

@@ -262,7 +262,7 @@ def exam_delete(request, pk):
 # Note Views
 @login_required
 def note_list(request):
-    notes = Note.objects.all().order_by('-updated_at')
+    notes = Note.objects.all().order_by('-uploaded_at')
     context = {
         'notes': notes,
         'note_table': render(request, 'admindashboard/academic/note_table.html', {'notes': notes}).content.decode('utf-8')
