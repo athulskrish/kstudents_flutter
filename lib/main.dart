@@ -105,7 +105,11 @@ class MyApp extends StatelessWidget {
         ),
       ),
       themeMode: ThemeMode.system,
-      home: const AuthenticationWrapper(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const AuthenticationWrapper(),
+        '/main': (context) => const MainScreen(),
+      },
     );
   }
 }
@@ -131,34 +135,71 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   }
 
   Future<void> _checkConsentAndAuth() async {
-    final consentStatus = await ConsentUtil.getConsentStatus();
-    if (consentStatus == ConsentStatus.unknown) {
-      setState(() {
-        _consentChecked = true;
-        _consentStatus = ConsentStatus.unknown;
-        _isLoading = false;
-      });
-      return;
+    try {
+      final consentStatus = await ConsentUtil.getConsentStatus();
+      if (consentStatus == ConsentStatus.unknown) {
+        if (mounted) {
+          setState(() {
+            _consentChecked = true;
+            _consentStatus = ConsentStatus.unknown;
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+      
+      // Check authentication status
+      bool isAuth = false;
+      try {
+        isAuth = await _authService.isAuthenticated();
+        print('Authentication check result: $isAuth');
+      } catch (e) {
+        print('Error checking authentication: ${e.toString()}');
+        isAuth = false;
+      }
+      
+      if (mounted) {
+        setState(() {
+          _consentChecked = true;
+          _consentStatus = consentStatus;
+          _isAuthenticated = isAuth;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error in _checkConsentAndAuth: ${e.toString()}');
+      if (mounted) {
+        setState(() {
+          _consentChecked = true;
+          _consentStatus = ConsentStatus.unknown;
+          _isAuthenticated = false;
+          _isLoading = false;
+        });
+      }
     }
-    await _checkAuthenticationStatus();
-    setState(() {
-      _consentChecked = true;
-      _consentStatus = consentStatus;
-    });
   }
 
   Future<void> _checkAuthenticationStatus() async {
     try {
+      // Get authentication status before setting state
       final isAuthenticated = await _authService.isAuthenticated();
-      setState(() {
-        _isAuthenticated = isAuthenticated;
-        _isLoading = false;
-      });
+      print('_checkAuthenticationStatus result: $isAuthenticated');
+      
+      // Make sure the component is still mounted before updating state
+      if (mounted) {
+        setState(() {
+          _isAuthenticated = isAuthenticated;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isAuthenticated = false;
-        _isLoading = false;
-      });
+      print('Error in _checkAuthenticationStatus: ${e.toString()}');
+      if (mounted) {
+        setState(() {
+          _isAuthenticated = false;
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -201,13 +242,22 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
       // Minimal functionality: show privacy policy only
       return const PrivacyScreen();
     }
-    return _isAuthenticated
-        ? const MainScreen()
-        : LoginScreen(
-            onLoginSuccess: () async {
-              await _checkAuthenticationStatus();
-            },
-          );
+    
+    // Add debug log for authentication state
+    print('Authentication state: $_isAuthenticated');
+    
+    // Use a different approach to handle navigation between screens
+    if (_isAuthenticated) {
+      // Returning a stateful widget directly may help prevent rebuilding issues
+      return const MainScreen();
+    } else {
+      return LoginScreen(
+        onLoginSuccess: () async {
+          await _checkAuthenticationStatus();
+          // No navigation needed here - the wrapper will handle it
+        },
+      );
+    }
   }
 }
 

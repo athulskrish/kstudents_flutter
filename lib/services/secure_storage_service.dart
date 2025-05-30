@@ -20,25 +20,53 @@ class SecureStorageService {
     ),
   );
 
-  // Save authentication data securely
+  // Save authentication data securely with retry mechanism
   Future<void> saveAuthData(AuthResponse authResponse) async {
     try {
-      await _storage.write(key: _tokenKey, value: authResponse.accessToken);
-      await _storage.write(key: _refreshTokenKey, value: authResponse.refreshToken);
+      // Use a try-catch for each operation to ensure they complete
+      try {
+        await _storage.write(key: _tokenKey, value: authResponse.accessToken);
+      } catch (e) {
+        AppLogger.warning('Failed to save access token, retrying... ${e.toString()}');
+        await _storage.write(key: _tokenKey, value: authResponse.accessToken);
+      }
+      
+      try {
+        await _storage.write(key: _refreshTokenKey, value: authResponse.refreshToken);
+      } catch (e) {
+        AppLogger.warning('Failed to save refresh token, retrying... ${e.toString()}');
+        await _storage.write(key: _refreshTokenKey, value: authResponse.refreshToken);
+      }
       
       // Set token expiry (typically 1 hour from now for JWT)
       final expiry = DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch.toString();
-      await _storage.write(key: _tokenExpiryKey, value: expiry);
+      try {
+        await _storage.write(key: _tokenExpiryKey, value: expiry);
+      } catch (e) {
+        AppLogger.warning('Failed to save token expiry, retrying... ${e.toString()}');
+        await _storage.write(key: _tokenExpiryKey, value: expiry);
+      }
       
       if (authResponse.user != null) {
-        await _storage.write(
-          key: _userKey, 
-          value: json.encode(authResponse.user!.toJson())
-        );
+        final userData = json.encode(authResponse.user!.toJson());
+        try {
+          await _storage.write(key: _userKey, value: userData);
+        } catch (e) {
+          AppLogger.warning('Failed to save user data, retrying... ${e.toString()}');
+          await _storage.write(key: _userKey, value: userData);
+        }
       }
+      
+      // Double-check that the token was saved
+      final savedToken = await getAccessToken();
+      if (savedToken == null) {
+        AppLogger.warning('Token was not saved properly despite attempts');
+        throw Exception('Failed to save authentication data');
+      }
+      
       AppLogger.info('Auth data saved securely');
     } catch (e) {
-      AppLogger.error('Failed to save auth data securely', e);
+      AppLogger.error('Failed to save auth data securely after retries: ${e.toString()}');
       rethrow;
     }
   }
@@ -46,8 +74,11 @@ class SecureStorageService {
   // Get access token
   Future<String?> getAccessToken() async {
     try {
-      return await _storage.read(key: _tokenKey);
+      final token = await _storage.read(key: _tokenKey);
+      print("SecureStorage: Retrieved token: ${token?.isNotEmpty}");
+      return token;
     } catch (e) {
+      print("SecureStorage: Error getting access token: ${e.toString()}");
       AppLogger.error('Failed to get access token', e);
       return null;
     }
@@ -121,12 +152,22 @@ class SecureStorageService {
   // Check if user is authenticated with valid token
   Future<bool> isAuthenticated() async {
     try {
+      print("SecureStorage: Checking if authenticated");
       final token = await getAccessToken();
-      if (token == null) return false;
+      print("SecureStorage: Access token found: ${token != null}");
+      
+      if (token == null) {
+        AppLogger.debug('Authentication check: No token found');
+        return false;
+      }
       
       // Check if token is expired
-      return !(await isTokenExpired());
+      final isExpired = await isTokenExpired();
+      print("SecureStorage: Token expired check: $isExpired");
+      AppLogger.debug('Authentication check: Token expired: $isExpired');
+      return !isExpired;
     } catch (e) {
+      print("SecureStorage: Error checking authentication: ${e.toString()}");
       AppLogger.error('Authentication check failed', e);
       return false;
     }

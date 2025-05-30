@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'register_screen.dart';
+import '../main.dart';
 
 class LoginScreen extends StatefulWidget {
   final Future<void> Function()? onLoginSuccess;
@@ -39,15 +40,37 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
       if (mounted) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login successful'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
         if (widget.onLoginSuccess != null) {
           await widget.onLoginSuccess!();
         }
-        Navigator.pop(context, true);
+        
+        // Replace current navigation approach with a different one that works better
+        if (mounted) {
+          // Navigate to the main screen using a named route
+          Navigator.of(context).pushReplacementNamed('/main');
+        }
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+        });
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login failed: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {

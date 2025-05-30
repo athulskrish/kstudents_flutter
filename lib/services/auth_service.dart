@@ -24,7 +24,14 @@ class AuthService {
     AppLogger.debug('Login response [${response.statusCode}] for $username');
     if (response.statusCode == 200) {
       final authResponse = AuthResponse.fromJson(json.decode(response.body));
+      
+      // Explicitly await all storage operations to ensure they complete
       await _secureStorage.saveAuthData(authResponse);
+      
+      // Double-check that authentication data was stored properly
+      final isAuth = await _secureStorage.isAuthenticated();
+      AppLogger.debug('After login, isAuthenticated: $isAuth');
+      
       return authResponse;
     } else {
       final error = json.decode(response.body);
@@ -148,6 +155,14 @@ class AuthService {
 
   // Check if user is authenticated
   Future<bool> isAuthenticated() async {
-    return _secureStorage.isAuthenticated();
+    try {
+      print("Checking authentication status...");
+      final isAuth = await _secureStorage.isAuthenticated();
+      print("Authentication check result: $isAuth");
+      return isAuth;
+    } catch (e) {
+      print("Error checking authentication: ${e.toString()}");
+      return false;
+    }
   }
 } 
