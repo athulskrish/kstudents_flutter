@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/initiative.dart';
 import '../services/api_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class InitiativesScreen extends StatefulWidget {
   const InitiativesScreen({super.key});
@@ -101,6 +102,13 @@ class InitiativeDetailScreen extends StatelessWidget {
   final Initiative initiative;
   const InitiativeDetailScreen({super.key, required this.initiative});
 
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,11 +138,18 @@ class InitiativeDetailScreen extends StatelessWidget {
               Text(initiative.description!),
             if (initiative.link != null && initiative.link!.isNotEmpty) ...[
               const SizedBox(height: 16),
-              TextButton(
+              ElevatedButton.icon(
                 onPressed: () {
-                  // Open link logic (can use url_launcher)
+                  try {
+                    _launchUrl(initiative.link!);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Could not open link: ${e.toString()}')),
+                    );
+                  }
                 },
-                child: const Text('Learn More'),
+                icon: const Icon(Icons.open_in_new),
+                label: const Text('Visit Website'),
               ),
             ],
           ],
