@@ -191,3 +191,23 @@ View existing event categories and districts
 Create new event categories and districts
 Edit existing event categories and districts
 Delete event categories and districts
+
+
+
+Updated the form template to:
+Clearly label the fields as requiring both date and time
+Add format guidance text (YYYY-MM-DD HH:MM)
+Add custom CSS styling for the datetime inputs
+Include an error alert at the top of the form
+Ensure proper z-index for the datetime picker calendar
+Enhanced the EventForm class with:
+Validation for event_start and event_end fields
+Logic to ensure the end time is after the start time
+Improved the flatpickr datetime picker configuration:
+Added minute increments of 15 minutes for easier selection
+Enabled manual input to allow typing dates
+Added proper handling of the "is-filled" class for styling
+Added the flatpickr CSS directly in the template
+Updated the views to:
+Print form errors for debugging
+Provide proper context for rendering the form

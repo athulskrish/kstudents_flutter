@@ -109,12 +109,17 @@ def event_create(request):
             )
             messages.success(request, 'Event created successfully.')
             return redirect('admindashboard:event_list')
+        else:
+            print("Form errors:", form.errors)
     else:
         form = EventForm()
-    return render(request, 'admindashboard/event/form.html', {
+    
+    # Ensure proper context for datetime fields
+    context = {
         'form': form,
         'title': 'Create Event'
-    })
+    }
+    return render(request, 'admindashboard/event/form.html', context)
 
 @login_required
 def event_edit(request, pk):
@@ -131,12 +136,18 @@ def event_edit(request, pk):
             )
             messages.success(request, 'Event updated successfully.')
             return redirect('admindashboard:event_list')
+        else:
+            print("Form errors:", form.errors)
     else:
         form = EventForm(instance=event)
-    return render(request, 'admindashboard/event/form.html', {
+    
+    # Ensure proper context for datetime fields
+    context = {
         'form': form,
-        'title': 'Edit Event'
-    })
+        'title': 'Edit Event',
+        'event': event
+    }
+    return render(request, 'admindashboard/event/form.html', context)
 
 @login_required
 def event_delete(request, pk):

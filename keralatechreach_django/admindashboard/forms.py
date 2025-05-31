@@ -111,6 +111,21 @@ class EventCategoryForm(forms.ModelForm):
         }
 
 class EventForm(forms.ModelForm):
+    # Add clean fields to ensure proper datetime formatting
+    def clean_event_start(self):
+        event_start = self.cleaned_data.get('event_start')
+        return event_start
+
+    def clean_event_end(self):
+        event_end = self.cleaned_data.get('event_end')
+        event_start = self.cleaned_data.get('event_start')
+        
+        # If event_end is provided, ensure it's after event_start
+        if event_end and event_start and event_end < event_start:
+            raise forms.ValidationError("Event end time must be after the start time.")
+        
+        return event_end
+        
     class Meta:
         model = Event
         fields = ['name', 'event_start', 'event_end', 'place', 'link', 'description',

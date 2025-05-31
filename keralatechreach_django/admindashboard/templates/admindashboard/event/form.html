@@ -12,6 +12,12 @@
                     </div>
                 </div>
                 <div class="card-body px-4 pb-2">
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Please correct the errors below.</strong>
+                    </div>
+                    {% endif %}
+                    
                     <form method="post">
                         {% csrf_token %}
                         
@@ -41,8 +47,9 @@
                             <div class="col-md-6">
                                 <!-- Event Start -->
                                 <div class="input-group input-group-static mb-4">
-                                    <label>Event Start</label>
+                                    <label>Event Start (Date & Time)</label>
                                     {{ form.event_start }}
+                                    <small class="form-text text-muted">Format: YYYY-MM-DD HH:MM</small>
                                 </div>
                                 {% if form.event_start.errors %}
                                 <div class="text-danger mb-3">
@@ -53,8 +60,9 @@
                             <div class="col-md-6">
                                 <!-- Event End -->
                                 <div class="input-group input-group-static mb-4">
-                                    <label>Event End</label>
+                                    <label>Event End (Date & Time)</label>
                                     {{ form.event_end }}
+                                    <small class="form-text text-muted">Format: YYYY-MM-DD HH:MM</small>
                                 </div>
                                 {% if form.event_end.errors %}
                                 <div class="text-danger mb-3">
@@ -165,23 +173,84 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    /* Custom styling for datetime inputs */
+    input[type="datetime-local"] {
+        display: block;
+        width: 100%;
+        padding: 0.5rem 0;
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #495057;
+        background-color: transparent;
+        background-clip: padding-box;
+        border: 1px solid #d2d6da;
+        border-radius: 0.375rem;
+        padding-left: 0.75rem;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    input[type="datetime-local"]:focus {
+        border-color: #43A047;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(67, 160, 71, 0.25);
+    }
+    
+    .flatpickr-calendar {
+        z-index: 9999 !important;
+    }
+</style>
 <script>
     // Initialize datetime pickers
     document.addEventListener('DOMContentLoaded', function() {
+        // Custom date time picker setup
         flatpickr("#id_event_start", {
             enableTime: true,
             dateFormat: "Y-m-d H:i",
-            time_24hr: true
+            time_24hr: true,
+            minuteIncrement: 15,
+            allowInput: true,
+            // Ensure the field is shown as filled when it has a value
+            onReady: function(selectedDates, dateStr, instance) {
+                if (dateStr) {
+                    instance.element.parentElement.classList.add('is-filled');
+                }
+            },
+            onChange: function(selectedDates, dateStr, instance) {
+                if (dateStr) {
+                    instance.element.parentElement.classList.add('is-filled');
+                } else {
+                    instance.element.parentElement.classList.remove('is-filled');
+                }
+            }
         });
         
         flatpickr("#id_event_end", {
             enableTime: true,
             dateFormat: "Y-m-d H:i",
-            time_24hr: true
+            time_24hr: true,
+            minuteIncrement: 15,
+            allowInput: true,
+            // Ensure the field is shown as filled when it has a value
+            onReady: function(selectedDates, dateStr, instance) {
+                if (dateStr) {
+                    instance.element.parentElement.classList.add('is-filled');
+                }
+            },
+            onChange: function(selectedDates, dateStr, instance) {
+                if (dateStr) {
+                    instance.element.parentElement.classList.add('is-filled');
+                } else {
+                    instance.element.parentElement.classList.remove('is-filled');
+                }
+            }
         });
 
-        // Add focused class to input groups when they receive focus
-        document.querySelectorAll('.input-group-static input, .input-group-static select, .input-group-static textarea').forEach(input => {
+        // Add focused class to input groups when they receive focus (for other fields)
+        document.querySelectorAll('.input-group-static input:not(#id_event_start):not(#id_event_end), .input-group-static select, .input-group-static textarea').forEach(input => {
             if (input.value) {
                 input.parentElement.classList.add('is-filled');
             }
