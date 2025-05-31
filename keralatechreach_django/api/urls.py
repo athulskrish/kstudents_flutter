@@ -19,7 +19,8 @@ from .views import (
     AffiliateCategoryViewSet,
     EventViewSet,
     EventCategoryViewSet,
-    DistrictViewSet
+    DistrictViewSet,
+    InitiativeViewSet
 )
 
 # Create the router for ViewSets
@@ -37,6 +38,7 @@ router.register(r'affiliate-categories', AffiliateCategoryViewSet)
 router.register(r'events', EventViewSet)
 router.register(r'event-categories', EventCategoryViewSet)
 router.register(r'districts', DistrictViewSet)
+router.register(r'initiatives', InitiativeViewSet)
 
 # Define custom endpoints first
 urlpatterns = [

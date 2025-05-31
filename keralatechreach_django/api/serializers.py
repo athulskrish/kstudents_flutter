@@ -13,7 +13,8 @@ from admindashboard.models import (
     ContactMessage,
     Event,
     EventCategory,
-    District
+    District,
+    Initiative
 )
 
 class UniversitySerializer(serializers.ModelSerializer):
@@ -158,6 +159,11 @@ class ContactMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactMessage
         fields = ['id', 'name', 'email', 'subject', 'message', 'created_at']
+
+class InitiativeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Initiative
+        fields = ['id', 'name', 'description', 'link', 'photo', 'updated_at', 'is_published']
 
 class EventCategorySerializer(serializers.ModelSerializer):
     class Meta:

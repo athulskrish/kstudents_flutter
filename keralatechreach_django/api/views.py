@@ -15,7 +15,8 @@ from admindashboard.models import (
     ContactMessage,
     Event,
     EventCategory,
-    District
+    District,
+    Initiative
 )
 from .serializers import (
     QuestionPaperSerializer,
@@ -31,7 +32,8 @@ from .serializers import (
     ContactMessageSerializer,
     EventSerializer,
     EventCategorySerializer,
-    DistrictSerializer
+    DistrictSerializer,
+    InitiativeSerializer
 )
 from rest_framework import status, views
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -96,6 +98,13 @@ class JobViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'description']
+
+class InitiativeViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Initiative.objects.filter(is_published=True)
+    serializer_class = InitiativeSerializer
+    permission_classes = [AllowAny]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'description']
 
 class QuestionPaperUploadView(views.APIView):
     parser_classes = [MultiPartParser, FormParser]
