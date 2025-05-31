@@ -1,0 +1,105 @@
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 30108
+"GET /media/news/UNIOM-300x168_164RRuW.jpeg HTTP/1.1" 200 11747
+"GET /media/news/people-use-mobile-phone-as-they-sit-outside-state-bank-of-india-branch-in-mumbai-i_jMddwjh.webp HTTP/1.1" 200 22026
+Not Found: /favicon.ico
+- Broken pipe from ('127.0.0.1', 62980)
+"GET / HTTP/1.1" 200 29878
+"GET / HTTP/1.1" 200 29878
+"GET /admindashboard HTTP/1.1" 301 0
+"GET /admindashboard/ HTTP/1.1" 302 0
+"GET /admindashboard/login/?next=/admindashboard/ HTTP/1.1" 200 2578
+"GET /static/assets/js/core/bootstrap.min.js HTTP/1.1" 304 0
+"GET /static/assets/css/nucleo-icons.css HTTP/1.1" 200 9417
+"GET /static/assets/css/material-dashboard.css HTTP/1.1" 200 583631
+"GET /static/assets/img/loginbg.jpg HTTP/1.1" 200 936651
+"POST /admindashboard/login/ HTTP/1.1" 302 0
+"GET /admindashboard/dashboard/ HTTP/1.1" 200 38031
+"GET /static/assets/js/plugins/perfect-scrollbar.min.js HTTP/1.1" 200 19430
+"GET /static/assets/css/nucleo-svg.css HTTP/1.1" 200 2387
+"GET /static/assets/js/core/popper.min.js HTTP/1.1" 200 20086
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/plugins/smooth-scrollbar.min.js HTTP/1.1" 200 48446
+"GET /static/assets/js/plugins/chartjs.min.js HTTP/1.1" 200 205558
+"GET /static/assets/img/small-logos/logo-spotify.svg HTTP/1.1" 200 1944
+"GET /static/assets/img/team-2.jpg HTTP/1.1" 200 23880
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/img/favicon.png HTTP/1.1" 200 809
+"GET /static/assets/img/apple-icon.png HTTP/1.1" 200 809
+"GET /admindashboard/profile/ HTTP/1.1" 200 33303
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /media/profiles/UNIOM-300x168.jpeg HTTP/1.1" 200 11747
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/users/ HTTP/1.1" 200 34402
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/dashboard/ HTTP/1.1" 200 38031
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/questions/ HTTP/1.1" 200 31248
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/notes/ HTTP/1.1" 200 30155
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/exams/ HTTP/1.1" 200 39399
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/exams/2/edit/ HTTP/1.1" 200 34979
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"POST /admindashboard/exams/2/edit/ HTTP/1.1" 302 0
+"GET /admindashboard/exams/ HTTP/1.1" 200 39397
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/exams/2/edit/ HTTP/1.1" 200 34971
+"GET /admindashboard/contact-messages/ HTTP/1.1" 200 31572
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 302 0
+"GET /admindashboard/dashboard/ HTTP/1.1" 200 38431
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+- Broken pipe from ('127.0.0.1', 64667)
+- Broken pipe from ('127.0.0.1', 64668)
+- Broken pipe from ('127.0.0.1', 64666)
+- Broken pipe from ('127.0.0.1', 64665)
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+- Broken pipe from ('127.0.0.1', 64672)
+- Broken pipe from ('127.0.0.1', 64673)
+"GET /admindashboard/events/ HTTP/1.1" 200 30898
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/event-categories/ HTTP/1.1" 200 44768
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/event-categories/create/ HTTP/1.1" 200 30103
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"POST /admindashboard/event-categories/create/ HTTP/1.1" 302 0
+"GET /admindashboard/event-categories/ HTTP/1.1" 200 46224
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/event-categories/ HTTP/1.1" 200 46224
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/events/ HTTP/1.1" 200 30898
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/districts/ HTTP/1.1" 200 51278
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/districts/create/ HTTP/1.1" 200 30858
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"POST /admindashboard/districts/create/ HTTP/1.1" 302 0
+"GET /admindashboard/districts/ HTTP/1.1" 200 52779
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/districts/create/ HTTP/1.1" 200 30858
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"POST /admindashboard/districts/create/ HTTP/1.1" 302 0
+"GET /admindashboard/districts/ HTTP/1.1" 200 54279
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060

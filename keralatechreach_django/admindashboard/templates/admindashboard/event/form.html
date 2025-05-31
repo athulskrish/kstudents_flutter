@@ -82,6 +82,11 @@
                                 <div class="input-group input-group-static mb-4">
                                     <label>District</label>
                                     {{ form.district }}
+                                    <div class="ms-2 mt-1">
+                                        <a href="{% url 'admindashboard:district_list' %}" class="badge bg-primary" title="Manage Districts">
+                                            <i class="material-icons text-sm">settings</i>
+                                        </a>
+                                    </div>
                                 </div>
                                 {% if form.district.errors %}
                                 <div class="text-danger mb-3">
@@ -97,6 +102,11 @@
                                 <div class="input-group input-group-static mb-4">
                                     <label>Category</label>
                                     {{ form.category }}
+                                    <div class="ms-2 mt-1">
+                                        <a href="{% url 'admindashboard:event_category_list' %}" class="badge bg-primary" title="Manage Categories">
+                                            <i class="material-icons text-sm">settings</i>
+                                        </a>
+                                    </div>
                                 </div>
                                 {% if form.category.errors %}
                                 <div class="text-danger mb-3">

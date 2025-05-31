@@ -123,6 +123,8 @@ class EventForm(forms.ModelForm):
             'link': forms.URLInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
             'map_link': forms.URLInput(attrs={'class': 'form-control'}),
+            'district': forms.Select(attrs={'class': 'form-select'}),
+            'category': forms.Select(attrs={'class': 'form-select'}),
             'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 

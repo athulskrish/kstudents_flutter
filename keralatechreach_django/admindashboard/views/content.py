@@ -296,4 +296,72 @@ def initiative_delete(request, pk):
         initiative.delete()
         messages.success(request, 'Initiative deleted successfully.')
         return redirect('admindashboard:initiative_list')
-    return render(request, 'admindashboard/initiatives/delete.html', {'initiative': initiative}) 
+    return render(request, 'admindashboard/initiatives/delete.html', {'initiative': initiative})
+
+# Event Category Views
+@login_required
+def event_category_list(request):
+    categories = EventCategory.objects.all().order_by('category')
+    return render(request, 'admindashboard/event_category/list.html', {'categories': categories})
+
+@login_required
+def event_category_create(request):
+    if request.method == 'POST':
+        form = EventCategoryForm(request.POST)
+        if form.is_valid():
+            category = form.save(commit=False)
+            category.created_by = request.user.userprofile
+            category.save()
+            log_activity(
+                user=request.user,
+                action="Created event category",
+                details=f"Created event category: {category.category}",
+                request=request
+            )
+            messages.success(request, 'Event category created successfully.')
+            return redirect('admindashboard:event_category_list')
+    else:
+        form = EventCategoryForm()
+    return render(request, 'admindashboard/event_category/form.html', {
+        'form': form,
+        'title': 'Create Event Category'
+    })
+
+@login_required
+def event_category_edit(request, pk):
+    category = get_object_or_404(EventCategory, pk=pk)
+    if request.method == 'POST':
+        form = EventCategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            log_activity(
+                user=request.user,
+                action="Updated event category",
+                details=f"Updated event category: {category.category}",
+                request=request
+            )
+            messages.success(request, 'Event category updated successfully.')
+            return redirect('admindashboard:event_category_list')
+    else:
+        form = EventCategoryForm(instance=category)
+    return render(request, 'admindashboard/event_category/form.html', {
+        'form': form,
+        'title': 'Edit Event Category',
+        'category': category
+    })
+
+@login_required
+def event_category_delete(request, pk):
+    category = get_object_or_404(EventCategory, pk=pk)
+    if request.method == 'POST':
+        name = category.category
+        category.delete()
+        log_activity(
+            user=request.user,
+            action="Deleted event category",
+            details=f"Deleted event category: {name}",
+            request=request
+        )
+        messages.success(request, 'Event category deleted successfully.')
+        return redirect('admindashboard:event_category_list')
+    return render(request, 'admindashboard/event_category/delete.html', {'category': category}) 

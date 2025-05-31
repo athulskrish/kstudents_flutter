@@ -177,3 +177,17 @@ Edit existing notes
 Delete notes
 Download note files
 The notes feature follows the same pattern as the existing question papers feature, maintaining consistency in the UI and functionality.
+
+
+Fixed the EventForm to include proper widget definitions for district and category fields.
+Added views for EventCategory management (list, create, edit, delete).
+Added URL patterns for EventCategory management.
+Created templates for EventCategory (list, form, delete).
+Updated the event form template to add quick links to manage categories and districts.
+Added EventCategory to the sidebar menu in base.html.
+Created a management command to load sample data for districts and event categories.
+Now users can:
+View existing event categories and districts
+Create new event categories and districts
+Edit existing event categories and districts
+Delete event categories and districts
