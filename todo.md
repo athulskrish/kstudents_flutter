@@ -7,6 +7,7 @@ The documentation of backend is available at keralatechreach_django/django_doc.m
 if  any api call look at Api.md
 SecurityTodo.md contains the security measures .
 Design2.txt contains the design concepts.
+ensure that enough debugging logs are written.
 <!-- do not write command prompts as it brings errors skip it and tell me at last. i will tell if there is an error. -->
 
 

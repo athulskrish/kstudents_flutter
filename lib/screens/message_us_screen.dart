@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../utils/app_exception.dart';
 
 class MessageUsScreen extends StatefulWidget {
   const MessageUsScreen({super.key});
@@ -47,8 +48,24 @@ class _MessageUsScreenState extends State<MessageUsScreen> {
       _messageController.clear();
     } catch (e) {
       setState(() => _isLoading = false);
+      
+      // Show a more detailed error message
+      String errorMessage = 'Failed to send message';
+      if (e is AppException) {
+        errorMessage = '${e.message}: ${e.details}';
+      } else {
+        errorMessage = 'Error: $e';
+      }
+      
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send message: $e')),
+        SnackBar(
+          content: Text(errorMessage),
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(
+            label: 'Dismiss',
+            onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+          ),
+        ),
       );
     }
   }

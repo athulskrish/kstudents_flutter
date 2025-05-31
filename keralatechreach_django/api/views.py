@@ -16,7 +16,8 @@ from admindashboard.models import (
     Event,
     EventCategory,
     District,
-    Initiative
+    Initiative,
+    ContactUs
 )
 from .serializers import (
     QuestionPaperSerializer,
@@ -279,14 +280,21 @@ class NoteUploadView(views.APIView):
         return response
 
 class ContactMessageView(views.APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]  # Changed from IsAuthenticatedOrReadOnly to AllowAny
 
     def post(self, request, *args, **kwargs):
-        serializer = ContactMessageSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
+        try:
+            # Create contact message directly using ContactUs model (no created_by required)
+            ContactUs.objects.create(
+                name=request.data.get('name'),
+                email=request.data.get('email'),
+                subject=request.data.get('subject'),
+                message=request.data.get('message')
+            )
             return Response({'detail': 'Message sent successfully.'}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(f"Error sending message: {str(e)}")
+            return Response({'detail': f'Failed to send message: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
 class AffiliateProductViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = AffiliateProduct.objects.all()

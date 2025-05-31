@@ -770,18 +770,34 @@ class ApiService {
   }
 
   Future<void> sendMessageUs({required String name, required String email, required String subject, required String message}) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/contact/'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'name': name,
-        'email': email,
-        'subject': subject,
-        'message': message,
-      }),
-    );
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      throw Exception('Failed to send message');
+    try {
+      print('DEBUG: Sending message to $baseUrl/contact/');
+      print('DEBUG: Data: name=$name, email=$email, subject=$subject');
+      
+      final response = await http.post(
+        Uri.parse('$baseUrl/contact/'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'name': name,
+          'email': email,
+          'subject': subject,
+          'message': message,
+        }),
+      );
+      
+      print('DEBUG: Message API response status: ${response.statusCode}');
+      print('DEBUG: Message API response body: ${response.body}');
+      
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw AppException('Failed to send message', 
+          details: 'Status code: ${response.statusCode}, Response: ${response.body}',
+          type: AppExceptionType.server);
+      }
+    } catch (e, st) {
+      AppLogger.error('Error sending message', e, st);
+      throw AppException('Failed to send message', 
+        details: e.toString(),
+        type: e is AppException ? (e as AppException).type : AppExceptionType.unknown);
     }
   }
 
