@@ -174,8 +174,14 @@ class EventSerializer(serializers.ModelSerializer):
     title = serializers.CharField(source='name')
     date = serializers.DateTimeField(source='event_start')
     location = serializers.CharField(source='place')
-    category_name = serializers.CharField(source='category.category', read_only=True)
-    district_name = serializers.CharField(source='district.name', read_only=True)
+    category_name = serializers.SerializerMethodField()
+    district_name = serializers.SerializerMethodField()
+    
+    def get_category_name(self, obj):
+        return obj.category.category if obj.category else None
+    
+    def get_district_name(self, obj):
+        return obj.district.name if obj.district else None
     
     class Meta:
         model = Event

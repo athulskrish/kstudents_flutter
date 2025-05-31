@@ -616,18 +616,39 @@ class ApiService {
   // Events
   Future<List<Event>> getEvents() async {
     try {
+      print('DEBUG: Making GET request to $baseUrl/events/');
       final response = await http.get(Uri.parse('$baseUrl/events/'));
+      print('DEBUG: Events API response status: ${response.statusCode}');
+      
       if (response.statusCode == 200) {
+        print('DEBUG: Events API response body: ${response.body}');
         List<dynamic> data = json.decode(response.body);
-        return data.map((json) => Event.fromJson(json)).toList();
+        print('DEBUG: Parsed JSON data count: ${data.length}');
+        
+        final events = data.map((json) {
+          print('DEBUG: Processing event JSON: $json');
+          try {
+            final event = Event.fromJson(json);
+            print('DEBUG: Successfully parsed event: id=${event.id}, title=${event.title}, categoryId=${event.categoryId}, districtId=${event.districtId}');
+            return event;
+          } catch (e) {
+            print('DEBUG: Error parsing event: $e');
+            rethrow;
+          }
+        }).toList();
+        
+        print('DEBUG: Returning ${events.length} events');
+        return events;
       } else {
         AppLogger.error('Failed to load events [${response.statusCode}]', response.body);
+        print('DEBUG: Events API error response: ${response.body}');
         throw AppException('Failed to load events',
           details: 'Status code: ${response.statusCode}',
           type: AppExceptionType.server);
       }
     } catch (e) {
       AppLogger.error('Error fetching events', e);
+      print('DEBUG: Exception in getEvents: $e');
       throw AppException('Failed to load events', 
         details: e.toString(), 
         type: AppExceptionType.unknown);

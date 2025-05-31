@@ -55,12 +55,18 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
       _errorMessage = '';
     });
     try {
+      print('DEBUG: Fetching events from API');
       final events = await _apiService.getEvents();
+      print('DEBUG: Received ${events.length} events from API');
+      if (events.isNotEmpty) {
+        print('DEBUG: First event: ${events[0].title}, ID: ${events[0].id}, categoryId: ${events[0].categoryId}, districtId: ${events[0].districtId}');
+      }
       setState(() {
         _allEvents = events;
         _isLoading = false;
       });
     } catch (e) {
+      print('DEBUG: Error loading events: $e');
       setState(() {
         _isLoading = false;
         _errorMessage = 'Failed to load events: ${e.toString()}';
@@ -73,12 +79,18 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
       _isLoadingCategories = true;
     });
     try {
+      print('DEBUG: Fetching event categories from API');
       final categories = await _apiService.getEventCategories();
+      print('DEBUG: Received ${categories.length} event categories from API');
+      if (categories.isNotEmpty) {
+        print('DEBUG: First category: ${categories[0]['category']}, ID: ${categories[0]['id']}');
+      }
       setState(() {
         _eventCategories = categories;
         _isLoadingCategories = false;
       });
     } catch (e) {
+      print('DEBUG: Error loading event categories: $e');
       setState(() {
         _isLoadingCategories = false;
       });
@@ -90,12 +102,18 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
       _isLoadingDistricts = true;
     });
     try {
+      print('DEBUG: Fetching districts from API');
       final districts = await _apiService.getDistricts();
+      print('DEBUG: Received ${districts.length} districts from API');
+      if (districts.isNotEmpty) {
+        print('DEBUG: First district: ${districts[0]['name']}, ID: ${districts[0]['id']}');
+      }
       setState(() {
         _districts = districts;
         _isLoadingDistricts = false;
       });
     } catch (e) {
+      print('DEBUG: Error loading districts: $e');
       setState(() {
         _isLoadingDistricts = false;
       });
@@ -209,6 +227,20 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Events'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Refresh',
+              onPressed: () {
+                _loadEvents();
+                _loadEventCategories();
+                _loadDistricts();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Refreshing data...')),
+                );
+              },
+            ),
+          ],
           bottom: const TabBar(
             tabs: [
               Tab(text: 'All Events'),
@@ -336,88 +368,182 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
                     ),
                   ),
                 Expanded(
-                  child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : _filteredEvents.isEmpty
-                          ? const Center(child: Text('No events available.'))
-                          : ListView.builder(
-                              itemCount: _filteredEvents.length,
-                              itemBuilder: (context, index) {
-                                final event = _filteredEvents[index];
-                                final isSaved = _savedEvents.any((se) => se.event.id == event.id);
-                                return Card(
-                                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  child: ListTile(
-                                    title: Text(event.title),
-                                    subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(DateFormat('yyyy-MM-dd HH:mm').format(event.date)),
-                                        if (event.location != null) Text('Location: ${event.location}'),
-                                        if (event.category != null) Text('Category: ${event.category}'),
-                                      ],
+                  child: RefreshIndicator(
+                    onRefresh: _loadEvents,
+                    child: _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _filteredEvents.isEmpty
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text('No events available.'),
+                                    const SizedBox(height: 16),
+                                    ElevatedButton(
+                                      onPressed: _loadEvents,
+                                      child: const Text('Refresh'),
                                     ),
-                                    onTap: () => _onEventTap(event),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        IconButton(
-                                          icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border),
-                                          tooltip: isSaved ? 'Remove from saved' : 'Save event',
-                                          onPressed: () => isSaved ? _removeSavedEvent(event) : _saveEvent(event),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.share),
-                                          tooltip: 'Share',
-                                          onPressed: () => _shareEvent(event),
-                                        ),
-                                      ],
+                                  ],
+                                ),
+                              )
+                            : ListView.builder(
+                                itemCount: _filteredEvents.length,
+                                itemBuilder: (context, index) {
+                                  final event = _filteredEvents[index];
+                                  final isSaved = _savedEvents.any((se) => se.event.id == event.id);
+                                  return Card(
+                                    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    child: ListTile(
+                                      title: Text(
+                                        event.title,
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.calendar_today, size: 14),
+                                              const SizedBox(width: 4),
+                                              Text(DateFormat('yyyy-MM-dd HH:mm').format(event.date)),
+                                            ],
+                                          ),
+                                          if (event.location != null) Row(
+                                            children: [
+                                              const Icon(Icons.location_on, size: 14),
+                                              const SizedBox(width: 4),
+                                              Expanded(child: Text(event.location!)),
+                                            ],
+                                          ),
+                                          if (event.category != null) Row(
+                                            children: [
+                                              const Icon(Icons.category, size: 14),
+                                              const SizedBox(width: 4),
+                                              Text(event.category!),
+                                            ],
+                                          ),
+                                          if (event.description != null && event.description!.isNotEmpty) 
+                                            Padding(
+                                              padding: const EdgeInsets.only(top: 4),
+                                              child: Text(
+                                                event.description!.length > 100
+                                                    ? '${event.description!.substring(0, 100)}...'
+                                                    : event.description!,
+                                                style: const TextStyle(fontSize: 12),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      onTap: () => _onEventTap(event),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border),
+                                            tooltip: isSaved ? 'Remove from saved' : 'Save event',
+                                            onPressed: () => isSaved ? _removeSavedEvent(event) : _saveEvent(event),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.share),
+                                            tooltip: 'Share',
+                                            onPressed: () => _shareEvent(event),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                            ),
+                                  );
+                                },
+                              ),
+                  ),
                 ),
               ],
             ),
             // Saved Events Tab
             _savedEvents.isEmpty
-                ? const Center(child: Text('No saved events.'))
-                : ListView.builder(
-                    itemCount: _savedEvents.length,
-                    itemBuilder: (context, index) {
-                      final event = _savedEvents[index].event;
-                      return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        child: ListTile(
-                          title: Text(event.title),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(DateFormat('yyyy-MM-dd HH:mm').format(event.date)),
-                              if (event.location != null) Text('Location: ${event.location}'),
-                              if (event.category != null) Text('Category: ${event.category}'),
-                            ],
-                          ),
-                          onTap: () => _onEventTap(event),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.bookmark),
-                                tooltip: 'Remove from saved',
-                                onPressed: () => _removeSavedEvent(event),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.share),
-                                tooltip: 'Share',
-                                onPressed: () => _shareEvent(event),
-                              ),
-                            ],
-                          ),
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('No saved events.'),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _loadSavedEvents,
+                          child: const Text('Refresh'),
                         ),
-                      );
-                    },
+                      ],
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _loadSavedEvents,
+                    child: ListView.builder(
+                      itemCount: _savedEvents.length,
+                      itemBuilder: (context, index) {
+                        final event = _savedEvents[index].event;
+                        return Card(
+                          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: ListTile(
+                            title: Text(
+                              event.title,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.calendar_today, size: 14),
+                                    const SizedBox(width: 4),
+                                    Text(DateFormat('yyyy-MM-dd HH:mm').format(event.date)),
+                                  ],
+                                ),
+                                if (event.location != null) Row(
+                                  children: [
+                                    const Icon(Icons.location_on, size: 14),
+                                    const SizedBox(width: 4),
+                                    Expanded(child: Text(event.location!)),
+                                  ],
+                                ),
+                                if (event.category != null) Row(
+                                  children: [
+                                    const Icon(Icons.category, size: 14),
+                                    const SizedBox(width: 4),
+                                    Text(event.category!),
+                                  ],
+                                ),
+                                if (event.description != null && event.description!.isNotEmpty) 
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4),
+                                    child: Text(
+                                      event.description!.length > 100
+                                          ? '${event.description!.substring(0, 100)}...'
+                                          : event.description!,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            onTap: () => _onEventTap(event),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.bookmark),
+                                  tooltip: 'Remove from saved',
+                                  onPressed: () => _removeSavedEvent(event),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.share),
+                                  tooltip: 'Share',
+                                  onPressed: () => _shareEvent(event),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
           ],
         ),
@@ -433,26 +559,187 @@ class EventDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(event.title)),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(
+        title: Text(event.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            tooltip: 'Share',
+            onPressed: () => Share.share('Check out this event: ${event.title}\n${event.description ?? ''}\n${event.link ?? ''}'),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(event.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text('Date & Time: ${DateFormat('yyyy-MM-dd HH:mm').format(event.date)}'),
-            if (event.category != null) Text('Category: ${event.category}'),
-            if (event.location != null) Text('Location: ${event.location}'),
-            const SizedBox(height: 16),
-            if (event.description != null) Text(event.description!),
-            if (event.link != null) ...[
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () => Share.share(event.link!),
-                child: const Text('Open/Share Link'),
+            // Hero image or placeholder
+            Container(
+              height: 200,
+              width: double.infinity,
+              color: Theme.of(context).primaryColor.withOpacity(0.2),
+              child: const Center(
+                child: Icon(
+                  Icons.event,
+                  size: 80,
+                  color: Colors.white54,
+                ),
               ),
-            ],
+            ),
+            
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  Text(
+                    event.title,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Date and time
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.calendar_today),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Date & Time',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(DateFormat('EEE, MMM d, yyyy').format(event.date)),
+                              Text(DateFormat('h:mm a').format(event.date)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 8),
+                  
+                  // Location
+                  if (event.location != null)
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.location_on),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Location',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(event.location!),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  
+                  const SizedBox(height: 8),
+                  
+                  // Category
+                  if (event.category != null)
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.category),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Category',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(event.category!),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Description
+                  if (event.description != null) ...[
+                    const Text(
+                      'Description',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      event.description!,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
+                  
+                  const SizedBox(height: 24),
+                  
+                  // External links
+                  if (event.link != null)
+                    ElevatedButton.icon(
+                      onPressed: () => Share.share(event.link!),
+                      icon: const Icon(Icons.link),
+                      label: const Text('Open Event Link'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 48),
+                      ),
+                    ),
+                  
+                  if (event.link != null && event.map_link != null)
+                    const SizedBox(height: 8),
+                  
+                  // Map link if available
+                  if (event.map_link != null)
+                    OutlinedButton.icon(
+                      onPressed: () => Share.share(event.map_link!),
+                      icon: const Icon(Icons.map),
+                      label: const Text('Open Location in Map'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 48),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
