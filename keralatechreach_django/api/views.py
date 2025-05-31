@@ -17,6 +17,7 @@ from admindashboard.models import (
     EventCategory,
     District,
     Initiative,
+    FAQ,
     ContactUs
 )
 from .serializers import (
@@ -34,7 +35,8 @@ from .serializers import (
     EventSerializer,
     EventCategorySerializer,
     DistrictSerializer,
-    InitiativeSerializer
+    InitiativeSerializer,
+    FAQSerializer
 )
 from rest_framework import status, views
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -106,6 +108,13 @@ class InitiativeViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'description']
+
+class FAQViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = FAQ.objects.filter(is_published=True)
+    serializer_class = FAQSerializer
+    permission_classes = [AllowAny]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['question', 'answer']
 
 class QuestionPaperUploadView(views.APIView):
     parser_classes = [MultiPartParser, FormParser]

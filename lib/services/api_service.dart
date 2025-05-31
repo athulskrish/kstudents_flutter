@@ -750,22 +750,81 @@ class ApiService {
 
   // FAQs
   Future<List<FAQ>> getFaqs() async {
-    final response = await http.get(Uri.parse('$baseUrl/faqs/'));
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((json) => FAQ.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load FAQs');
+    try {
+      print('DEBUG: Making GET request to $baseUrl/faqs/');
+      final response = await http.get(Uri.parse('$baseUrl/faqs/'));
+      print('DEBUG: FAQs API response status: ${response.statusCode}');
+      
+      if (response.statusCode == 200) {
+        print('DEBUG: FAQs API response body: ${response.body}');
+        List<dynamic> data = json.decode(response.body);
+        print('DEBUG: Parsed JSON data count: ${data.length}');
+        
+        final faqs = data.map((json) {
+          print('DEBUG: Processing FAQ JSON: $json');
+          try {
+            final faq = FAQ.fromJson(json);
+            print('DEBUG: Successfully parsed FAQ: id=${faq.id}, question=${faq.question}');
+            return faq;
+          } catch (e) {
+            print('DEBUG: Error parsing FAQ: $e');
+            rethrow;
+          }
+        }).toList();
+        
+        print('DEBUG: Returning ${faqs.length} FAQs');
+        return faqs;
+      } else {
+        AppLogger.error('Failed to load FAQs [${response.statusCode}]', response.body);
+        print('DEBUG: FAQs API error response: ${response.body}');
+        throw AppException('Failed to load FAQs',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching FAQs', e);
+      print('DEBUG: Exception in getFaqs: $e');
+      throw AppException('Failed to load FAQs', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
     }
   }
 
   Future<List<FAQ>> searchFaqs(String query) async {
-    final response = await http.get(Uri.parse('$baseUrl/faqs/?search=$query'));
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((json) => FAQ.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to search FAQs');
+    try {
+      print('DEBUG: Making GET request to $baseUrl/faqs/?search=$query');
+      final response = await http.get(Uri.parse('$baseUrl/faqs/?search=$query'));
+      print('DEBUG: FAQs search API response status: ${response.statusCode}');
+      
+      if (response.statusCode == 200) {
+        print('DEBUG: FAQs search API response body: ${response.body}');
+        List<dynamic> data = json.decode(response.body);
+        print('DEBUG: Parsed JSON data count: ${data.length}');
+        
+        final faqs = data.map((json) {
+          try {
+            return FAQ.fromJson(json);
+          } catch (e) {
+            print('DEBUG: Error parsing FAQ during search: $e');
+            rethrow;
+          }
+        }).toList();
+        
+        print('DEBUG: Returning ${faqs.length} FAQs from search');
+        return faqs;
+      } else {
+        AppLogger.error('Failed to search FAQs [${response.statusCode}]', response.body);
+        print('DEBUG: FAQs search API error response: ${response.body}');
+        throw AppException('Failed to search FAQs',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error searching FAQs', e);
+      print('DEBUG: Exception in searchFaqs: $e');
+      throw AppException('Failed to search FAQs', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
     }
   }
 

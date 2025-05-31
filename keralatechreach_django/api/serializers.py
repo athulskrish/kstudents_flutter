@@ -14,7 +14,8 @@ from admindashboard.models import (
     Event,
     EventCategory,
     District,
-    Initiative
+    Initiative,
+    FAQ
 )
 
 class UniversitySerializer(serializers.ModelSerializer):
@@ -164,6 +165,11 @@ class InitiativeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Initiative
         fields = ['id', 'name', 'description', 'link', 'photo', 'updated_at', 'is_published']
+
+class FAQSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FAQ
+        fields = ['id', 'question', 'answer', 'is_published', 'display_order', 'created_at', 'updated_at']
 
 class EventCategorySerializer(serializers.ModelSerializer):
     class Meta:

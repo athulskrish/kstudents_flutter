@@ -103,3 +103,6 @@ Watching for file changes with StatReloader
 "GET /admindashboard/districts/ HTTP/1.1" 200 54279
 "GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
 "GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+Watching for file changes with StatReloader
+E:\2024_Projects\android1\kstudentsflutter\keralatechreach_django\api\urls.py changed, reloading.
+Watching for file changes with StatReloader
