@@ -615,21 +615,81 @@ class ApiService {
 
   // Events
   Future<List<Event>> getEvents() async {
-    final response = await http.get(Uri.parse('$baseUrl/events/'));
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Event.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load events');
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/events/'));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Event.fromJson(json)).toList();
+      } else {
+        AppLogger.error('Failed to load events [${response.statusCode}]', response.body);
+        throw AppException('Failed to load events',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching events', e);
+      throw AppException('Failed to load events', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getEventCategories() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/event-categories/'));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => json as Map<String, dynamic>).toList();
+      } else {
+        AppLogger.error('Failed to load event categories [${response.statusCode}]', response.body);
+        throw AppException('Failed to load event categories',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching event categories', e);
+      throw AppException('Failed to load event categories', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getDistricts() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/districts/'));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => json as Map<String, dynamic>).toList();
+      } else {
+        AppLogger.error('Failed to load districts [${response.statusCode}]', response.body);
+        throw AppException('Failed to load districts',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching districts', e);
+      throw AppException('Failed to load districts', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
     }
   }
 
   Future<Event> getEventDetail(int id) async {
-    final response = await http.get(Uri.parse('$baseUrl/events/$id/'));
-    if (response.statusCode == 200) {
-      return Event.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load event detail');
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/events/$id/'));
+      if (response.statusCode == 200) {
+        return Event.fromJson(json.decode(response.body));
+      } else {
+        AppLogger.error('Failed to load event detail [${response.statusCode}]', response.body);
+        throw AppException('Failed to load event detail',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching event detail', e);
+      throw AppException('Failed to load event detail', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
     }
   }
 

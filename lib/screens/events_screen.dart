@@ -25,10 +25,16 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
   final ApiService _apiService = ApiService();
   List<Event> _allEvents = [];
   List<SavedEvent> _savedEvents = [];
-  String _categoryFilter = '';
+  List<Map<String, dynamic>> _eventCategories = [];
+  List<Map<String, dynamic>> _districts = [];
+  int? _categoryFilter;
+  int? _districtFilter;
   DateTime? _dateFilter;
   int _adCounter = 0;
   bool _isLoading = false;
+  bool _isLoadingCategories = false;
+  bool _isLoadingDistricts = false;
+  String _errorMessage = '';
   RewardedAd? _rewardedAd;
   static const String _testRewardedAdUnitId = 'ca-app-pub-3940256099942544/5224354917';
 
@@ -36,18 +42,64 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
   void initState() {
     super.initState();
     _loadEvents();
+    _loadEventCategories();
+    _loadDistricts();
     _loadSavedEvents();
     _loadAdCounter();
     _initRewardedAd();
   }
 
   Future<void> _loadEvents() async {
-    setState(() => _isLoading = true);
-    final events = await _apiService.getEvents();
     setState(() {
-      _allEvents = events;
-      _isLoading = false;
+      _isLoading = true;
+      _errorMessage = '';
     });
+    try {
+      final events = await _apiService.getEvents();
+      setState(() {
+        _allEvents = events;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Failed to load events: ${e.toString()}';
+      });
+    }
+  }
+
+  Future<void> _loadEventCategories() async {
+    setState(() {
+      _isLoadingCategories = true;
+    });
+    try {
+      final categories = await _apiService.getEventCategories();
+      setState(() {
+        _eventCategories = categories;
+        _isLoadingCategories = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingCategories = false;
+      });
+    }
+  }
+
+  Future<void> _loadDistricts() async {
+    setState(() {
+      _isLoadingDistricts = true;
+    });
+    try {
+      final districts = await _apiService.getDistricts();
+      setState(() {
+        _districts = districts;
+        _isLoadingDistricts = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingDistricts = false;
+      });
+    }
   }
 
   Future<void> _loadSavedEvents() async {
@@ -127,9 +179,10 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
 
   List<Event> get _filteredEvents {
     return _allEvents.where((event) {
-      final matchesCategory = _categoryFilter.isEmpty || (event.category?.toLowerCase().contains(_categoryFilter.toLowerCase()) ?? false);
+      final matchesCategory = _categoryFilter == null || event.categoryId == _categoryFilter;
+      final matchesDistrict = _districtFilter == null || event.districtId == _districtFilter;
       final matchesDate = _dateFilter == null || (event.date.year == _dateFilter!.year && event.date.month == _dateFilter!.month && event.date.day == _dateFilter!.day);
-      return matchesCategory && matchesDate;
+      return matchesCategory && matchesDistrict && matchesDate;
     }).toList();
   }
 
@@ -170,43 +223,118 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Row(
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: TextField(
-                          decoration: const InputDecoration(labelText: 'Category'),
-                          onChanged: (v) => setState(() => _categoryFilter = v),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: InkWell(
-                          onTap: () async {
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime(2100),
-                            );
-                            if (picked != null) setState(() => _dateFilter = picked);
-                          },
-                          child: InputDecorator(
-                            decoration: const InputDecoration(labelText: 'Date'),
-                            child: Text(_dateFilter == null ? 'Any' : DateFormat('yyyy-MM-dd').format(_dateFilter!)),
+                      Row(
+                        children: [
+                          // Category Dropdown
+                          Expanded(
+                            child: DropdownButtonFormField<int>(
+                              decoration: const InputDecoration(
+                                labelText: 'Category',
+                                border: OutlineInputBorder(),
+                              ),
+                              value: _categoryFilter,
+                              hint: const Text('Select Category'),
+                              isExpanded: true,
+                              items: [
+                                const DropdownMenuItem<int>(
+                                  value: null,
+                                  child: Text('All Categories'),
+                                ),
+                                ..._eventCategories.map((category) => DropdownMenuItem<int>(
+                                  value: category['id'],
+                                  child: Text(category['category']),
+                                )).toList(),
+                              ],
+                              onChanged: (value) {
+                                setState(() {
+                                  _categoryFilter = value;
+                                });
+                              },
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          // District Dropdown
+                          Expanded(
+                            child: DropdownButtonFormField<int>(
+                              decoration: const InputDecoration(
+                                labelText: 'Location',
+                                border: OutlineInputBorder(),
+                              ),
+                              value: _districtFilter,
+                              hint: const Text('Select Location'),
+                              isExpanded: true,
+                              items: [
+                                const DropdownMenuItem<int>(
+                                  value: null,
+                                  child: Text('All Locations'),
+                                ),
+                                ..._districts.map((district) => DropdownMenuItem<int>(
+                                  value: district['id'],
+                                  child: Text(district['name']),
+                                )).toList(),
+                              ],
+                              onChanged: (value) {
+                                setState(() {
+                                  _districtFilter = value;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.clear),
-                        tooltip: 'Clear filters',
-                        onPressed: () => setState(() {
-                          _categoryFilter = '';
-                          _dateFilter = null;
-                        }),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          // Date Picker
+                          Expanded(
+                            child: InkWell(
+                              onTap: () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: _dateFilter ?? DateTime.now(),
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime(2100),
+                                );
+                                if (picked != null) {
+                                  setState(() => _dateFilter = picked);
+                                }
+                              },
+                              child: InputDecorator(
+                                decoration: const InputDecoration(
+                                  labelText: 'Date',
+                                  border: OutlineInputBorder(),
+                                ),
+                                child: Text(_dateFilter == null ? 'Any Date' : DateFormat('yyyy-MM-dd').format(_dateFilter!)),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Clear Filters Button
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.clear),
+                            label: const Text('Clear'),
+                            onPressed: () => setState(() {
+                              _categoryFilter = null;
+                              _districtFilter = null;
+                              _dateFilter = null;
+                            }),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
+                // Display error if there is one
+                if (_errorMessage.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      _errorMessage,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
                 Expanded(
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())
@@ -221,7 +349,14 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
                                   margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   child: ListTile(
                                     title: Text(event.title),
-                                    subtitle: Text(DateFormat('yyyy-MM-dd').format(event.date)),
+                                    subtitle: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(DateFormat('yyyy-MM-dd HH:mm').format(event.date)),
+                                        if (event.location != null) Text('Location: ${event.location}'),
+                                        if (event.category != null) Text('Category: ${event.category}'),
+                                      ],
+                                    ),
                                     onTap: () => _onEventTap(event),
                                     trailing: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -256,7 +391,14 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
                         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         child: ListTile(
                           title: Text(event.title),
-                          subtitle: Text(DateFormat('yyyy-MM-dd').format(event.date)),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(DateFormat('yyyy-MM-dd HH:mm').format(event.date)),
+                              if (event.location != null) Text('Location: ${event.location}'),
+                              if (event.category != null) Text('Category: ${event.category}'),
+                            ],
+                          ),
                           onTap: () => _onEventTap(event),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -299,7 +441,7 @@ class EventDetailScreen extends StatelessWidget {
           children: [
             Text(event.title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text('Date: ${DateFormat('yyyy-MM-dd').format(event.date)}'),
+            Text('Date & Time: ${DateFormat('yyyy-MM-dd HH:mm').format(event.date)}'),
             if (event.category != null) Text('Category: ${event.category}'),
             if (event.location != null) Text('Location: ${event.location}'),
             const SizedBox(height: 16),

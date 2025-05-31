@@ -12,7 +12,10 @@ from admindashboard.models import (
     Job,
     AffiliateProduct,
     AffiliateCategory,
-    ContactMessage
+    ContactMessage,
+    Event,
+    EventCategory,
+    District
 )
 from .serializers import (
     QuestionPaperSerializer,
@@ -25,7 +28,10 @@ from .serializers import (
     JobSerializer,
     AffiliateProductSerializer,
     AffiliateCategorySerializer,
-    ContactMessageSerializer
+    ContactMessageSerializer,
+    EventSerializer,
+    EventCategorySerializer,
+    DistrictSerializer
 )
 from rest_framework import status, views
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -282,6 +288,28 @@ class AffiliateCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = AffiliateCategory.objects.all()
     serializer_class = AffiliateCategorySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+class EventViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Event.objects.filter(is_published=True)
+    serializer_class = EventSerializer
+    permission_classes = [AllowAny]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['category', 'district', 'event_start']
+    search_fields = ['name', 'description', 'place']
+
+class EventCategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = EventCategory.objects.all()
+    serializer_class = EventCategorySerializer
+    permission_classes = [AllowAny]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['category']
+
+class DistrictViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = District.objects.filter(is_active=True)
+    serializer_class = DistrictSerializer
+    permission_classes = [AllowAny]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
 # api/views/auth.py
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView

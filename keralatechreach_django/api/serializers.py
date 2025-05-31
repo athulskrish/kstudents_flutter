@@ -10,7 +10,10 @@ from admindashboard.models import (
     Job,
     AffiliateProduct,
     AffiliateCategory,
-    ContactMessage
+    ContactMessage,
+    Event,
+    EventCategory,
+    District
 )
 
 class UniversitySerializer(serializers.ModelSerializer):
@@ -155,3 +158,30 @@ class ContactMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactMessage
         fields = ['id', 'name', 'email', 'subject', 'message', 'created_at']
+
+class EventCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventCategory
+        fields = ['id', 'category']
+
+class DistrictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = District
+        fields = ['id', 'name', 'is_active']
+
+class EventSerializer(serializers.ModelSerializer):
+    # Add fields to map Django model to Flutter expectations
+    title = serializers.CharField(source='name')
+    date = serializers.DateTimeField(source='event_start')
+    location = serializers.CharField(source='place')
+    category_name = serializers.CharField(source='category.category', read_only=True)
+    district_name = serializers.CharField(source='district.name', read_only=True)
+    
+    class Meta:
+        model = Event
+        fields = [
+            'id', 'title', 'name', 'date', 'event_start', 'event_end', 
+            'location', 'place', 'description', 'link', 'map_link',
+            'category', 'category_name', 'district', 'district_name',
+            'is_published'
+        ]
