@@ -1,6 +1,7 @@
 # KStudentsFlutter - Todo List
 
-from todo.md select one task and  do it if not mentioned. Always update todo.md. and write it on documentation.md after completing the task. and then iterate.
+from todo.md select one task and  do it if not mentioned. 
+Always update todo.md. and write it on documentation.md after completing the task. and then iterate.
 the backend is at keralatechreach_django, change it if necessary.
 The documentation of backend is available at keralatechreach_django/django_doc.md if any changes are made to the backend update it.
 if  any api call look at Api.md
