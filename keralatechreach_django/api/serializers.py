@@ -63,14 +63,14 @@ class NoteSerializer(serializers.ModelSerializer):
         ]
 
 class ExamSerializer(serializers.ModelSerializer):
-    degree_name = serializers.CharField(source='degree_name.name', read_only=True)
+    degree_name_str = serializers.CharField(source='degree_name.name', read_only=True)
     university_name = serializers.CharField(source='university.name', read_only=True)
     
     class Meta:
         model = Exam
         fields = [
             'id', 'exam_name', 'exam_date', 'exam_url',
-            'degree_name', 'semester', 'admission_year',
+            'degree_name', 'degree_name_str', 'semester', 'admission_year',
             'university', 'university_name', 'is_published'
         ]
 

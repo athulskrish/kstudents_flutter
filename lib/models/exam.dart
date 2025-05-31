@@ -26,13 +26,26 @@ class Exam {
   });
 
   factory Exam.fromJson(Map<String, dynamic> json) {
+    int parseDegreeId(dynamic value) {
+      if (value is int) return value;
+      if (value is String) {
+        try {
+          return int.parse(value);
+        } catch (e) {
+          print('DEBUG: Could not parse degree_name as int: $value');
+          return 0; // Default ID when the string can't be parsed
+        }
+      }
+      return 0;
+    }
+
     return Exam(
       id: json['id'],
       examName: json['exam_name'],
       examDate: DateTime.parse(json['exam_date']),
       examUrl: json['exam_url'],
-      degreeName: json['degree_name'] is int ? json['degree_name'] : int.parse(json['degree_name'].toString()),
-      degreeNameStr: json['degree_name_str'] ?? '',
+      degreeName: parseDegreeId(json['degree_name']),
+      degreeNameStr: json['degree_name_str'] ?? (json['degree_name'] is String ? json['degree_name'] : ''),
       semester: json['semester'].toString(),
       admissionYear: json['admission_year'] is int ? json['admission_year'] : int.parse(json['admission_year'].toString()),
       university: json['university'] is int ? json['university'] : int.parse(json['university'].toString()),

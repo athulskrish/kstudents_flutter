@@ -25,12 +25,37 @@ class _EntranceExamsScreenState extends State<EntranceExamsScreen> {
   }
 
   Future<void> _loadExams() async {
-    final exams = await _apiService.getExams();
-    setState(() {
-      _exams = exams;
-      _filtered = exams;
-      _isLoading = false;
-    });
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      
+      final exams = await _apiService.getExams();
+      print('DEBUG: Loaded ${exams.length} exams successfully');
+      
+      setState(() {
+        _exams = exams;
+        _filtered = exams;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('ERROR: Failed to load exams: $e');
+      setState(() {
+        _isLoading = false;
+        _exams = [];
+        _filtered = [];
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load exams: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
   }
 
   void _onSearch(String value) {
