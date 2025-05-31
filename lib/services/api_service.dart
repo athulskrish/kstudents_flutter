@@ -445,12 +445,36 @@ class ApiService {
       url += '?${params.join('&')}';
     }
 
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Exam.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load exams');
+    try {
+      print('DEBUG: Fetching exams from $url');
+      final response = await http.get(Uri.parse(url));
+      
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        print('DEBUG: Exams data received: ${data.length} items');
+        
+        // Print the first item to debug
+        if (data.isNotEmpty) {
+          print('DEBUG: First exam item: ${data[0]}');
+        }
+        
+        List<Exam> exams = [];
+        for (var i = 0; i < data.length; i++) {
+          try {
+            exams.add(Exam.fromJson(data[i]));
+          } catch (e) {
+            print('DEBUG: Error parsing exam at index $i: $e');
+            print('DEBUG: Problematic data: ${data[i]}');
+          }
+        }
+        return exams;
+      } else {
+        print('DEBUG: API error: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to load exams: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('DEBUG: Exception in getExams: $e');
+      throw Exception('Failed to load exams: $e');
     }
   }
 
