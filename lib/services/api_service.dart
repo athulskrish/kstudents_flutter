@@ -903,4 +903,70 @@ class ApiService {
         type: AppExceptionType.unknown);
     }
   }
+  
+  // Featured Jobs for Home Page
+  Future<List<Job>> getFeaturedJobs() async {
+    try {
+      AppLogger.info('Fetching featured jobs for home page');
+      final response = await http.get(Uri.parse('$baseUrl/featured-jobs/'));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Job.fromJson(json)).toList();
+      } else {
+        AppLogger.error('Failed to load featured jobs [${response.statusCode}]', response.body);
+        throw AppException('Failed to load featured jobs',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching featured jobs', e);
+      throw AppException('Failed to load featured jobs', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
+    }
+  }
+  
+  // Featured Events for Home Page
+  Future<List<Event>> getFeaturedEvents() async {
+    try {
+      AppLogger.info('Fetching featured events for home page');
+      final response = await http.get(Uri.parse('$baseUrl/featured-events/'));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Event.fromJson(json)).toList();
+      } else {
+        AppLogger.error('Failed to load featured events [${response.statusCode}]', response.body);
+        throw AppException('Failed to load featured events',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching featured events', e);
+      throw AppException('Failed to load featured events', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
+    }
+  }
+  
+  // Featured News for Home Page
+  Future<List<News>> getFeaturedNews() async {
+    try {
+      AppLogger.info('Fetching featured news for home page');
+      final response = await http.get(Uri.parse('$baseUrl/featured-news/'));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => News.fromJson(json)).toList();
+      } else {
+        AppLogger.error('Failed to load featured news [${response.statusCode}]', response.body);
+        throw AppException('Failed to load featured news',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching featured news', e);
+      throw AppException('Failed to load featured news', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
+    }
+  }
 } 

@@ -346,3 +346,82 @@ These changes allow administrators to:
 - Toggle sliders on/off using the is_active field
 
 The mobile app can fetch active ad sliders through the API endpoint and display them in the home screen slider.
+
+## Home Page Featured Content Implementation
+
+I've added functionality to feature selected content on the home page of the mobile app. This allows administrators to highlight important jobs, events, and news articles directly on the home page.
+
+### Database Model Updates
+Added a new field `show_on_home` to the following models:
+```python
+# In Job model
+show_on_home = models.BooleanField(default=False, help_text="Display this job on the home page")
+
+# In Event model
+show_on_home = models.BooleanField(default=False, help_text="Display this event on the home page")
+
+# In News model
+show_on_home = models.BooleanField(default=False, help_text="Display this news article on the home page")
+```
+
+### Form Updates
+Updated the forms for jobs, events, and news in `admindashboard/forms.py` to include the new field:
+```python
+# In JobForm, EventForm, and NewsForm
+fields = [..., 'show_on_home']
+```
+
+### API Updates
+Updated the API serializers in `api/serializers.py` to include the new field:
+```python
+# In JobSerializer, EventSerializer, and NewsSerializer
+fields = [..., 'show_on_home']
+```
+
+Added new API endpoints to fetch featured content for the home page:
+```python
+# In api/views.py
+class FeaturedJobsViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Job.objects.filter(show_on_home=True, is_active=True).order_by('-created_at')[:5]
+    serializer_class = JobSerializer
+    permission_classes = [permissions.AllowAny]
+
+class FeaturedEventsViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Event.objects.filter(show_on_home=True).order_by('-event_start')[:5]
+    serializer_class = EventSerializer
+    permission_classes = [permissions.AllowAny]
+
+class FeaturedNewsViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = News.objects.filter(show_on_home=True, is_published=True).order_by('-published_date')[:5]
+    serializer_class = NewsSerializer
+    permission_classes = [permissions.AllowAny]
+```
+
+Added URL patterns in `api/urls.py`:
+```python
+router.register(r'featured-jobs', views.FeaturedJobsViewSet, basename='featured-jobs')
+router.register(r'featured-events', views.FeaturedEventsViewSet, basename='featured-events')
+router.register(r'featured-news', views.FeaturedNewsViewSet, basename='featured-news')
+```
+
+### Admin Templates
+Updated the admin templates for jobs, events, and news to include a checkbox for showing on home page:
+```html
+<!-- In job_form.html, event_form.html, and news_form.html -->
+<div class="form-check mb-3">
+    {{ form.show_on_home }}
+    <label class="form-check-label" for="{{ form.show_on_home.id_for_label }}">
+        Show on Home Page
+    </label>
+    <small class="form-text text-muted">
+        Check this to display this item on the mobile app home page
+    </small>
+</div>
+```
+
+These changes allow administrators to:
+- Select which jobs, events, and news items appear on the home page
+- Control the visibility of featured content through a simple checkbox
+- Manage all featured content through the existing admin interfaces
+
+The mobile app can now fetch featured content through the new API endpoints and display them on the home page.

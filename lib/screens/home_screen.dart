@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import 'question_papers_screen.dart';
-import 'notes_screen.dart';
 import 'profile_screen.dart';
 import 'news_list_screen.dart';
 import 'job_list_screen.dart';
-import 'initiatives_screen.dart';
-import 'entrance_exams_screen.dart';
-import 'faq_screen.dart';
+import 'events_screen.dart' as events;
 import 'privacy_screen.dart';
-import 'message_us_screen.dart';
 import 'tech_picks_screen.dart';
+import 'job_detail_screen.dart';
+import 'event_detail_screen.dart';
+import 'news_detail_screen.dart';
 import '../models/tech_pick.dart';
 import '../models/ad_slider.dart';
+import '../models/job.dart';
+import '../models/event.dart';
+import '../models/news.dart';
 import '../services/api_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,8 +29,15 @@ class _HomeScreenState extends State<HomeScreen> {
   final ApiService _apiService = ApiService();
   List<TechPick> _techPicks = [];
   List<AdSlider> _adSliders = [];
+  List<Job> _featuredJobs = [];
+  List<Event> _featuredEvents = [];
+  List<News> _featuredNews = [];
+  
   bool _isLoadingTechPicks = true;
   bool _isLoadingAdSliders = true;
+  bool _isLoadingFeaturedJobs = true;
+  bool _isLoadingFeaturedEvents = true;
+  bool _isLoadingFeaturedNews = true;
   
   // For image slider
   final PageController _pageController = PageController();
@@ -56,6 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _loadTechPicks();
     _loadAdSliders();
+    _loadFeaturedJobs();
+    _loadFeaturedEvents();
+    _loadFeaturedNews();
     _startAutoSlider();
   }
   
@@ -119,6 +131,51 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoadingAdSliders = false;
       });
       print('Error loading ad sliders: $e');
+    }
+  }
+  
+  Future<void> _loadFeaturedJobs() async {
+    try {
+      final jobs = await _apiService.getFeaturedJobs();
+      setState(() {
+        _featuredJobs = jobs;
+        _isLoadingFeaturedJobs = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingFeaturedJobs = false;
+      });
+      print('Error loading featured jobs: $e');
+    }
+  }
+  
+  Future<void> _loadFeaturedEvents() async {
+    try {
+      final events = await _apiService.getFeaturedEvents();
+      setState(() {
+        _featuredEvents = events;
+        _isLoadingFeaturedEvents = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingFeaturedEvents = false;
+      });
+      print('Error loading featured events: $e');
+    }
+  }
+  
+  Future<void> _loadFeaturedNews() async {
+    try {
+      final news = await _apiService.getFeaturedNews();
+      setState(() {
+        _featuredNews = news;
+        _isLoadingFeaturedNews = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingFeaturedNews = false;
+      });
+      print('Error loading featured news: $e');
     }
   }
 
@@ -194,25 +251,52 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      body: ListView(
-        children: [
-          // Ad Slider
-          _buildAdSlider(),
-          
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Welcome to Kerala Tech Reach',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          setState(() {
+            _isLoadingTechPicks = true;
+            _isLoadingAdSliders = true;
+            _isLoadingFeaturedJobs = true;
+            _isLoadingFeaturedEvents = true;
+            _isLoadingFeaturedNews = true;
+          });
+          await Future.wait([
+            _loadTechPicks(),
+            _loadAdSliders(),
+            _loadFeaturedJobs(),
+            _loadFeaturedEvents(),
+            _loadFeaturedNews(),
+          ]);
+        },
+        child: ListView(
+          children: [
+            // Ad Slider
+            _buildAdSlider(),
+            
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'Welcome to Kerala Tech Reach',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          
-          // Latest Tech from Affiliate Marketing
-          _buildLatestTechSection(),
-        ],
+            
+            // Featured Jobs Section
+            if (_featuredJobs.isNotEmpty) _buildFeaturedJobsSection(),
+            
+            // Featured Events Section
+            if (_featuredEvents.isNotEmpty) _buildFeaturedEventsSection(),
+            
+            // Featured News Section
+            if (_featuredNews.isNotEmpty) _buildFeaturedNewsSection(),
+            
+            // Latest Tech from Affiliate Marketing
+            _buildLatestTechSection(),
+          ],
+        ),
       ),
     );
   }
@@ -308,6 +392,210 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
+      ],
+    );
+  }
+  
+  Widget _buildFeaturedJobsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Latest Jobs',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const JobListScreen()),
+                  );
+                },
+                child: const Text('View All'),
+              ),
+            ],
+          ),
+        ),
+        _isLoadingFeaturedJobs
+            ? const Center(child: CircularProgressIndicator())
+            : ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                itemCount: _featuredJobs.length > 3 ? 3 : _featuredJobs.length,
+                itemBuilder: (context, index) {
+                  final job = _featuredJobs[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 8.0),
+                    child: ListTile(
+                      title: Text(
+                        job.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        'Last Date: ${DateFormat('MMM dd, yyyy').format(job.lastDate)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => JobDetailScreen(jobId: job.id),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+      ],
+    );
+  }
+  
+  Widget _buildFeaturedEventsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Upcoming Events',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const events.EventsScreen()),
+                  );
+                },
+                child: const Text('View All'),
+              ),
+            ],
+          ),
+        ),
+        _isLoadingFeaturedEvents
+            ? const Center(child: CircularProgressIndicator())
+            : ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                itemCount: _featuredEvents.length > 3 ? 3 : _featuredEvents.length,
+                itemBuilder: (context, index) {
+                  final event = _featuredEvents[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 8.0),
+                    child: ListTile(
+                      title: Text(
+                        event.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        event.location ?? 'No location specified',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EventDetailScreen(eventId: event.id),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+      ],
+    );
+  }
+  
+  Widget _buildFeaturedNewsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Latest News',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const NewsListScreen()),
+                  );
+                },
+                child: const Text('View All'),
+              ),
+            ],
+          ),
+        ),
+        _isLoadingFeaturedNews
+            ? const Center(child: CircularProgressIndicator())
+            : ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                itemCount: _featuredNews.length > 3 ? 3 : _featuredNews.length,
+                itemBuilder: (context, index) {
+                  final news = _featuredNews[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 8.0),
+                    child: ListTile(
+                      title: Text(
+                        news.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        DateFormat('MMM dd, yyyy').format(news.createdAt),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NewsDetailScreen(newsSlug: news.slug ?? ''),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
       ],
     );
   }
