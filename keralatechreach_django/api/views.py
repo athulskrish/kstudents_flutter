@@ -349,7 +349,7 @@ class FeaturedJobsViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that returns jobs marked to show on the home page
     """
-    queryset = Job.objects.filter(show_on_home=True, is_published=True).order_by('-created_at')[:5]
+    queryset = Job.objects.filter(is_published=True).order_by('-created_at')[:5]
     serializer_class = JobSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -357,7 +357,7 @@ class FeaturedEventsViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that returns events marked to show on the home page
     """
-    queryset = Event.objects.filter(show_on_home=True, is_active=True).order_by('event_start')[:5]
+    queryset = Event.objects.filter(is_published=True).order_by('event_start')[:5]
     serializer_class = EventSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -365,7 +365,7 @@ class FeaturedNewsViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that returns news articles marked to show on the home page
     """
-    queryset = News.objects.filter(show_on_home=True, is_published=True).order_by('-created_at')[:5]
+    queryset = News.objects.filter(is_published=True).order_by('-created_at')[:5]
     serializer_class = NewsSerializer
     permission_classes = [permissions.AllowAny]
 
