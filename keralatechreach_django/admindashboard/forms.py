@@ -42,8 +42,10 @@ class DegreeForm(forms.ModelForm):
 class ExamForm(forms.ModelForm):
     class Meta:
         model = Exam
-        fields = ['exam_name', 'exam_date', 'exam_url', 'degree_name', 'semester', 
-                 'admission_year', 'university', 'is_published']
+        fields = [
+            'exam_name', 'exam_date', 'exam_url', 'degree_name', 
+            'semester', 'admission_year', 'university', 'is_published', 'show_on_home'
+        ]
         widgets = {
             'exam_name': forms.TextInput(attrs={'class': 'form-control'}),
             'exam_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
@@ -53,6 +55,7 @@ class ExamForm(forms.ModelForm):
             'university': forms.Select(attrs={'class': 'form-select'}),
             'degree_name': forms.Select(attrs={'class': 'form-select'}),
             'is_published': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'show_on_home': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 class NoteForm(forms.ModelForm):

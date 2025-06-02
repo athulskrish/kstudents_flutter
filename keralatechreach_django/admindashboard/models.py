@@ -45,6 +45,7 @@ class Exam(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     is_published = models.BooleanField(default=False)
     created_by = models.ForeignKey('UserProfile', on_delete=models.CASCADE)
+    show_on_home = models.BooleanField(default=False, help_text="Display this exam on the home page")
 
 
 class Job(models.Model):

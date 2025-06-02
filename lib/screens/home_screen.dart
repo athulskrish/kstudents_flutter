@@ -8,11 +8,13 @@ import 'tech_picks_screen.dart';
 import 'job_detail_screen.dart';
 import 'event_detail_screen.dart';
 import 'news_detail_screen.dart';
+import 'entrance_exams_screen.dart';
 import '../models/tech_pick.dart';
 import '../models/ad_slider.dart';
 import '../models/job.dart';
 import '../models/event.dart';
 import '../models/news.dart';
+import '../models/exam.dart';
 import '../services/api_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
@@ -32,12 +34,14 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Job> _featuredJobs = [];
   List<Event> _featuredEvents = [];
   List<News> _featuredNews = [];
+  List<Exam> _featuredExams = [];
   
   bool _isLoadingTechPicks = true;
   bool _isLoadingAdSliders = true;
   bool _isLoadingFeaturedJobs = true;
   bool _isLoadingFeaturedEvents = true;
   bool _isLoadingFeaturedNews = true;
+  bool _isLoadingFeaturedExams = true;
   
   // For image slider
   final PageController _pageController = PageController();
@@ -68,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadFeaturedJobs();
     _loadFeaturedEvents();
     _loadFeaturedNews();
+    _loadFeaturedExams();
     _startAutoSlider();
   }
   
@@ -178,6 +183,21 @@ class _HomeScreenState extends State<HomeScreen> {
       print('Error loading featured news: $e');
     }
   }
+  
+  Future<void> _loadFeaturedExams() async {
+    try {
+      final exams = await _apiService.getFeaturedExams();
+      setState(() {
+        _featuredExams = exams;
+        _isLoadingFeaturedExams = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingFeaturedExams = false;
+      });
+      print('Error loading featured exams: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -259,6 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _isLoadingFeaturedJobs = true;
             _isLoadingFeaturedEvents = true;
             _isLoadingFeaturedNews = true;
+            _isLoadingFeaturedExams = true;
           });
           await Future.wait([
             _loadTechPicks(),
@@ -266,6 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _loadFeaturedJobs(),
             _loadFeaturedEvents(),
             _loadFeaturedNews(),
+            _loadFeaturedExams(),
           ]);
         },
         child: ListView(
@@ -292,6 +314,9 @@ class _HomeScreenState extends State<HomeScreen> {
             
             // Featured News Section
             if (_featuredNews.isNotEmpty) _buildFeaturedNewsSection(),
+            
+            // Featured Exams Section
+            if (_featuredExams.isNotEmpty) _buildFeaturedExamsSection(),
             
             // Latest Tech from Affiliate Marketing
             _buildLatestTechSection(),
@@ -591,6 +616,74 @@ class _HomeScreenState extends State<HomeScreen> {
                             builder: (context) => NewsDetailScreen(newsSlug: news.slug ?? ''),
                           ),
                         );
+                      },
+                    ),
+                  );
+                },
+              ),
+      ],
+    );
+  }
+
+  Widget _buildFeaturedExamsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Upcoming Exams',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const EntranceExamsScreen()),
+                  );
+                },
+                child: const Text('View All'),
+              ),
+            ],
+          ),
+        ),
+        _isLoadingFeaturedExams
+            ? const Center(child: CircularProgressIndicator())
+            : ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                itemCount: _featuredExams.length > 3 ? 3 : _featuredExams.length,
+                itemBuilder: (context, index) {
+                  final exam = _featuredExams[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 8.0),
+                    child: ListTile(
+                      title: Text(
+                        exam.examName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        'Date: ${DateFormat('MMM dd, yyyy').format(exam.examDate)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () async {
+                        // Open the exam URL if available
+                        if (exam.examUrl.isNotEmpty) {
+                          if (await canLaunch(exam.examUrl)) {
+                            await launch(exam.examUrl);
+                          }
+                        }
                       },
                     ),
                   );

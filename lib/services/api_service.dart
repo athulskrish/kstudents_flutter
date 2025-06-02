@@ -969,4 +969,26 @@ class ApiService {
         type: AppExceptionType.unknown);
     }
   }
+  
+  // Featured Exams for Home Page
+  Future<List<Exam>> getFeaturedExams() async {
+    try {
+      AppLogger.info('Fetching featured exams for home page');
+      final response = await http.get(Uri.parse('$baseUrl/featured-exams/'));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Exam.fromJson(json)).toList();
+      } else {
+        AppLogger.error('Failed to load featured exams [${response.statusCode}]', response.body);
+        throw AppException('Failed to load featured exams',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching featured exams', e);
+      throw AppException('Failed to load featured exams', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
+    }
+  }
 } 

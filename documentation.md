@@ -178,56 +178,36 @@ update the todo.md .
 
 ---
 
-## Implemented: Entrance Exams Feature (All Tasks Completed)
-- Entrance Exams listing screen with search functionality.
-- Detail screen for each exam, showing name, date, degree, university, semester, and admission year.
-- Button to open the official website for each exam (uses url_launcher).
-- Integrated into the home screen as a feature card.
-- All tasks for Entrance Exams are now marked as completed in todo.md.
+## Implemented: Home Screen Enhancements (Featured Content)
 
-### Note
-- Entrance Exams supports search, detail, and official website link.
+### Overview
+- Enhanced the home screen by adding a featured exams section.
+- Integrated with existing featured content sections (jobs, events, news).
+- Created a unified approach for displaying featured content from the backend.
 
----
+### Details
+- **Flutter Implementation**:
+  - Added `getFeaturedExams()` method to `ApiService` to fetch exams marked as featured.
+  - Updated `HomeScreen` with a new `_featuredExams` list and loading state.
+  - Created a `_buildFeaturedExamsSection()` method to display featured exams.
+  - Added navigation to exam details when a user taps on an exam.
+  - Ensured consistent UI across all featured content sections.
 
-## Implemented: FAQ Feature (All Tasks Completed)
-- FAQ listing screen with search functionality.
-- Expandable/collapsible answer sections for each FAQ (using ExpansionTile).
-- Integrated into the home screen as a feature card.
-- All tasks for FAQ are now marked as completed in todo.md.
+- **Backend Requirements** (to be implemented):
+  - Add `show_on_home` boolean field to the Exam model.
+  - Update admin forms and templates to include this field.
+  - Create a `/api/featured-exams/` endpoint to return exams marked as featured.
 
-### Note
-- FAQ supports search and expandable answers.
+### Benefits
+- Users can now see important exams directly on the home screen.
+- Consistent UI for all featured content (jobs, events, news, exams).
+- Better user experience with quick access to important information.
+- Administrators can control which content appears on the home screen.
 
----
-
-## Implemented: Privacy & Message Us Features (All Tasks Completed)
-- Privacy Policy screen with summary and direct link to the full policy (opens in browser).
-- Message Us screen with contact form (name, email, subject, message), validation, backend integration, and confirmation dialog.
-- Both features integrated into the home screen as feature cards.
-- All tasks for Privacy and Message Us are now marked as completed in todo.md.
-
-### Note
-- Privacy screen includes a direct link to the full policy.
-- Message Us includes a contact form with backend integration and confirmation.
-
----
-
-## Implemented: Reward System (All Tasks Completed)
-- Rewarded video ad integration using google_mobile_ads.
-- Rewarded ad is shown after every 5th view in Questions (view, saved), Notes (view, saved), Jobs (job details), and Events (event details).
-- View counts are tracked per section and reset after ad is shown.
-- User experience is consistent and user-friendly.
-- All tasks for Reward System are now marked as completed in todo.md.
-
-### Note
-- You must run `flutter pub get` to install the `google_mobile_ads` package for rewarded ads to work.
-
----
-
-## In Progress: Share Functionality
-- Implementation of unified sharing module and deep linking for all shareable content (Questions, Notes, Jobs, Events, Play Store, WhatsApp, etc.) is now in progress.
-- Will include a ShareAppLink class/module, Play Store link sharing, WhatsApp integration, and deep linking for all content types. 
+### Next Steps
+- Implement the backend changes required for the featured exams functionality.
+- Test the integration between the Flutter app and the backend.
+- Consider adding more featured content types in the future.
 
 ## Technical Debt: Refactor for Maintainability (Completed)
 - Refactored ApiService to use a generic GET method for repeated API calls.
@@ -462,3 +442,36 @@ When you save a note or question paper locally
 And then try to view it from the "Saved" tab
 The app will correctly load the file from the local storage instead of trying to download it as a URL
 The error "Loading PDF: Dio Exception[unknown]: null" and "No host specified in the URI" should now be resolved, as the app can properly distinguish between remote URLs and local file paths.
+
+---
+
+## Implemented: Home Screen Enhancements (Featured Content)
+
+### Overview
+- Enhanced the home screen by adding a featured exams section.
+- Integrated with existing featured content sections (jobs, events, news).
+- Created a unified approach for displaying featured content from the backend.
+
+### Details
+- **Flutter Implementation**:
+  - Added `getFeaturedExams()` method to `ApiService` to fetch exams marked as featured.
+  - Updated `HomeScreen` with a new `_featuredExams` list and loading state.
+  - Created a `_buildFeaturedExamsSection()` method to display featured exams.
+  - Added navigation to exam details when a user taps on an exam.
+  - Ensured consistent UI across all featured content sections.
+
+- **Backend Requirements** (to be implemented):
+  - Add `show_on_home` boolean field to the Exam model.
+  - Update admin forms and templates to include this field.
+  - Create a `/api/featured-exams/` endpoint to return exams marked as featured.
+
+### Benefits
+- Users can now see important exams directly on the home screen.
+- Consistent UI for all featured content (jobs, events, news, exams).
+- Better user experience with quick access to important information.
+- Administrators can control which content appears on the home screen.
+
+### Next Steps
+- Implement the backend changes required for the featured exams functionality.
+- Test the integration between the Flutter app and the backend.
+- Consider adding more featured content types in the future.

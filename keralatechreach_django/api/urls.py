@@ -21,7 +21,11 @@ from .views import (
     EventCategoryViewSet,
     DistrictViewSet,
     InitiativeViewSet,
-    FAQViewSet
+    FAQViewSet,
+    FeaturedJobsViewSet,
+    FeaturedEventsViewSet,
+    FeaturedNewsViewSet,
+    FeaturedExamsViewSet
 )
 
 # Create the router for ViewSets
@@ -41,6 +45,10 @@ router.register(r'event-categories', EventCategoryViewSet)
 router.register(r'districts', DistrictViewSet)
 router.register(r'initiatives', InitiativeViewSet)
 router.register(r'faqs', FAQViewSet)
+router.register(r'featured-jobs', FeaturedJobsViewSet, basename='featured-jobs')
+router.register(r'featured-events', FeaturedEventsViewSet, basename='featured-events')
+router.register(r'featured-news', FeaturedNewsViewSet, basename='featured-news')
+router.register(r'featured-exams', FeaturedExamsViewSet, basename='featured-exams')
 
 # Define custom endpoints first
 urlpatterns = [

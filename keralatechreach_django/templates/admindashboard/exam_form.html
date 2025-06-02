@@ -1,0 +1,18 @@
+<!-- After the is_published checkbox section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Home Page Visibility</h5>
+    </div>
+    <div class="card-body">
+        <div class="form-check mb-3">
+            {{ form.show_on_home }}
+            <label class="form-check-label" for="{{ form.show_on_home.id_for_label }}">
+                Show on Home Page
+            </label>
+            <small class="form-text text-muted d-block">
+                Check this to display this exam on the mobile app home page.
+                Only a few selected exams will be shown on the home page.
+            </small>
+        </div>
+    </div>
+</div> 

@@ -337,6 +337,14 @@ class DistrictViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['name']
 
+class FeaturedExamsViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that returns exams marked to show on the home page
+    """
+    queryset = Exam.objects.filter(show_on_home=True, is_published=True).order_by('exam_date')[:5]
+    serializer_class = ExamSerializer
+    permission_classes = [permissions.AllowAny]
+
 # api/views/auth.py
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework import generics, permissions
