@@ -24,7 +24,7 @@ class AdSlider {
       id: json['id'],
       title: json['title'],
       description: json['description'],
-      imageUrl: json['image'],
+      imageUrl: json['image_url'] ?? '',
       linkUrl: json['link_url'],
       backgroundColor: json['background_color'] ?? '#2563EB',
       textColor: json['text_color'] ?? '#FFFFFF',

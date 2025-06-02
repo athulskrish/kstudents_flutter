@@ -222,8 +222,8 @@ Added a new model `AdSlider` in `admindashboard/models.py`:
 class AdSlider(models.Model):
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=255, blank=True, null=True)
-    image = models.ImageField(upload_to='ad_sliders/')
-    link_url = models.URLField(blank=True, null=True)
+    image = models.ImageField(upload_to='ad_sliders/', help_text="Banner image for the slider (recommended size: 800x300)")
+    link_url = models.URLField(blank=True, null=True, help_text="URL to navigate to when the slider is clicked")
     background_color = models.CharField(max_length=7, default="#2563EB", help_text="Color in hex format, e.g. #2563EB")
     text_color = models.CharField(max_length=7, default="#FFFFFF", help_text="Color in hex format, e.g. #FFFFFF")
     is_active = models.BooleanField(default=True)
@@ -250,6 +250,7 @@ class AdSliderForm(forms.ModelForm):
         widgets = {
             'background_color': forms.TextInput(attrs={'type': 'color'}),
             'text_color': forms.TextInput(attrs={'type': 'color'}),
+            'link_url': forms.URLInput(attrs={'placeholder': 'https://example.com'}),
         }
 ```
 
@@ -321,7 +322,7 @@ Created the following templates:
 Added an API endpoint in `api/views.py` to serve ad sliders to the mobile app:
 ```python
 class AdSliderViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = AdSlider.objects.filter(is_active=True)
+    queryset = AdSlider.objects.filter(is_active=True).order_by('position')
     serializer_class = AdSliderSerializer
     permission_classes = [permissions.AllowAny]
 ```
@@ -329,13 +330,36 @@ class AdSliderViewSet(viewsets.ReadOnlyModelViewSet):
 And the corresponding serializer in `api/serializers.py`:
 ```python
 class AdSliderSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = AdSlider
-        fields = ['id', 'title', 'description', 'image', 'link_url', 'background_color', 'text_color', 'position']
+        fields = ['id', 'title', 'description', 'image_url', 'link_url', 'background_color', 'text_color', 'position']
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            return obj.image.url
+        return ""
+```
+
+Added URL pattern in `api/urls.py`:
+```python
+router.register(r'ad-sliders', views.AdSliderViewSet, basename='ad-sliders')
 ```
 
 ### Navigation
-Added the Ad Sliders link in the sidebar navigation under the Marketing section in `base.html`.
+Added the Ad Sliders link in the sidebar navigation under the Marketing section in `base.html`:
+```html
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'admin:ad_slider_list' %}">
+        <i class="fas fa-images"></i>
+        <span>Ad Sliders</span>
+    </a>
+</li>
+```
 
 These changes allow administrators to:
 - View a list of all ad sliders
@@ -345,7 +369,7 @@ These changes allow administrators to:
 - Control the order of sliders through the position field
 - Toggle sliders on/off using the is_active field
 
-The mobile app can fetch active ad sliders through the API endpoint and display them in the home screen slider.
+The mobile app can fetch active ad sliders through the API endpoint and display them on the home screen slider.
 
 ## Home Page Featured Content Implementation
 
@@ -354,45 +378,172 @@ I've added functionality to feature selected content on the home page of the mob
 ### Database Model Updates
 Added a new field `show_on_home` to the following models:
 ```python
-# In Job model
-show_on_home = models.BooleanField(default=False, help_text="Display this job on the home page")
+# In Job model (admindashboard/models.py)
+class Job(models.Model):
+    # ... existing fields ...
+    show_on_home = models.BooleanField(default=False, help_text="Display this job on the home page")
+    # ... other fields ...
 
-# In Event model
-show_on_home = models.BooleanField(default=False, help_text="Display this event on the home page")
+# In Event model (admindashboard/models.py)
+class Event(models.Model):
+    # ... existing fields ...
+    show_on_home = models.BooleanField(default=False, help_text="Display this event on the home page")
+    # ... other fields ...
 
-# In News model
-show_on_home = models.BooleanField(default=False, help_text="Display this news article on the home page")
+# In News model (admindashboard/models.py)
+class News(models.Model):
+    # ... existing fields ...
+    show_on_home = models.BooleanField(default=False, help_text="Display this news article on the home page")
+    # ... other fields ...
 ```
 
 ### Form Updates
 Updated the forms for jobs, events, and news in `admindashboard/forms.py` to include the new field:
 ```python
-# In JobForm, EventForm, and NewsForm
-fields = [..., 'show_on_home']
+# In JobForm
+class JobForm(forms.ModelForm):
+    class Meta:
+        model = Job
+        fields = ['title', 'description', 'company', 'location', 'last_date', 'is_active', 'show_on_home']
+        widgets = {
+            'last_date': forms.DateInput(attrs={'type': 'date'}),
+            'show_on_home': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+# In EventForm
+class EventForm(forms.ModelForm):
+    class Meta:
+        model = Event
+        fields = ['title', 'description', 'category', 'district', 'venue', 'event_start', 'event_end', 'is_active', 'show_on_home']
+        widgets = {
+            'event_start': forms.DateTimeInput(attrs={'class': 'flatpickr'}),
+            'event_end': forms.DateTimeInput(attrs={'class': 'flatpickr'}),
+            'show_on_home': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+# In NewsForm
+class NewsForm(forms.ModelForm):
+    class Meta:
+        model = News
+        fields = ['title', 'content', 'excerpt', 'image', 'is_published', 'show_on_home']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 10}),
+            'excerpt': forms.Textarea(attrs={'rows': 3}),
+            'show_on_home': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+```
+
+### Admin Templates
+Updated the admin templates for jobs, events, and news to include a checkbox for showing on home page:
+
+In `job_form.html`:
+```html
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Home Page Visibility</h5>
+    </div>
+    <div class="card-body">
+        <div class="form-check mb-3">
+            {{ form.show_on_home }}
+            <label class="form-check-label" for="{{ form.show_on_home.id_for_label }}">
+                Show on Home Page
+            </label>
+            <small class="form-text text-muted d-block">
+                Check this to display this job on the mobile app home page.
+                Only a few selected jobs will be shown on the home page.
+            </small>
+        </div>
+    </div>
+</div>
+```
+
+In `event_form.html`:
+```html
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Home Page Visibility</h5>
+    </div>
+    <div class="card-body">
+        <div class="form-check mb-3">
+            {{ form.show_on_home }}
+            <label class="form-check-label" for="{{ form.show_on_home.id_for_label }}">
+                Show on Home Page
+            </label>
+            <small class="form-text text-muted d-block">
+                Check this to display this event on the mobile app home page.
+                Only a few selected events will be shown on the home page.
+            </small>
+        </div>
+    </div>
+</div>
+```
+
+In `news_form.html`:
+```html
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Home Page Visibility</h5>
+    </div>
+    <div class="card-body">
+        <div class="form-check mb-3">
+            {{ form.show_on_home }}
+            <label class="form-check-label" for="{{ form.show_on_home.id_for_label }}">
+                Show on Home Page
+            </label>
+            <small class="form-text text-muted d-block">
+                Check this to display this news article on the mobile app home page.
+                Only a few selected news articles will be shown on the home page.
+            </small>
+        </div>
+    </div>
+</div>
 ```
 
 ### API Updates
 Updated the API serializers in `api/serializers.py` to include the new field:
 ```python
-# In JobSerializer, EventSerializer, and NewsSerializer
-fields = [..., 'show_on_home']
+# In JobSerializer
+class JobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = ['id', 'title', 'description', 'company', 'location', 'last_date', 'is_active', 'show_on_home']
+
+# In EventSerializer
+class EventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ['id', 'title', 'description', 'category', 'district', 'venue', 'event_start', 'event_end', 'is_active', 'show_on_home']
+
+# In NewsSerializer
+class NewsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = News
+        fields = ['id', 'title', 'slug', 'content', 'excerpt', 'image', 'created_at', 'is_published', 'show_on_home']
 ```
 
-Added new API endpoints to fetch featured content for the home page:
+Added new API endpoints to fetch featured content for the home page in `api/views.py`:
 ```python
-# In api/views.py
 class FeaturedJobsViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that returns jobs marked to show on the home page
+    """
     queryset = Job.objects.filter(show_on_home=True, is_active=True).order_by('-created_at')[:5]
     serializer_class = JobSerializer
     permission_classes = [permissions.AllowAny]
 
 class FeaturedEventsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Event.objects.filter(show_on_home=True).order_by('-event_start')[:5]
+    """
+    API endpoint that returns events marked to show on the home page
+    """
+    queryset = Event.objects.filter(show_on_home=True, is_active=True).order_by('event_start')[:5]
     serializer_class = EventSerializer
     permission_classes = [permissions.AllowAny]
 
 class FeaturedNewsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = News.objects.filter(show_on_home=True, is_published=True).order_by('-published_date')[:5]
+    """
+    API endpoint that returns news articles marked to show on the home page
+    """
+    queryset = News.objects.filter(show_on_home=True, is_published=True).order_by('-created_at')[:5]
     serializer_class = NewsSerializer
     permission_classes = [permissions.AllowAny]
 ```
@@ -404,24 +555,61 @@ router.register(r'featured-events', views.FeaturedEventsViewSet, basename='featu
 router.register(r'featured-news', views.FeaturedNewsViewSet, basename='featured-news')
 ```
 
-### Admin Templates
-Updated the admin templates for jobs, events, and news to include a checkbox for showing on home page:
+### List View Updates
+Updated the list views to include a column showing whether an item is featured on the home page:
+
+In `job_table.html`:
 ```html
-<!-- In job_form.html, event_form.html, and news_form.html -->
-<div class="form-check mb-3">
-    {{ form.show_on_home }}
-    <label class="form-check-label" for="{{ form.show_on_home.id_for_label }}">
-        Show on Home Page
-    </label>
-    <small class="form-text text-muted">
-        Check this to display this item on the mobile app home page
-    </small>
-</div>
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Company</th>
+            <th>Last Date</th>
+            <th>Active</th>
+            <th>Featured</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for job in jobs %}
+        <tr>
+            <td>{{ job.title }}</td>
+            <td>{{ job.company }}</td>
+            <td>{{ job.last_date|date:"M d, Y" }}</td>
+            <td>
+                {% if job.is_active %}
+                <span class="badge bg-success">Yes</span>
+                {% else %}
+                <span class="badge bg-danger">No</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if job.show_on_home %}
+                <span class="badge bg-primary">Featured</span>
+                {% else %}
+                <span class="badge bg-secondary">No</span>
+                {% endif %}
+            </td>
+            <td>
+                <!-- Action buttons -->
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center">No jobs found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 ```
+
+Similar updates were made to `event_table.html` and `news_table.html` to show the featured status.
 
 These changes allow administrators to:
 - Select which jobs, events, and news items appear on the home page
 - Control the visibility of featured content through a simple checkbox
 - Manage all featured content through the existing admin interfaces
+- Easily see which items are featured on the home page in the list views
 
 The mobile app can now fetch featured content through the new API endpoints and display them on the home page.
