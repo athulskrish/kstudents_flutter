@@ -349,7 +349,7 @@ class FeaturedJobsViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that returns jobs marked to show on the home page
     """
-    queryset = Job.objects.filter(show_on_home=True, is_active=True).order_by('-created_at')[:5]
+    queryset = Job.objects.filter(show_on_home=True, is_published=True).order_by('-created_at')[:5]
     serializer_class = JobSerializer
     permission_classes = [permissions.AllowAny]
 
