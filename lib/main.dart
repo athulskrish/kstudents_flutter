@@ -6,6 +6,8 @@ import 'screens/job_list_screen.dart';
 import 'screens/question_papers_screen.dart';
 import 'screens/notes_screen.dart';
 import 'screens/privacy_screen.dart';
+import 'screens/study_materials_screen.dart';
+import 'screens/more_screen.dart';
 import 'services/auth_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -275,10 +277,10 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = const [
     HomeScreen(),
-    QuestionPapersScreen(showBottomBar: true),
+    StudyMaterialsScreen(),
     EventsScreen(),
     JobListScreen(),
-    NotesScreen(showBottomBar: true),
+    MoreScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -304,9 +306,9 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(Icons.description_outlined),
-            selectedIcon: Icon(Icons.description),
-            label: 'Questions',
+            icon: Icon(Icons.book_outlined),
+            selectedIcon: Icon(Icons.book),
+            label: 'Study',
           ),
           NavigationDestination(
             icon: Icon(Icons.event_outlined),
@@ -319,9 +321,9 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Jobs',
           ),
           NavigationDestination(
-            icon: Icon(Icons.note_outlined),
-            selectedIcon: Icon(Icons.note),
-            label: 'Notes',
+            icon: Icon(Icons.more_horiz),
+            selectedIcon: Icon(Icons.more_horiz),
+            label: 'More',
           ),
         ],
         height: 70,

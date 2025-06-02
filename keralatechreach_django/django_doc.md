@@ -211,3 +211,138 @@ Added the flatpickr CSS directly in the template
 Updated the views to:
 Print form errors for debugging
 Provide proper context for rendering the form
+
+## Ad Slider Implementation
+
+I've implemented an Ad Slider management system in the admin dashboard to control the banner advertisements displayed in the mobile app. The implementation includes:
+
+### Database Model
+Added a new model `AdSlider` in `admindashboard/models.py`:
+```python
+class AdSlider(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    image = models.ImageField(upload_to='ad_sliders/')
+    link_url = models.URLField(blank=True, null=True)
+    background_color = models.CharField(max_length=7, default="#2563EB", help_text="Color in hex format, e.g. #2563EB")
+    text_color = models.CharField(max_length=7, default="#FFFFFF", help_text="Color in hex format, e.g. #FFFFFF")
+    is_active = models.BooleanField(default=True)
+    position = models.PositiveIntegerField(default=0, help_text="Order in which the slider appears")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['position']
+        verbose_name = 'Ad Slider'
+        verbose_name_plural = 'Ad Sliders'
+    
+    def __str__(self):
+        return self.title
+```
+
+### Form Implementation
+Added a form for creating and editing ad sliders in `admindashboard/forms.py`:
+```python
+class AdSliderForm(forms.ModelForm):
+    class Meta:
+        model = AdSlider
+        fields = ['title', 'description', 'image', 'link_url', 'background_color', 'text_color', 'is_active', 'position']
+        widgets = {
+            'background_color': forms.TextInput(attrs={'type': 'color'}),
+            'text_color': forms.TextInput(attrs={'type': 'color'}),
+        }
+```
+
+### Views Implementation
+Added view functions for ad slider management in `admindashboard/views/marketing.py`:
+```python
+@login_required
+def ad_slider_list(request):
+    ad_sliders = AdSlider.objects.all()
+    return render(request, 'admindashboard/ad_slider_list.html', {'ad_sliders': ad_sliders})
+
+@login_required
+def ad_slider_create(request):
+    if request.method == 'POST':
+        form = AdSliderForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Ad slider created successfully!')
+            return redirect('admin:ad_slider_list')
+    else:
+        form = AdSliderForm()
+    
+    return render(request, 'admindashboard/ad_slider_form.html', {'form': form, 'title': 'Create Ad Slider'})
+
+@login_required
+def ad_slider_edit(request, slider_id):
+    ad_slider = get_object_or_404(AdSlider, id=slider_id)
+    
+    if request.method == 'POST':
+        form = AdSliderForm(request.POST, request.FILES, instance=ad_slider)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Ad slider updated successfully!')
+            return redirect('admin:ad_slider_list')
+    else:
+        form = AdSliderForm(instance=ad_slider)
+    
+    return render(request, 'admindashboard/ad_slider_form.html', {'form': form, 'title': 'Edit Ad Slider'})
+
+@login_required
+def ad_slider_delete(request, slider_id):
+    ad_slider = get_object_or_404(AdSlider, id=slider_id)
+    
+    if request.method == 'POST':
+        ad_slider.delete()
+        messages.success(request, 'Ad slider deleted successfully!')
+        return redirect('admin:ad_slider_list')
+    
+    return render(request, 'admindashboard/ad_slider_delete.html', {'ad_slider': ad_slider})
+```
+
+### URL Patterns
+Added URL patterns in `admindashboard/urls.py`:
+```python
+# Ad Slider URLs
+path('marketing/ad-sliders/', views.marketing.ad_slider_list, name='ad_slider_list'),
+path('marketing/ad-sliders/create/', views.marketing.ad_slider_create, name='ad_slider_create'),
+path('marketing/ad-sliders/<int:slider_id>/edit/', views.marketing.ad_slider_edit, name='ad_slider_edit'),
+path('marketing/ad-sliders/<int:slider_id>/delete/', views.marketing.ad_slider_delete, name='ad_slider_delete'),
+```
+
+### Templates
+Created the following templates:
+- `ad_slider_list.html`: Main page for viewing all ad sliders
+- `ad_slider_form.html`: Form for adding and editing ad sliders
+- `ad_slider_delete.html`: Confirmation page for deleting ad sliders
+
+### API Endpoint
+Added an API endpoint in `api/views.py` to serve ad sliders to the mobile app:
+```python
+class AdSliderViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = AdSlider.objects.filter(is_active=True)
+    serializer_class = AdSliderSerializer
+    permission_classes = [permissions.AllowAny]
+```
+
+And the corresponding serializer in `api/serializers.py`:
+```python
+class AdSliderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdSlider
+        fields = ['id', 'title', 'description', 'image', 'link_url', 'background_color', 'text_color', 'position']
+```
+
+### Navigation
+Added the Ad Sliders link in the sidebar navigation under the Marketing section in `base.html`.
+
+These changes allow administrators to:
+- View a list of all ad sliders
+- Add new ad sliders with images, colors, and links
+- Edit existing ad sliders
+- Delete ad sliders
+- Control the order of sliders through the position field
+- Toggle sliders on/off using the is_active field
+
+The mobile app can fetch active ad sliders through the API endpoint and display them in the home screen slider.

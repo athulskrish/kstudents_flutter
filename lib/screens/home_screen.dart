@@ -10,9 +10,117 @@ import 'faq_screen.dart';
 import 'privacy_screen.dart';
 import 'message_us_screen.dart';
 import 'tech_picks_screen.dart';
+import '../models/tech_pick.dart';
+import '../models/ad_slider.dart';
+import '../services/api_service.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:async';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final ApiService _apiService = ApiService();
+  List<TechPick> _techPicks = [];
+  List<AdSlider> _adSliders = [];
+  bool _isLoadingTechPicks = true;
+  bool _isLoadingAdSliders = true;
+  
+  // For image slider
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  Timer? _timer;
+  
+  // Fallback ad slides in case API fails
+  final List<Map<String, dynamic>> _fallbackAdSlides = [
+    {
+      'color': Color(0xFF2563EB),
+      'text': 'Kerala Tech Reach',
+    },
+    {
+      'color': Color(0xFF10B981),
+      'text': 'Student Resources',
+    },
+    {
+      'color': Color(0xFFF59E0B),
+      'text': 'Latest Events',
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTechPicks();
+    _loadAdSliders();
+    _startAutoSlider();
+  }
+  
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+  
+  void _startAutoSlider() {
+    _timer = Timer.periodic(const Duration(seconds: 5), (Timer timer) {
+      if (_adSliders.isNotEmpty) {
+        if (_currentPage < _adSliders.length - 1) {
+          _currentPage++;
+        } else {
+          _currentPage = 0;
+        }
+      } else {
+        if (_currentPage < _fallbackAdSlides.length - 1) {
+          _currentPage++;
+        } else {
+          _currentPage = 0;
+        }
+      }
+      
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeIn,
+        );
+      }
+    });
+  }
+
+  Future<void> _loadTechPicks() async {
+    try {
+      final picks = await _apiService.getTechPicks();
+      setState(() {
+        _techPicks = picks;
+        _isLoadingTechPicks = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingTechPicks = false;
+      });
+      print('Error loading tech picks: $e');
+    }
+  }
+  
+  Future<void> _loadAdSliders() async {
+    try {
+      final sliders = await _apiService.getAdSliders();
+      setState(() {
+        _adSliders = sliders;
+        _isLoadingAdSliders = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingAdSliders = false;
+      });
+      print('Error loading ad sliders: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,131 +194,215 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-      body: GridView.count(
-        padding: const EdgeInsets.all(16.0),
-        crossAxisCount: 2,
-        mainAxisSpacing: 16.0,
-        crossAxisSpacing: 16.0,
+      body: ListView(
         children: [
-          _buildFeatureCard(
-            context,
-            'Question Papers',
-            Icons.description,
-            Colors.blue,
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const QuestionPapersScreen(showBottomBar: false),
+          // Ad Slider
+          _buildAdSlider(),
+          
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
+              'Welcome to Kerala Tech Reach',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          _buildFeatureCard(
-            context,
-            'Study Notes',
-            Icons.note,
-            Colors.green,
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const NotesScreen(showBottomBar: false),
-              ),
-            ),
-          ),
-          _buildFeatureCard(
-            context,
-            'Govt. Initiatives',
-            Icons.flag,
-            Colors.orange,
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const InitiativesScreen(),
-              ),
-            ),
-          ),
-          _buildFeatureCard(
-            context,
-            'Entrance Exams',
-            Icons.school,
-            Colors.purple,
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const EntranceExamsScreen(),
-              ),
-            ),
-          ),
-          _buildFeatureCard(
-            context,
-            'FAQ',
-            Icons.help_outline,
-            Colors.teal,
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const FAQScreen(),
-              ),
-            ),
-          ),
-          _buildFeatureCard(
-            context,
-            'Message Us',
-            Icons.mail_outline,
-            Colors.indigo,
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const MessageUsScreen(),
-              ),
-            ),
-          ),
-          _buildFeatureCard(
-            context,
-            'Student Tech Picks',
-            Icons.devices_other,
-            Colors.deepOrange,
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const TechPicksScreen(),
-              ),
-            ),
-          ),
+          
+          // Latest Tech from Affiliate Marketing
+          _buildLatestTechSection(),
         ],
       ),
     );
   }
 
-  Widget _buildFeatureCard(
-    BuildContext context,
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return Card(
-      elevation: 4.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16.0),
-        child: Column(
+  Widget _buildAdSlider() {
+    return Column(
+      children: [
+        SizedBox(
+          height: 180,
+          child: _isLoadingAdSliders
+              ? const Center(child: CircularProgressIndicator())
+              : PageView.builder(
+                  controller: _pageController,
+                  itemCount: _adSliders.isNotEmpty ? _adSliders.length : _fallbackAdSlides.length,
+                  onPageChanged: (int page) {
+                    setState(() {
+                      _currentPage = page;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    if (_adSliders.isNotEmpty) {
+                      final adSlider = _adSliders[index];
+                      return GestureDetector(
+                        onTap: () async {
+                          if (adSlider.linkUrl != null && adSlider.linkUrl!.isNotEmpty) {
+                            if (await canLaunch(adSlider.linkUrl!)) {
+                              await launch(adSlider.linkUrl!);
+                            }
+                          }
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: Color(int.parse(adSlider.backgroundColor.replaceFirst('#', '0xFF'))),
+                            image: adSlider.imageUrl.isNotEmpty
+                                ? DecorationImage(
+                                    image: NetworkImage(adSlider.imageUrl),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: adSlider.imageUrl.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    adSlider.title,
+                                    style: TextStyle(
+                                      color: Color(int.parse(adSlider.textColor.replaceFirst('#', '0xFF'))),
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                )
+                              : null,
+                        ),
+                      );
+                    } else {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: _fallbackAdSlides[index]['color'],
+                        ),
+                        child: Center(
+                          child: Text(
+                            _fallbackAdSlides[index]['text'],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+        ),
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 48.0,
-              color: color,
+          children: List.generate(
+            _adSliders.isNotEmpty ? _adSliders.length : _fallbackAdSlides.length,
+            (index) => Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              height: 8,
+              width: _currentPage == index ? 24 : 8,
+              decoration: BoxDecoration(
+                color: _currentPage == index
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
-            const SizedBox(height: 16.0),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleLarge,
-              textAlign: TextAlign.center,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLatestTechSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Text(
+            'Latest Tech Picks',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
-          ],
+          ),
+        ),
+        _isLoadingTechPicks
+            ? const Center(child: CircularProgressIndicator())
+            : _techPicks.isEmpty
+                ? const Center(child: Text('No tech picks available'))
+                : SizedBox(
+                    height: 220,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      itemCount: _techPicks.length > 5 ? 5 : _techPicks.length,
+                      itemBuilder: (context, index) {
+                        final pick = _techPicks[index];
+                        return _buildTechPickCard(pick);
+                      },
+                    ),
+                  ),
+      ],
+    );
+  }
+
+  Widget _buildTechPickCard(TechPick pick) {
+    return GestureDetector(
+      onTap: () async {
+        if (await canLaunch(pick.affiliateUrl)) {
+          await launch(pick.affiliateUrl);
+        }
+      },
+      child: Card(
+        margin: const EdgeInsets.all(8.0),
+        elevation: 2.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: SizedBox(
+          width: 160,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(8.0)),
+                child: pick.imageUrl != null && pick.imageUrl!.isNotEmpty
+                    ? Image.network(
+                        pick.imageUrl!,
+                        height: 120,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      )
+                    : Container(
+                        height: 120,
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.devices_other, size: 40),
+                      ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      pick.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '₹${pick.price.toStringAsFixed(0)}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

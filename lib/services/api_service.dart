@@ -16,6 +16,7 @@ import '../models/gallery.dart';
 import '../models/event.dart';
 import '../models/faq.dart';
 import '../models/tech_pick.dart';
+import '../models/ad_slider.dart';
 import '../utils/app_exception.dart';
 import '../utils/logger.dart';
 import 'auth_service.dart';
@@ -878,6 +879,28 @@ class ApiService {
       return data.map<String>((json) => json['name'] as String).toList();
     } else {
       throw Exception('Failed to load tech pick categories');
+    }
+  }
+  
+  // Ad Sliders
+  Future<List<AdSlider>> getAdSliders() async {
+    try {
+      AppLogger.info('Fetching ad sliders without auth requirement');
+      final response = await http.get(Uri.parse('$baseUrl/ad-sliders/'));
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((json) => AdSlider.fromJson(json)).toList();
+      } else {
+        AppLogger.error('Failed to load ad sliders [${response.statusCode}]', response.body);
+        throw AppException('Failed to load ad sliders',
+          details: 'Status code: ${response.statusCode}',
+          type: AppExceptionType.server);
+      }
+    } catch (e) {
+      AppLogger.error('Error fetching ad sliders', e);
+      throw AppException('Failed to load ad sliders', 
+        details: e.toString(), 
+        type: AppExceptionType.unknown);
     }
   }
 } 
