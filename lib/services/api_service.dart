@@ -17,16 +17,18 @@ import '../models/event.dart';
 import '../models/faq.dart';
 import '../models/tech_pick.dart';
 import '../models/ad_slider.dart';
+import '../models/district.dart'; // Import District model
 import '../utils/app_exception.dart';
 import '../utils/logger.dart';
 import 'auth_service.dart';
 import 'package:flutter/foundation.dart';
+import '../utils/constants.dart';
 
 class ApiService {
   // static const String baseUrl = 'http://localhost:8000/api'; // For local Django backend
   // static const String baseUrl = 'https://keralify.com/api'; // For production
   // String baseUrl = 'http://192.168.1.4:8000/api';
-  String baseUrl = 'http://103.235.106.114:8000/api'; // Using HTTP instead of HTTPS
+  String baseUrl = AppConstants.kBaseUrl; // Using HTTP instead of HTTPS
   final AuthService _authService = AuthService();
   final Dio _dio = Dio();
   
@@ -700,12 +702,13 @@ class ApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getDistricts() async {
+  Future<List<District>> getDistricts() async {
     try {
+      AppLogger.info('Fetching districts without auth requirement');
       final response = await http.get(Uri.parse('$baseUrl/districts/'));
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
-        return data.map((json) => json as Map<String, dynamic>).toList();
+        return data.map((json) => District.fromJson(json)).toList();
       } else {
         AppLogger.error('Failed to load districts [${response.statusCode}]', response.body);
         throw AppException('Failed to load districts',

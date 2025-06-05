@@ -106,3 +106,552 @@ Watching for file changes with StatReloader
 Watching for file changes with StatReloader
 E:\2024_Projects\android1\kstudentsflutter\keralatechreach_django\api\urls.py changed, reloading.
 Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+C:\Users\AJMAL\Desktop\amal\project\Flutter athul\kstudents_flutter\keralatechreach_django\api\views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+C:\Users\AJMAL\Desktop\amal\project\Flutter athul\kstudents_flutter\keralatechreach_django\keralatechreach\settings.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\AJMAL\Desktop\amal\project\Flutter athul\kstudents_flutter\keralatechreach_django\keralatechreach\settings.py changed, reloading.
+Watching for file changes with StatReloader
+"POST /api/auth/login/ HTTP/1.1" 200 697
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+"GET /api/jobs/ HTTP/1.1" 200 2
+Not Found: /api/ad-sliders/
+Not Found: /api/ad-sliders/
+"GET /api/featured-jobs/ HTTP/1.1" 200 2
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/featured-jobs/ HTTP/1.1" 200 2
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+Not Found: /api/ad-sliders/
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/featured-jobs/ HTTP/1.1" 200 2
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+Not Found: /api/ad-sliders/
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/featured-jobs/ HTTP/1.1" 200 2
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+"GET /api/events/5/ HTTP/1.1" 200 524
+"GET /api/events/1/ HTTP/1.1" 200 609
+"GET /api/events/2/ HTTP/1.1" 200 645
+Not Found: /api/news/SBI-CBO-Recruitment-2025/
+"GET /api/news/SBI-CBO-Recruitment-2025/ HTTP/1.1" 404 23
+Not Found: /api/news/bank-of-baroda-office-assistant-recruitment-2025-apply-online/
+"GET /api/news/bank-of-baroda-office-assistant-recruitment-2025-apply-online/ HTTP/1.1" 404 23
+Not Found: /api/news/bank-of-baroda-office-assistant-recruitment-2025-apply-online/
+"GET /api/news/bank-of-baroda-office-assistant-recruitment-2025-apply-online/ HTTP/1.1" 404 23
+"GET /api/events/2/ HTTP/1.1" 200 645
+"GET /api/events/1/ HTTP/1.1" 200 609
+"GET /api/events/5/ HTTP/1.1" 200 524
+"GET /api/news/ HTTP/1.1" 200 41777
+"GET /api/news/ HTTP/1.1" 200 41777
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+Not Found: /api/ad-sliders/
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/featured-jobs/ HTTP/1.1" 200 2
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/events/ HTTP/1.1" 200 2344
+"POST /api/auth/login/ HTTP/1.1" 200 697
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+Not Found: /api/ad-sliders/
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/featured-jobs/ HTTP/1.1" 200 2
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+Watching for file changes with StatReloader
+"GET /api/events/5/ HTTP/1.1" 200 524
+Not Found: /api/ad-sliders/
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/featured-jobs/ HTTP/1.1" 200 2
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+Not Found: /api/ad-sliders/
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+"GET /api/featured-jobs/ HTTP/1.1" 200 2
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/events/ HTTP/1.1" 200 2344
+Watching for file changes with StatReloader
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/exams/ HTTP/1.1" 200 828
+"GET /api/news/ HTTP/1.1" 200 41777
+C:\Users\AJMAL\Desktop\amal\project\Flutter athul\kstudents_flutter\keralatechreach_django\keralatechreach\settings.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\AJMAL\Desktop\amal\project\Flutter athul\kstudents_flutter\keralatechreach_django\keralatechreach\settings.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/featured-jobs/ HTTP/1.1" 200 2
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+Not Found: /api/ad-sliders/
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+Watching for file changes with StatReloader
+"POST /api/auth/login/ HTTP/1.1" 200 697
+Not Found: /api/ad-sliders/
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+Not Found: /api/ad-sliders/
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/featured-jobs/ HTTP/1.1" 200 2
+"GET /api/featured-jobs/ HTTP/1.1" 200 2
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+"GET /api/events/1/ HTTP/1.1" 200 609
+Not Found: /api/ad-sliders/
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/jobs/ HTTP/1.1" 200 2
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+"GET /api/featured-jobs/ HTTP/1.1" 200 2
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?search=d HTTP/1.1" 200 2
+"GET /api/question-papers/?search=da HTTP/1.1" 200 2
+"GET /api/question-papers/?search=d HTTP/1.1" 200 2
+"GET /api/question-papers/?search=ds HTTP/1.1" 200 2
+"GET /api/question-papers/?degree=1&semester=1&year=2025&university_id=1 HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2025&university_id=1 HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 2
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET / HTTP/1.1" 200 32187
+"GET /media/news/UNIOM-300x168_164RRuW.jpeg HTTP/1.1" 200 11747
+"GET /media/news/people-use-mobile-phone-as-they-sit-outside-state-bank-of-india-branch-in-mumbai-i_jMddwjh.webp HTTP/1.1" 200 22026
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5763
+"GET /admindashboard/login/ HTTP/1.1" 200 2578
+"POST /admindashboard/login/ HTTP/1.1" 302 0
+"GET /admindashboard/dashboard/ HTTP/1.1" 200 40751
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/ads/ HTTP/1.1" 200 32211
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/activity-log/ HTTP/1.1" 200 60161
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/contact-messages/ HTTP/1.1" 200 31972
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/districts/ HTTP/1.1" 200 54279
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/initiatives/ HTTP/1.1" 200 30646
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/notes/ HTTP/1.1" 200 30555
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/questions/ HTTP/1.1" 200 31648
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/dashboard/ HTTP/1.1" 200 40751
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/questions/ HTTP/1.1" 200 31648
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/notes/ HTTP/1.1" 200 30555
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/exams/ HTTP/1.1" 200 39797
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/universities/ HTTP/1.1" 200 32021
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/questions/ HTTP/1.1" 200 31648
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/questions/1/edit/ HTTP/1.1" 200 34350
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=2&year=2025&university_id=1 HTTP/1.1" 200 2
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 247
+"GET /media/question_papers/Anandhu_S_resume-1.pdf HTTP/1.1" 200 85495
+"GET /media/question_papers/Anandhu_S_resume-1.pdf HTTP/1.1" 200 85495
+"GET /media/question_papers/Anandhu_S_resume-1.pdf HTTP/1.1" 200 85495
+"GET /admindashboard/notes/ HTTP/1.1" 200 30555
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/notes/create/ HTTP/1.1" 200 32995
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"POST /admindashboard/notes/create/ HTTP/1.1" 302 0
+"GET /admindashboard/notes/ HTTP/1.1" 200 32525
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/questions/ HTTP/1.1" 200 31648
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/notes/ HTTP/1.1" 200 32525
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/exams/ HTTP/1.1" 200 39797
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/universities/ HTTP/1.1" 200 32021
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/degrees/ HTTP/1.1" 200 41647
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/news/ HTTP/1.1" 200 34002
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/events/ HTTP/1.1" 200 38875
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/event-categories/ HTTP/1.1" 200 52063
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/districts/ HTTP/1.1" 200 54279
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/events/create/ HTTP/1.1" 200 39417
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/events/3/edit/ HTTP/1.1" 200 39716
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/event-categories/ HTTP/1.1" 200 52063
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/districts/ HTTP/1.1" 200 54279
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/event-categories/ HTTP/1.1" 200 52063
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/events/ HTTP/1.1" 200 38875
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/event-categories/ HTTP/1.1" 200 52063
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/jobs/ HTTP/1.1" 200 30909
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/gallery/ HTTP/1.1" 200 29935
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/jobs/ HTTP/1.1" 200 30909
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /admindashboard/jobs/create/ HTTP/1.1" 200 32288
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"POST /admindashboard/jobs/create/ HTTP/1.1" 302 0
+"GET /admindashboard/jobs/ HTTP/1.1" 200 32855
+"GET /static/assets/js/material-dashboard.min.js%3Fv%3D3.2.0 HTTP/1.1" 404 2060
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2024&university=1 HTTP/1.1" 200 2
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 282
+"GET /media/notes/notification_SE_General01_11_2023_11_40_02.pdf HTTP/1.1" 200 428627
+"GET /media/notes/notification_SE_General01_11_2023_11_40_02.pdf HTTP/1.1" 200 428627
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+Not Found: /api/ad-sliders/
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/featured-jobs/ HTTP/1.1" 200 190
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/jobs/ HTTP/1.1" 200 190
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2025&university_id=1 HTTP/1.1" 200 2
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 247
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2024&university=1 HTTP/1.1" 200 2
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 282
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+Too Many Requests: /api/featured-exams/
+Too Many Requests: /api/featured-news/
+Too Many Requests: /api/jobs/
+Too Many Requests: /api/districts/
+Too Many Requests: /api/universities/
+Too Many Requests: /api/event-categories/
+Too Many Requests: /api/universities/
+"GET /api/featured-exams/ HTTP/1.1" 429 72
+Not Found: /api/ad-sliders/
+"GET /api/featured-news/ HTTP/1.1" 429 72
+"GET /api/districts/ HTTP/1.1" 429 72
+"GET /api/jobs/ HTTP/1.1" 429 72
+"GET /api/event-categories/ HTTP/1.1" 429 72
+"GET /api/universities/ HTTP/1.1" 429 72
+"GET /api/universities/ HTTP/1.1" 429 72
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/featured-jobs/ HTTP/1.1" 200 190
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+Too Many Requests: /api/jobs/
+"GET /api/jobs/ HTTP/1.1" 429 72
+Too Many Requests: /api/news/
+"GET /api/news/ HTTP/1.1" 429 72
+"GET /admindashboard/jobs/ HTTP/1.1" 302 0
+"GET /admindashboard/login/?next=/admindashboard/jobs/ HTTP/1.1" 200 2578
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 5763
+Watching for file changes with StatReloader
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+Not Found: /api/ad-sliders/
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/featured-jobs/ HTTP/1.1" 200 190
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+"GET /api/jobs/ HTTP/1.1" 200 190
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2025&university_id=1 HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 282
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2025&university_id=1 HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 282
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2025&university_id=1 HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 282
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2025&university_id=1 HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 282
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 282
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 282
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 282
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2025&university_id=1 HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 282
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2025&university_id=1 HTTP/1.1" 200 2
+"GET /api/question-papers/?degree=1&semester=1&year=2025&university_id=1 HTTP/1.1" 200 2
+"GET /api/question-papers/?degree=1&semester=1&year=2024&university_id=1 HTTP/1.1" 200 247
+"GET /media/question_papers/Anandhu_S_resume-1.pdf HTTP/1.1" 200 85495
+"GET /media/question_papers/Anandhu_S_resume-1.pdf HTTP/1.1" 200 85495
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2024&university=1 HTTP/1.1" 200 2
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 282
+"GET /media/notes/notification_SE_General01_11_2023_11_40_02.pdf HTTP/1.1" 200 428627
+"GET /media/notes/notification_SE_General01_11_2023_11_40_02.pdf HTTP/1.1" 200 428627
+"GET /api/affiliate-products/ HTTP/1.1" 200 2
+Not Found: /api/ad-sliders/
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/event-categories/ HTTP/1.1" 200 474
+"GET /api/featured-jobs/ HTTP/1.1" 200 190
+"GET /api/districts/ HTTP/1.1" 200 730
+"GET /api/featured-exams/ HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/jobs/ HTTP/1.1" 200 190
+"GET /api/featured-news/ HTTP/1.1" 200 41777
+"GET /api/featured-events/ HTTP/1.1" 200 2344
+"GET /api/events/ HTTP/1.1" 200 2344
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2025&university_id=1 HTTP/1.1" 200 2
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/notes/?degree=1&semester=1&year=2025&university=1 HTTP/1.1" 200 282
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/universities/ HTTP/1.1" 200 40
+"GET /api/degrees/?university=1 HTTP/1.1" 200 487
+"GET /api/question-papers/?degree=1&semester=1&year=2025&university_id=1 HTTP/1.1" 200 2
+Too Many Requests: /api/universities/
+"GET /api/universities/ HTTP/1.1" 429 72
+"GET /api/universities/ HTTP/1.1" 200 40
+Too Many Requests: /api/affiliate-products/
+"GET /api/affiliate-products/ HTTP/1.1" 429 72
+Too Many Requests: /api/featured-news/
+Too Many Requests: /api/featured-exams/
+"GET /api/featured-exams/ HTTP/1.1" 429 72
+"GET /api/featured-news/ HTTP/1.1" 429 72
+Too Many Requests: /api/featured-events/
+Too Many Requests: /api/featured-jobs/
+"GET /api/featured-jobs/ HTTP/1.1" 429 72
+"GET /api/featured-events/ HTTP/1.1" 429 72
+Too Many Requests: /api/events/
+Not Found: /api/ad-sliders/
+Too Many Requests: /api/event-categories/
+Too Many Requests: /api/districts/
+"GET /api/events/ HTTP/1.1" 429 72
+Too Many Requests: /api/jobs/
+"GET /api/ad-sliders/ HTTP/1.1" 404 37773
+"GET /api/event-categories/ HTTP/1.1" 429 72
+"GET /api/districts/ HTTP/1.1" 429 72
+"GET /api/jobs/ HTTP/1.1" 429 72
+Too Many Requests: /api/universities/
+Too Many Requests: /api/universities/
+"GET /api/universities/ HTTP/1.1" 429 72
+"GET /api/universities/ HTTP/1.1" 429 72
+Too Many Requests: /api/universities/
+Too Many Requests: /api/universities/
+"GET /api/universities/ HTTP/1.1" 429 72
+"GET /api/universities/ HTTP/1.1" 429 72
+Too Many Requests: /api/universities/
+Too Many Requests: /api/universities/
+"GET /api/universities/ HTTP/1.1" 429 72
+"GET /api/universities/ HTTP/1.1" 429 72
+Too Many Requests: /api/universities/
+Too Many Requests: /api/universities/
+"GET /api/universities/ HTTP/1.1" 429 72
+"GET /api/universities/ HTTP/1.1" 429 72
+Too Many Requests: /api/universities/
+"GET /api/universities/ HTTP/1.1" 429 72
+Too Many Requests: /api/universities/
+"GET /api/universities/ HTTP/1.1" 429 72
+Too Many Requests: /api/universities/
+"GET /api/universities/ HTTP/1.1" 429 72
+Too Many Requests: /api/universities/
+"GET /api/universities/ HTTP/1.1" 429 72
+Too Many Requests: /api/universities/
+Too Many Requests: /api/universities/
+"GET /api/universities/ HTTP/1.1" 429 72
+"GET /api/universities/ HTTP/1.1" 429 72
+Too Many Requests: /api/universities/
+"GET /api/universities/ HTTP/1.1" 429 72
+Too Many Requests: /api/universities/
+"GET /api/universities/ HTTP/1.1" 429 72
+C:\Users\AJMAL\Desktop\amal\project\Flutter athul\kstudents_flutter\keralatechreach_django\keralatechreach\settings.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\AJMAL\Desktop\amal\project\Flutter athul\kstudents_flutter\keralatechreach_django\keralatechreach\settings.py changed, reloading.
+Watching for file changes with StatReloader
+C:\Users\AJMAL\Desktop\amal\project\Flutter athul\kstudents_flutter\keralatechreach_django\keralatechreach\settings.py changed, reloading.

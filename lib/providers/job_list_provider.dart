@@ -18,6 +18,17 @@ class JobListProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _showSavedJobs = false;
+  bool get showSavedJobs => _showSavedJobs;
+
+  void toggleShowSavedJobs() {
+    _showSavedJobs = !_showSavedJobs;
+    if (!_showSavedJobs) {
+      _roleFilter = '';
+    }
+    notifyListeners();
+  }
+
   // Ad logic
   int _adCounter = 0;
   int get adCounter => _adCounter;
@@ -62,8 +73,12 @@ class JobListProvider extends ChangeNotifier {
   }
 
   List<Job> get filteredJobs {
-    if (_roleFilter.isEmpty) return _jobs;
-    return _jobs.where((job) => job.title.toLowerCase().contains(_roleFilter.toLowerCase())).toList();
+    if (_showSavedJobs) {
+      return _savedJobs;
+    } else {
+      if (_roleFilter.isEmpty) return _jobs;
+      return _jobs.where((job) => job.title.toLowerCase().contains(_roleFilter.toLowerCase())).toList();
+    }
   }
 
   void saveJob(Job job) {

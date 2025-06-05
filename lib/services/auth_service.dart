@@ -3,11 +3,12 @@ import 'package:http/http.dart' as http;
 import '../models/auth_response.dart';
 import '../utils/logger.dart';
 import 'secure_storage_service.dart';
+import '../utils/constants.dart';
 
 class AuthService {
   // static const String baseUrl = 'https://keralify.com/api';
   // static const String baseUrl = 'http://192.168.1.4:8000/api';
-  static const String baseUrl = 'http://103.235.106.114:8000/api';
+  static const String baseUrl = AppConstants.kBaseUrl;
   final SecureStorageService _secureStorage = SecureStorageService();
 
   // Login

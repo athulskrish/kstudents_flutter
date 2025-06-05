@@ -219,58 +219,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Explore',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.article),
-              title: const Text('News'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const NewsListScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.work),
-              title: const Text('Jobs'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const JobListScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.privacy_tip),
-              title: const Text('Privacy Policy'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PrivacyScreen()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
       body: RefreshIndicator(
         onRefresh: () async {
           setState(() {

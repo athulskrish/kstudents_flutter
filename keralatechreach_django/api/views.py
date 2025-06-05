@@ -18,7 +18,8 @@ from admindashboard.models import (
     District,
     Initiative,
     FAQ,
-    ContactUs
+    ContactUs,
+    UserProfile
 )
 from .serializers import (
     QuestionPaperSerializer,
@@ -41,6 +42,15 @@ from .serializers import (
 from rest_framework import status, views
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.conf import settings
+import uuid
+from datetime import timedelta
+from django.utils import timezone
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.shortcuts import get_object_or_404, render
+from django.http import Http404
 
 class UniversityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = University.objects.all()
@@ -164,7 +174,6 @@ class QuestionPaperUploadView(views.APIView):
             print(f"Creating QuestionPaper with: degree_id={degree_id}, semester={semester_val}, year={year_val}, university_id={university_id_val}")
             
             # Get the user profile for created_by
-            from admindashboard.models import UserProfile
             user_profile = UserProfile.objects.get(id=created_by_id_val)
             
             paper = QuestionPaper.objects.create(
@@ -250,7 +259,6 @@ class NoteUploadView(views.APIView):
             print(f"Creating Note with: title={title}, degree_id={degree_id}, semester={semester_val}, year={year_val}, university_id={university_id}")
             
             # Get the user profile for uploaded_by
-            from admindashboard.models import UserProfile
             user_profile = UserProfile.objects.get(id=uploaded_by_id_val)
             
             # Create the note with all required fields
@@ -349,7 +357,7 @@ class FeaturedJobsViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that returns jobs marked to show on the home page
     """
-    queryset = Job.objects.filter(is_published=True).order_by('-created_at')[:5]
+    queryset = Job.objects.filter(is_published=True).order_by('-updated_at')[:5]
     serializer_class = JobSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -377,6 +385,7 @@ from rest_framework import status
 from django.contrib.auth import get_user_model
 from api.serializers import UserSerializer, CustomTokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.shortcuts import get_object_or_404 # Import get_object_or_404
 
 User = get_user_model()
 
@@ -389,17 +398,147 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = UserSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
 
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        refresh_token = str(refresh)
+            # Get or create UserProfile (should exist due to signal, but safe check)
+            try:
+                user_profile = user.userprofile
+            except UserProfile.DoesNotExist:
+                user_profile = UserProfile.objects.create(user=user, email=user.email)
 
-        return Response({
-            "user": UserSerializer(user, context=self.get_serializer_context()).data,
-            "message": "User created successfully",
-            "access": access_token,
-            "refresh": refresh_token,
-        }, status=status.HTTP_201_CREATED)
+            # Generate verification token and set expiry
+            token = uuid.uuid4().hex
+            user_profile.verification_token = token
+            user_profile.verification_token_expires_at = timezone.now() + timedelta(hours=24) # Token expires in 24 hours
+            user_profile.is_verified = False # Ensure is_verified is False on registration
+            user_profile.save()
+
+            # Construct verification URL - **NOTE: Update settings.BASE_URL with your actual domain/IP**
+            base_url = getattr(settings, 'BASE_URL', 'http://localhost:8000') # Default if not set
+            verification_link = f"{base_url}/api/auth/verify-email/{token}/"
+
+            # Send verification email using templates
+            subject = 'Verify Your Email Address'
+            from_email = settings.DEFAULT_FROM_EMAIL
+            recipient_list = [user.email]
+
+            # Render email templates
+            context = {'username': user.username, 'verification_link': verification_link}
+            text_content = render_to_string('emails/verification_email.txt', context)
+            html_content = render_to_string('emails/verification_email.html', context)
+
+            try:
+                # Create the email with both plain text and HTML parts
+                email = EmailMultiAlternatives(subject, text_content, from_email, recipient_list)
+                email.attach_alternative(html_content, "text/html")
+                email.send(fail_silently=False)
+                print(f"Verification email sent to {user.email}")
+            except Exception as e:
+                print(f"Error sending verification email to {user.email}: {e}")
+                # Consider logging this error properly and potentially informing the user
+                # or marking the user for later email retry.
+
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
+
+            return Response({
+                "user": UserSerializer(user, context=self.get_serializer_context()).data,
+                    "message": "User created successfully. Please check your email to verify your account.",
+                "access": access_token,
+                "refresh": refresh_token,
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            # Log the error with traceback for debugging
+            import traceback
+            print("="*80)
+            print("An unexpected error occurred during registration:")
+            traceback.print_exc()
+            print("="*80)
+
+            # Return a generic error message to the user, or a more specific one if appropriate
+            return Response({
+                'detail': 'An unexpected error occurred during registration.',
+                'error': str(e) # Optionally include error detail in debug/dev mode
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class EmailVerificationView(views.APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, token, *args, **kwargs):
+        try:
+            user_profile = UserProfile.objects.get(verification_token=token)
+        except UserProfile.DoesNotExist:
+            # Raise Http404 for invalid token
+            raise Http404("Invalid or expired token.")
+
+        # Check if token has expired
+        if user_profile.verification_token_expires_at and timezone.now() > user_profile.verification_token_expires_at:
+            # Raise Http404 for expired token
+            raise Http404("Invalid or expired token.")
+
+        # Check if user is already verified (optional - can show a different message)
+        # if user_profile.is_verified:
+        #      return Response({'detail': 'Email already verified.'}, status=status.HTTP_200_OK)
+
+        # Verify the user's email
+        user_profile.is_verified = True
+        user_profile.verification_token = None # Clear token after use
+        user_profile.verification_token_expires_at = None
+        user_profile.save()
+
+        # Render success template on successful verification
+        return render(request, 'emails/verification_success.html', {'user': user_profile.user})
+
+
+class ResendVerificationEmailView(views.APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        email = request.data.get('email')
+        if not email:
+            return Response({'detail': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email=email)
+            user_profile = user.userprofile
+        except (User.DoesNotExist, UserProfile.DoesNotExist):
+            return Response({'detail': 'User with this email does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if user_profile.is_verified:
+            return Response({'detail': 'Email is already verified.'}, status=status.HTTP_200_OK)
+
+        # Generate a new token and set new expiry
+        token = uuid.uuid4().hex
+        user_profile.verification_token = token
+        user_profile.verification_token_expires_at = timezone.now() + timedelta(hours=24)
+        user_profile.save()
+
+        # Construct verification URL - **NOTE: Update settings.BASE_URL with your actual domain/IP**
+        base_url = getattr(settings, 'BASE_URL', 'http://localhost:8000')
+        verification_link = f"{base_url}/api/auth/verify-email/{token}/"
+
+        # Send new verification email using templates
+        subject = 'Verify Your Email Address - Resent'
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = [user.email]
+
+        # Render email templates
+        context = {'username': user.username, 'verification_link': verification_link}
+        text_content = render_to_string('emails/verification_email.txt', context)
+        html_content = render_to_string('emails/verification_email.html', context)
+
+        try:
+            # Create the email with both plain text and HTML parts
+            email = EmailMultiAlternatives(subject, text_content, from_email, recipient_list)
+            email.attach_alternative(html_content, "text/html")
+            email.send(fail_silently=False)
+            print(f"Resent verification email to {user.email}")
+            return Response({'detail': 'Verification email resent.'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"Error resending verification email to {user.email}: {e}")
+            return Response({'detail': 'Failed to resend verification email.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

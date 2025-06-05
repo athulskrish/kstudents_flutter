@@ -25,7 +25,9 @@ from .views import (
     FeaturedJobsViewSet,
     FeaturedEventsViewSet,
     FeaturedNewsViewSet,
-    FeaturedExamsViewSet
+    FeaturedExamsViewSet,
+    EmailVerificationView,
+    ResendVerificationEmailView
 )
 
 # Create the router for ViewSets
@@ -56,6 +58,8 @@ urlpatterns = [
     path('auth/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/register/', RegisterView.as_view(), name='auth_register'),
+    path('auth/verify-email/<str:token>/', EmailVerificationView.as_view(), name='verify_email'),
+    path('auth/resend-verification-email/', ResendVerificationEmailView.as_view(), name='resend_verification_email'),
     
     # Upload endpoints - these must come before router.urls to avoid conflicts
     path('question-papers/upload/', QuestionPaperUploadView.as_view(), name='questionpaper-upload'),

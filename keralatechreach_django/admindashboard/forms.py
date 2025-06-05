@@ -285,6 +285,14 @@ class CustomUserChangeForm(UserChangeForm):
                     'placeholder': '',  # Remove placeholder to avoid overlap with label
                 })
 
+class UserActiveStatusForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['is_active']
+        widgets = {
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
@@ -308,10 +316,8 @@ class UserProfileUpdateForm(forms.ModelForm):
 class UserManagementForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['is_active', 'is_staff', 'is_verified', 'is_approved', 'is_blocked']
+        fields = ['is_verified', 'is_approved', 'is_blocked']
         widgets = {
-            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'is_staff': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_verified': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_approved': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_blocked': forms.CheckboxInput(attrs={'class': 'form-check-input'}),

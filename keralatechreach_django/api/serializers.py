@@ -116,7 +116,7 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password')
+        fields = ('id', 'username', 'email', 'is_active', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate_password(self, value):
@@ -136,7 +136,16 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        data['user'] = UserSerializer(self.user).data
+        
+        # Get the user object that was authenticated by the super class validate method
+        user = self.user
+
+        # Check if the user is active
+        if not user.is_active:
+            # Raise a validation error if the user is not active
+            raise serializers.ValidationError("Your account is not active. Please contact support.")
+
+        data['user'] = UserSerializer(user).data
         return data
 
     @classmethod

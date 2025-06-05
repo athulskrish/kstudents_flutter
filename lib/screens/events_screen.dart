@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import '../models/district.dart';
 
 class SavedEvent {
   final Event event;
@@ -26,7 +27,7 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
   List<Event> _allEvents = [];
   List<SavedEvent> _savedEvents = [];
   List<Map<String, dynamic>> _eventCategories = [];
-  List<Map<String, dynamic>> _districts = [];
+  List<District> _districts = [];
   int? _categoryFilter;
   int? _districtFilter;
   DateTime? _dateFilter;
@@ -37,6 +38,7 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
   String _errorMessage = '';
   RewardedAd? _rewardedAd;
   static const String _testRewardedAdUnitId = 'ca-app-pub-3940256099942544/5224354917';
+  bool _showSavedEvents = false; // State variable to toggle between all and saved events
 
   @override
   void initState() {
@@ -106,7 +108,7 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
       final districts = await _apiService.getDistricts();
       print('DEBUG: Received ${districts.length} districts from API');
       if (districts.isNotEmpty) {
-        print('DEBUG: First district: ${districts[0]['name']}, ID: ${districts[0]['id']}');
+        print('DEBUG: First district: ${districts[0].name}, ID: ${districts[0].id}');
       }
       setState(() {
         _districts = districts;
@@ -222,36 +224,110 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
-          title: const Text('Events'),
+        title: Text(_showSavedEvents ? 'Saved Events' : 'All Events'), // Update title based on state
           actions: [
             IconButton(
-              icon: const Icon(Icons.refresh),
-              tooltip: 'Refresh',
+            icon: Icon(_showSavedEvents ? Icons.event : Icons.bookmark), // Toggle icon
+            tooltip: _showSavedEvents ? 'Show All Events' : 'Show Saved Events', // Toggle tooltip
               onPressed: () {
+              setState(() {
+                _showSavedEvents = !_showSavedEvents; // Toggle state
+                if (!_showSavedEvents) {
+                  // Reload all events when switching back from saved view
                 _loadEvents();
-                _loadEventCategories();
-                _loadDistricts();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Refreshing data...')),
-                );
+                } else {
+                  // Ensure saved events are loaded when switching to saved view
+                  _loadSavedEvents();
+                }
+              });
               },
             ),
           ],
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'All Events'),
-              Tab(text: 'Saved Events'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.only(top: 16.0), // Keep the top padding
+        child: Column(
+          children: [
+            if (_showSavedEvents)
+              // Display saved events list
+              Expanded(
+                child: _savedEvents.isEmpty
+                    ? const Center(child: Text('No saved events yet.'))
+                    : ListView.builder(
+                        itemCount: _savedEvents.length,
+                        itemBuilder: (context, index) {
+                          final event = _savedEvents[index].event;
+                          return Card(
+                            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            child: ListTile(
+                              title: Text(
+                                event.title,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.calendar_today, size: 14),
+                                      const SizedBox(width: 4),
+                                      Text(DateFormat('yyyy-MM-dd HH:mm').format(event.date)),
+                                    ],
+                                  ),
+                                  if (event.location != null) Row(
+                                    children: [
+                                      const Icon(Icons.location_on, size: 14),
+                                      const SizedBox(width: 4),
+                                      Expanded(child: Text(event.location!)),
+                                    ],
+                                  ),
+                                  if (event.category != null) Row(
+                                    children: [
+                                      const Icon(Icons.category, size: 14),
+                                      const SizedBox(width: 4),
+                                      Text(event.category!),
+                                    ],
+                                  ),
+                                  if (event.description != null && event.description!.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4), // Add top padding to description
+                                      child: Text(
+                                        event.description!.length > 100
+                                            ? '${event.description!.substring(0, 100)}...'
+                                            : event.description!,
+                                        style: const TextStyle(fontSize: 12), // Smaller font for description preview
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              onTap: () => _onEventTap(event), // Still navigate to detail screen
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.bookmark), // Always show filled bookmark for saved events
+                                    tooltip: 'Remove from saved', // Tooltip to remove
+                                    onPressed: () => _removeSavedEvent(event), // Only remove functionality
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.share), // Share icon
+                                    tooltip: 'Share',
+                                    onPressed: () => _shareEvent(event), // Share functionality
+                                  ),
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
-            // All Events Tab
-            Column(
+                          );
+                        },
+                      ),
+              )
+            else
+              // Display all events list with filters
+              Expanded(
+                child: Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -277,7 +353,7 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
                                 ..._eventCategories.map((category) => DropdownMenuItem<int>(
                                   value: category['id'],
                                   child: Text(category['category']),
-                                )).toList(),
+                                        )).toList(), // This line was causing linter errors previously
                               ],
                               onChanged: (value) {
                                 setState(() {
@@ -302,10 +378,7 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
                                   value: null,
                                   child: Text('All Locations'),
                                 ),
-                                ..._districts.map((district) => DropdownMenuItem<int>(
-                                  value: district['id'],
-                                  child: Text(district['name']),
-                                )).toList(),
+                                    ..._districts.map((district) => DropdownMenuItem<int>(value: district.id, child: Text(district.name))).toList(), // This line was causing linter errors previously
                               ],
                               onChanged: (value) {
                                 setState(() {
@@ -425,29 +498,29 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
                                           ),
                                           if (event.description != null && event.description!.isNotEmpty) 
                                             Padding(
-                                              padding: const EdgeInsets.only(top: 4),
+                                                  padding: const EdgeInsets.only(top: 4), // Add top padding to description
                                               child: Text(
                                                 event.description!.length > 100
                                                     ? '${event.description!.substring(0, 100)}...'
                                                     : event.description!,
-                                                style: const TextStyle(fontSize: 12),
+                                                    style: const TextStyle(fontSize: 12), // Smaller font for description preview
                                               ),
                                             ),
                                         ],
                                       ),
-                                      onTap: () => _onEventTap(event),
+                                          onTap: () => _onEventTap(event), // Still navigate to detail screen
                                       trailing: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           IconButton(
-                                            icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border),
-                                            tooltip: isSaved ? 'Remove from saved' : 'Save event',
-                                            onPressed: () => isSaved ? _removeSavedEvent(event) : _saveEvent(event),
+                                                icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border), // Save icon
+                                                tooltip: isSaved ? 'Remove from saved' : 'Save event', // Tooltip
+                                                onPressed: () => isSaved ? _removeSavedEvent(event) : _saveEvent(event), // Save/Remove functionality
                                           ),
                                           IconButton(
-                                            icon: const Icon(Icons.share),
+                                                icon: const Icon(Icons.share), // Share icon
                                             tooltip: 'Share',
-                                            onPressed: () => _shareEvent(event),
+                                                onPressed: () => _shareEvent(event), // Share functionality
                                           ),
                                         ],
                                       ),
@@ -458,97 +531,16 @@ class _EventsScreenState extends State<EventsScreen> with SingleTickerProviderSt
                   ),
                 ),
               ],
-            ),
-            // Saved Events Tab
-            _savedEvents.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('No saved events.'),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: _loadSavedEvents,
-                          child: const Text('Refresh'),
-                        ),
-                      ],
-                    ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: _loadSavedEvents,
-                    child: ListView.builder(
-                      itemCount: _savedEvents.length,
-                      itemBuilder: (context, index) {
-                        final event = _savedEvents[index].event;
-                        return Card(
-                          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          child: ListTile(
-                            title: Text(
-                              event.title,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.calendar_today, size: 14),
-                                    const SizedBox(width: 4),
-                                    Text(DateFormat('yyyy-MM-dd HH:mm').format(event.date)),
-                                  ],
-                                ),
-                                if (event.location != null) Row(
-                                  children: [
-                                    const Icon(Icons.location_on, size: 14),
-                                    const SizedBox(width: 4),
-                                    Expanded(child: Text(event.location!)),
-                                  ],
-                                ),
-                                if (event.category != null) Row(
-                                  children: [
-                                    const Icon(Icons.category, size: 14),
-                                    const SizedBox(width: 4),
-                                    Text(event.category!),
-                                  ],
-                                ),
-                                if (event.description != null && event.description!.isNotEmpty) 
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 4),
-                                    child: Text(
-                                      event.description!.length > 100
-                                          ? '${event.description!.substring(0, 100)}...'
-                                          : event.description!,
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            onTap: () => _onEventTap(event),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.bookmark),
-                                  tooltip: 'Remove from saved',
-                                  onPressed: () => _removeSavedEvent(event),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.share),
-                                  tooltip: 'Share',
-                                  onPressed: () => _shareEvent(event),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
                     ),
                   ),
           ],
         ),
       ),
     );
+  }
+
+  Event _getEventFromSavedEvent(SavedEvent savedEvent) {
+    return savedEvent.event;
   }
 }
 

@@ -118,10 +118,6 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         title: Text(widget.title),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadPdf,
-          ),
-          IconButton(
             icon: const Icon(Icons.share),
             onPressed: () {
               // Share functionality to be implemented

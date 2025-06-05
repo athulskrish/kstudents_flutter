@@ -35,9 +35,10 @@ ALLOWED_HOSTS = [
     'www.keralify.com',
     'keralatechreach.in',
     'www.keralatechreach.in',
+    '192.168.3.123',
      # Adding your physical device IP
-    '103.235.106.114',
-    '*'  # This will allow all hosts - only use during development!
+ 
+      # This will allow all hosts - only use during development!
 ]
 
 #  '192.168.3.123',
@@ -146,7 +147,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = '/admindashboard/login/'
 LOGIN_REDIRECT_URL = '/admindashboard/dashboard/'
 LOGOUT_REDIRECT_URL = '/admindashboard/login/'
-
+BASE_URL = 'http://localhost:8000'
 # Session settings
 SESSION_COOKIE_AGE = 1800  # 30 minutes
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
@@ -171,8 +172,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.AnonRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'user': '1000/day',
-        'anon': '100/day',
+        'user': '10000/day',
+        'anon': '1000/day',
     },
     # Add authentication and permission classes if not already present
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -183,22 +184,4 @@ REST_FRAMEWORK = {
     ),
 }
 
-# Logging for API security and monitoring
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'debug.log'),
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-    },
-}
+

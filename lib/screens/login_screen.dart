@@ -35,12 +35,25 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      await _authService.login(
+      final authResponse = await _authService.login(
         _usernameController.text,
         _passwordController.text,
       );
       if (mounted) {
-        // Show success message
+        // Debug: Print the isActive and isVerified status received
+        print('DEBUG: User isActive: ${authResponse.user?.isActive}');
+        print('DEBUG: User isVerified: ${authResponse.user?.isVerified}');
+        // // Check if the user's account is active and verified
+        // if (authResponse.user != null && (!authResponse.user!.isActive || !authResponse.user!.isVerified)) {
+        //   setState(() {
+        //     // The message might need refinement based on whether it's inactive or unverified
+        //     _errorMessage = 'Your account is not active or verified. Please check your email or contact support.';
+        //   });
+        //   // Do NOT navigate to the main screen if account is not active or verified
+        //   return;
+        // }
+
+        // Show success message only if active (rely on backend for validation)
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Login successful'),

@@ -91,10 +91,10 @@ class SiteSettingAdmin(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'email', 'phone', 'district', 'is_active', 'is_staff', 'is_verified', 'is_approved')
+    list_display = ('user', 'email', 'phone', 'district', 'is_staff', 'is_verified', 'is_approved')
     list_filter = (
-        'district', 'is_active', 'is_staff', 'is_superuser',
+        'district', 'is_staff', 'is_superuser',
         'is_verified', 'is_approved', 'is_blocked', 'is_deleted'
     )
     search_fields = ('user__username', 'email', 'phone', 'bio')
-    list_editable = ('is_active', 'is_verified', 'is_approved')
+    list_editable = ('is_verified', 'is_approved')

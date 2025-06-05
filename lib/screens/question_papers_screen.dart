@@ -14,48 +14,37 @@ import 'package:path_provider/path_provider.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'question_paper_upload_screen.dart';
 import '../utils/secure_file_util.dart';
+import 'dart:convert'; // Import for json encoding/decoding
+
+class SavedQuestionPaper {
+  final QuestionPaper paper;
+  SavedQuestionPaper(this.paper);
+  Map<String, dynamic> toJson() => paper.toJson();
+  static SavedQuestionPaper fromJson(Map<String, dynamic> json) => SavedQuestionPaper(QuestionPaper.fromJson(json));
+}
 
 class QuestionPapersScreen extends StatefulWidget {
   final bool showBottomBar;
+  final bool showSavedOnly;
+  final bool showUploadFab;
   
   const QuestionPapersScreen({
     super.key,
     this.showBottomBar = true,
+    this.showSavedOnly = false,
+    this.showUploadFab = true,
   });
 
   @override
   State<QuestionPapersScreen> createState() => _QuestionPapersScreenState();
 }
 
-class SavedPDF {
-  final String filePath;
-  final String subject;
-  final String degreeName;
-  final int semester;
-  final int year;
-  SavedPDF({required this.filePath, required this.subject, required this.degreeName, required this.semester, required this.year});
-
-  Map<String, dynamic> toJson() => {
-    'filePath': filePath,
-    'subject': subject,
-    'degreeName': degreeName,
-    'semester': semester.toString(),
-    'year': year.toString(),
-  };
-  static SavedPDF fromJson(Map<String, dynamic> json) => SavedPDF(
-    filePath: json['filePath'],
-    subject: json['subject'],
-    degreeName: json['degreeName'],
-    semester: int.parse(json['semester']),
-    year: int.parse(json['year']),
-  );
-}
-
 class _QuestionPapersScreenState extends State<QuestionPapersScreen> with SingleTickerProviderStateMixin {
   final ApiService _apiService = ApiService();
   List<University> _universities = [];
   List<Degree> _degrees = [];
-  List<QuestionPaper> _questionPapers = [];
+  List<QuestionPaper> _allQuestionPapers = []; // Renamed from _questionPapers
+  List<SavedQuestionPaper> _savedQuestionPapers = []; // List for saved question papers
   University? _selectedUniversity;
   Degree? _selectedDegree;
   int? _selectedSemester;
@@ -63,19 +52,19 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
   bool _isLoading = false;
   final TextEditingController _searchController = TextEditingController();
   bool _isUploading = false;
-  List<SavedPDF> _savedPDFs = [];
   int _adCounter = 0;
   RewardedAd? _rewardedAd;
   static const String _testRewardedAdUnitId = 'ca-app-pub-3940256099942544/5224354917';
+  bool _showSavedQuestionPapers = false; // State variable to toggle view
 
   @override
   void initState() {
     super.initState();
     _loadUniversities();
-    _loadSavedPDFs();
     _loadAdCounter();
     _initRewardedAd();
     _loadUserSelections();
+    _loadSavedQuestionPapers(); // Load saved question papers on init
   }
 
   Future<void> _loadUniversities() async {
@@ -117,7 +106,7 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
         universityId: _selectedUniversity?.id,
       );
       setState(() {
-        _questionPapers = papers;
+        _allQuestionPapers = papers; // Update _allQuestionPapers
         _isLoading = false;
       });
     } catch (e) {
@@ -128,57 +117,19 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
 
   Future<void> _searchQuestionPapers(String query) async {
     if (query.isEmpty) {
-      _loadQuestionPapers();
+      _loadQuestionPapers(); // Search applies to all question papers
       return;
     }
     setState(() => _isLoading = true);
     try {
       final papers = await _apiService.searchQuestionPapers(query);
       setState(() {
-        _questionPapers = papers;
+        _allQuestionPapers = papers; // Search results update _allQuestionPapers
         _isLoading = false;
       });
     } catch (e) {
       setState(() => _isLoading = false);
       _showError('Failed to search question papers');
-    }
-  }
-
-  Future<void> _loadSavedPDFs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getStringList('saved_pdfs') ?? [];
-    setState(() {
-      _savedPDFs = saved.map((e) => SavedPDF.fromJson(Map<String, dynamic>.from(Uri.splitQueryString(e)))).toList();
-    });
-  }
-
-  Future<void> _savePDFLocally(QuestionPaper paper) async {
-    setState(() => _isUploading = true);
-    try {
-      // Download PDF
-      final dir = await getApplicationDocumentsDirectory();
-      final fileName = paper.filePath.split('/').last;
-      final filePath = '${dir.path}/$fileName';
-      final dio = Dio();
-      await dio.download(paper.filePath, filePath);
-      // Save metadata
-      final prefs = await SharedPreferences.getInstance();
-      final saved = prefs.getStringList('saved_pdfs') ?? [];
-      final pdf = SavedPDF(
-        filePath: filePath,
-        subject: paper.subject,
-        degreeName: paper.degreeName,
-        semester: paper.semester,
-        year: paper.year,
-      );
-      saved.add(Uri(queryParameters: pdf.toJson()).query);
-      await prefs.setStringList('saved_pdfs', saved);
-      setState(() => _isUploading = false);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PDF saved locally!')));
-      _loadSavedPDFs();
-    } catch (e) {
-      setState(() => _isUploading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Save failed: $e')));
     }
   }
 
@@ -277,153 +228,52 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
     });
   }
 
-  void _viewSavedPDF(SavedPDF pdf) async {
-    int newCounter = _adCounter + 1;
-    if (newCounter % 5 == 0) {
-      _showRewardedAd();
-      newCounter = 0;
-    }
-    await _saveAdCounter(newCounter);
-    setState(() => _adCounter = newCounter);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PDFViewerScreen(
-          url: pdf.filePath,
-          title: pdf.subject,
-        ),
-      ),
-    );
-  }
-
-  void _shareQuestionPaper(QuestionPaper paper) {
-    Share.share('Check out this question paper: ${paper.subject}\n${paper.filePath}');
-  }
-
-  void _shareSavedPDF(SavedPDF pdf) async {
-    try {
-      final file = XFile(pdf.filePath);
-      await Share.shareXFiles([file], text: 'Check out this question paper: ${pdf.subject}');
-    } catch (e) {
-      // Fallback to sharing text if file sharing fails
-      Share.share('Check out this question paper: ${pdf.subject}');
-    }
-  }
-
-  Future<void> _deleteSavedPDF(SavedPDF pdf) async {
-    // Show confirmation dialog
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete PDF'),
-        content: Text('Are you sure you want to delete "${pdf.subject}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-    
-    if (confirm != true) return;
-    
-    try {
-      // Delete the file from storage
-      final file = File(pdf.filePath);
-      if (await file.exists()) {
-        await SecureFileUtil.secureDelete(pdf.filePath);
-      }
-      
-      // Remove from SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      final saved = prefs.getStringList('saved_pdfs') ?? [];
-      
-      // Find and remove the item
-      final queryString = Uri(queryParameters: {
-        'filePath': pdf.filePath,
-        'subject': pdf.subject,
-        'degreeName': pdf.degreeName,
-        'semester': pdf.semester.toString(),
-        'year': pdf.year.toString(),
-      }).query;
-      
-      saved.remove(queryString);
-      
-      // Save the updated list
-      await prefs.setStringList('saved_pdfs', saved);
-      
-      // Update the UI
-      setState(() {
-        _savedPDFs.removeWhere((item) => item.filePath == pdf.filePath);
-      });
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('PDF deleted successfully')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete PDF: $e')),
-      );
-    }
-  }
-
   Future<void> _loadUserSelections() async {
     final prefs = await SharedPreferences.getInstance();
     final universityId = prefs.getInt('selected_university_id');
-    final universityName = prefs.getString('selected_university_name');
     final degreeId = prefs.getInt('selected_degree_id');
-    final degreeName = prefs.getString('selected_degree_name');
     final semester = prefs.getInt('selected_semester');
     final year = prefs.getInt('selected_year');
 
-    if (universityId != null && universityName != null) {
-      setState(() {
-        _selectedUniversity = University(id: universityId, name: universityName);
-      });
-      // Load degrees based on the saved university
+    // Load universities first
+    await _loadUniversities();
+
+    // Find and set saved university and degree after lists are loaded
+    University? savedUniversity;
+    if (universityId != null && _universities.isNotEmpty) {
+      try {
+        savedUniversity = _universities.firstWhere((university) => university.id == universityId);
+      } catch (e) {
+        print('Saved university with ID $universityId not found.');
+      }
+    }
+
+    // Load degrees if a university was loaded and found
+    if (_selectedUniversity != null) {
       await _loadDegrees();
     }
 
-    if (degreeId != null && degreeName != null && _degrees.isNotEmpty) {
-      // Try to find the degree in the loaded degrees
-      Degree? foundDegree;
+    // Find and set saved degree after degrees are loaded
+    Degree? savedDegree;
+    if (degreeId != null && _degrees.isNotEmpty) {
       try {
-        foundDegree = _degrees.firstWhere((d) => d.id == degreeId);
-      } catch (_) {
-        // If not found and we have the university, create a placeholder
-        if (universityId != null) {
-          foundDegree = Degree(
-            id: degreeId, 
-            name: degreeName, 
-            university: universityId,
-            universityName: universityName ?? 'Unknown University'
-          );
+        savedDegree = _degrees.firstWhere((degree) => degree.id == degreeId);
+      } catch (e) {
+        print('Saved degree with ID $degreeId not found.');
         }
       }
       
-      if (foundDegree != null) {
-        setState(() {
-          _selectedDegree = foundDegree;
-        });
-      }
-    }
-
-    if (semester != null) {
+    // Update state with found selections
       setState(() {
-        _selectedSemester = semester;
+       _selectedUniversity = savedUniversity;
+       _selectedDegree = savedDegree;
       });
-    }
 
-    if (year != null) {
+    // Set the remaining selections
       setState(() {
+       _selectedSemester = semester;
         _selectedYear = year;
       });
-    }
 
     // If we have all selections, load the question papers
     _loadQuestionPapersIfReady();
@@ -432,7 +282,9 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
   Future<void> _loadQuestionPapersIfReady() async {
     // Only load question papers when all required filters are selected
     if (_selectedUniversity != null && _selectedDegree != null && _selectedSemester != null && _selectedYear != null) {
+      if (!_showSavedQuestionPapers) { // Only load all question papers if not in saved view
       _loadQuestionPapers();
+      }
     }
   }
 
@@ -443,7 +295,7 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
       _selectedDegree = null;
       _selectedSemester = null;
       _selectedYear = null;
-      _questionPapers = [];
+      _allQuestionPapers = []; // Clear all question papers on filter change
     });
     _saveUserSelections();
     _loadDegrees();
@@ -454,7 +306,7 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
       _selectedDegree = degree;
       _selectedSemester = null;
       _selectedYear = null;
-      _questionPapers = [];
+      _allQuestionPapers = []; // Clear all question papers on filter change
     });
     _saveUserSelections();
   }
@@ -463,7 +315,7 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
     setState(() {
       _selectedSemester = semester;
       _selectedYear = null;
-      _questionPapers = [];
+      _allQuestionPapers = []; // Clear all question papers on filter change
     });
     _saveUserSelections();
   }
@@ -471,7 +323,7 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
   void _onYearChanged(int? year) {
     setState(() {
       _selectedYear = year;
-      _questionPapers = [];
+      _allQuestionPapers = []; // Clear all question papers on filter change
     });
     _saveUserSelections();
     _loadQuestionPapersIfReady();
@@ -482,11 +334,9 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
     final prefs = await SharedPreferences.getInstance();
     if (_selectedUniversity != null) {
       await prefs.setInt('selected_university_id', _selectedUniversity!.id);
-      await prefs.setString('selected_university_name', _selectedUniversity!.name);
     }
     if (_selectedDegree != null) {
       await prefs.setInt('selected_degree_id', _selectedDegree!.id);
-      await prefs.setString('selected_degree_name', _selectedDegree!.name);
     }
     if (_selectedSemester != null) {
       await prefs.setInt('selected_semester', _selectedSemester!);
@@ -496,24 +346,90 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
     }
   }
 
+  void _shareQuestionPaper(QuestionPaper paper) {
+    Share.share('Check out this question paper: ${paper.subject}\n${paper.filePath}');
+  }
+
+  Future<void> _loadSavedQuestionPapers() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList('saved_question_papers') ?? [];
+    setState(() {
+      _savedQuestionPapers = saved.map((e) => SavedQuestionPaper.fromJson(json.decode(e))).toList();
+    });
+  }
+
+  Future<void> _saveQuestionPaper(QuestionPaper paper) async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList('saved_question_papers') ?? [];
+    if (!saved.any((e) => QuestionPaper.fromJson(json.decode(e)).id == paper.id)) {
+      saved.add(json.encode(paper.toJson()));
+      await prefs.setStringList('saved_question_papers', saved);
+      _loadSavedQuestionPapers(); // Refresh saved list
+      // Optionally show a confirmation message
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Question paper saved!')));
+    }
+  }
+
+  Future<void> _removeSavedQuestionPaper(QuestionPaper paper) async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList('saved_question_papers') ?? [];
+    saved.removeWhere((e) => QuestionPaper.fromJson(json.decode(e)).id == paper.id);
+    await prefs.setStringList('saved_question_papers', saved);
+    _loadSavedQuestionPapers(); // Refresh saved list
+    // Optionally show a confirmation message
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Question paper removed from saved.')));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Question Papers'),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Online'),
-              Tab(text: 'Saved'),
+    return Scaffold(
+      body: Column(
+        children: [
+          if (widget.showSavedOnly)
+            // Display saved question papers list when showSavedOnly is true
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _savedQuestionPapers.isEmpty
+                      ? const Center(child: Text('No saved question papers yet.'))
+                      : ListView.builder(
+                          itemCount: _savedQuestionPapers.length,
+                          itemBuilder: (context, index) {
+                            final paper = _savedQuestionPapers[index].paper; // Get QuestionPaper from SavedQuestionPaper
+                            return Card(
+                              margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                              child: ListTile(
+                                onTap: () => _viewQuestionPaper(paper), // View PDF
+                                title: Text(paper.subject, style: TextStyle(fontWeight: FontWeight.bold)),
+                                subtitle: Text('${paper.degreeName} | Semester ${paper.semester} | ${paper.year}'),
+                                isThreeLine: true,
+                                trailing: Container(
+                                  width: 120, // Adjusted width for saved view icons
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.bookmark), // Always show filled bookmark for saved
+                                        tooltip: 'Remove from saved',
+                                        onPressed: () => _removeSavedQuestionPaper(paper), // Remove functionality
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.share), // Share icon
+                                        tooltip: 'Share',
+                                        onPressed: () => _shareQuestionPaper(paper), // Share functionality
+                                      ),
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
-            // Online Tab
-            Column(
+                              ),
+                            );
+                          },
+                        ),
+            )
+          else
+            // Display all question papers list with filters and search when showSavedOnly is false
+            Expanded(
+              child: Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -531,7 +447,10 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                         onChanged: _searchQuestionPapers,
                       ),
                       const SizedBox(height: 16.0),
-                      DropdownButtonFormField<University>(
+                        Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButtonFormField<University>(
                         decoration: const InputDecoration(
                           labelText: 'University',
                           border: OutlineInputBorder(),
@@ -545,8 +464,10 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                         }).toList(),
                         onChanged: _onUniversityChanged,
                       ),
-                      const SizedBox(height: 16.0),
-                      DropdownButtonFormField<Degree>(
+                            ),
+                            const SizedBox(width: 16.0),
+                            Expanded(
+                              child: DropdownButtonFormField<Degree>(
                         decoration: const InputDecoration(
                           labelText: 'Degree',
                           border: OutlineInputBorder(),
@@ -559,9 +480,15 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                           );
                         }).toList(),
                         onChanged: _onDegreeChanged,
+                              ),
+                            ),
+                          ],
                       ),
                       const SizedBox(height: 16.0),
-                      DropdownButtonFormField<int>(
+                        Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButtonFormField<int>(
                         decoration: const InputDecoration(
                           labelText: 'Semester',
                           border: OutlineInputBorder(),
@@ -575,8 +502,10 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                         }).toList(),
                         onChanged: _onSemesterChanged,
                       ),
-                      const SizedBox(height: 16.0),
-                      DropdownButtonFormField<int>(
+                            ),
+                            const SizedBox(width: 16.0),
+                            Expanded(
+                              child: DropdownButtonFormField<int>(
                         decoration: const InputDecoration(
                           labelText: 'Year',
                           border: OutlineInputBorder(),
@@ -589,6 +518,9 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                           );
                         }).toList(),
                         onChanged: _onYearChanged,
+                              ),
+                            ),
+                          ],
                       ),
                     ],
                   ),
@@ -596,46 +528,42 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                 Expanded(
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())
-                      : _questionPapers.isEmpty
+                        : _allQuestionPapers.isEmpty
                           ? const Center(child: Text('No question papers found'))
                           : ListView.builder(
-                              itemCount: _questionPapers.length,
+                                itemCount: _allQuestionPapers.length,
                               itemBuilder: (context, index) {
-                                final paper = _questionPapers[index];
+                                  final paper = _allQuestionPapers[index];
+                                  final isSaved = _savedQuestionPapers.any((sqp) => sqp.paper.id == paper.id); // Check if paper is saved
                                 return Card(
                                   margin: const EdgeInsets.symmetric(
                                     horizontal: 16.0,
                                     vertical: 8.0,
                                   ),
                                   child: ListTile(
-                                    title: Text(paper.subject),
-                                    subtitle: Text(
-                                      '${paper.degreeName} | Semester ${paper.semester} | ${paper.year}',
-                                    ),
-                                    trailing: Row(
+                                      onTap: () => _viewQuestionPaper(paper), // View PDF
+                                      title: Text(paper.subject, style: TextStyle(fontWeight: FontWeight.bold)),
+                                      subtitle: Text('${paper.degreeName} | Semester ${paper.semester} | ${paper.year}'),
+                                      isThreeLine: true,
+                                      trailing: Container(
+                                        width: 120, // Adjusted width for icons
+                                        child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
+                                            Icon(Icons.picture_as_pdf), // PDF icon
+                                            const SizedBox(width: 8), // Space between icons
                                         IconButton(
-                                          icon: const Icon(Icons.visibility),
-                                          tooltip: 'View in app',
-                                          onPressed: () => _viewQuestionPaper(paper),
+                                              icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border), // Toggle save icon
+                                              tooltip: isSaved ? 'Remove from saved' : 'Save question paper', // Toggle tooltip
+                                              onPressed: () => isSaved ? _removeSavedQuestionPaper(paper) : _saveQuestionPaper(paper), // Toggle save/remove functionality
                                         ),
                                         IconButton(
-                                          icon: const Icon(Icons.download),
-                                          tooltip: 'Save locally',
-                                          onPressed: () => _savePDFLocally(paper),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.share),
+                                              icon: const Icon(Icons.share), // Share icon
                                           tooltip: 'Share',
-                                          onPressed: () => _shareQuestionPaper(paper),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.open_in_browser),
-                                          tooltip: 'Open in browser',
-                                          onPressed: () => _openQuestionPaper(paper.filePath),
+                                              onPressed: () => _shareQuestionPaper(paper), // Share functionality
                                         ),
                                       ],
+                                        ),
                                     ),
                                   ),
                                 );
@@ -644,62 +572,15 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                 ),
               ],
             ),
-            // Saved Tab
-            _savedPDFs.isEmpty
-                ? const Center(child: Text('No saved PDFs'))
-                : ListView.builder(
-                    itemCount: _savedPDFs.length,
-                    itemBuilder: (context, index) {
-                      final pdf = _savedPDFs[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 8.0,
-                        ),
-                        child: ListTile(
-                          title: Text(pdf.subject),
-                          subtitle: Text(
-                            '${pdf.degreeName} | Semester ${pdf.semester} | ${pdf.year}',
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.visibility),
-                                tooltip: 'View',
-                                onPressed: () => _viewSavedPDF(pdf),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.share),
-                                tooltip: 'Share',
-                                onPressed: () => _shareSavedPDF(pdf),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                tooltip: 'Delete',
-                                onPressed: () => _deleteSavedPDF(pdf),
                               ),
                             ],
                           ),
-                        ),
-                      );
-                    },
-                  ),
-          ],
-        ),
-        floatingActionButton: Builder(
-          builder: (context) {
-            final tabIndex = DefaultTabController.of(context).index ?? 0;
-            return tabIndex == 0
-                ? FloatingActionButton.extended(
+      floatingActionButton: widget.showUploadFab ? FloatingActionButton.extended( // Conditionally show FAB
                     onPressed: _pickAndUploadPDF,
                     icon: const Icon(Icons.upload_file),
                     label: const Text('Upload PDF'),
-                  )
-                : const SizedBox.shrink();
-          },
-        ),
-        bottomNavigationBar: widget.showBottomBar
+      ) : null, // Hide FAB when showUploadFab is false
+      bottomNavigationBar: widget.showBottomBar // Keep bottom nav if applicable
             ? BottomNavigationBar(
                 type: BottomNavigationBarType.fixed,
                 currentIndex: 1, // Set to 1 for Questions
@@ -733,7 +614,6 @@ class _QuestionPapersScreenState extends State<QuestionPapersScreen> with Single
                 },
               )
             : null,
-      ),
     );
   }
 

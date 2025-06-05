@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:http_parser/http_parser.dart';
 import 'models/note.dart';
+import '../utils/constants.dart';
 
 class DebugNoteApiScreen extends StatefulWidget {
   const DebugNoteApiScreen({Key? key}) : super(key: key);
@@ -99,7 +100,7 @@ class _DebugNoteApiScreenState extends State<DebugNoteApiScreen> {
 
     try {
       // Replace with your actual API URL
-      String url = 'http://103.235.106.114:8000/api/notes/';
+      String url = AppConstants.kBaseUrl + '/notes/';
       
       final response = await http.get(Uri.parse(url));
       
@@ -136,7 +137,7 @@ class _DebugNoteApiScreenState extends State<DebugNoteApiScreen> {
 
     try {
       // Replace with your actual API URL
-      String url = 'http://103.235.106.114:8000/api/notes/';
+      String url = AppConstants.kBaseUrl + '/notes/';
       
       final response = await http.get(Uri.parse(url));
       
@@ -197,7 +198,7 @@ class _DebugNoteApiScreenState extends State<DebugNoteApiScreen> {
 
     try {
       // Replace with your actual API URL
-      String url = 'http://103.235.106.114:8000/api/notes/upload/';
+      String url = AppConstants.kBaseUrl + '/notes/upload/';
       
       // Create a test note with hardcoded values
       // You'll need to update these with valid IDs from your database

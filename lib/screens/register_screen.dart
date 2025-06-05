@@ -3,6 +3,9 @@ import '../services/auth_service.dart';
 import 'home_screen.dart';
 import '../utils/app_exception.dart';
 import '../utils/logger.dart';
+import 'email_verification_pending_screen.dart';
+import '../services/api_service.dart';
+import '../models/district.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -18,10 +21,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _districtController = TextEditingController();
   final _authService = AuthService();
+  final _apiService = ApiService();
+
   bool _isLoading = false;
   String? _errorMessage;
+
+  List<District> _districts = [];
+  District? _selectedDistrict;
+  bool _isLoadingDistricts = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDistricts();
+  }
 
   @override
   void dispose() {
@@ -30,12 +44,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _phoneController.dispose();
-    _districtController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchDistricts() async {
+    setState(() {
+      _isLoadingDistricts = true;
+    });
+    try {
+      final fetchedDistricts = await _apiService.getDistricts();
+      setState(() {
+        _districts = fetchedDistricts;
+        _isLoadingDistricts = false;
+      });
+    } catch (e) {
+      AppLogger.error('Error fetching districts', e);
+      setState(() {
+        _errorMessage = 'Failed to load districts.';
+        _isLoadingDistricts = false;
+      });
+    }
   }
 
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_selectedDistrict == null && _districts.isNotEmpty) {
+      setState(() {
+        _errorMessage = 'Please select a district.';
+      });
+      return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -50,12 +89,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _passwordController.text,
         confirmPassword: _confirmPasswordController.text,
         phone: _phoneController.text.isNotEmpty ? _phoneController.text : null,
-        district: int.tryParse(_districtController.text),
+        district: _selectedDistrict?.id,
       );
       AppLogger.info('User registration success: ${_usernameController.text}');
       if (mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          MaterialPageRoute(builder: (_) => EmailVerificationPendingScreen(email: _emailController.text)),
         );
       }
     } on AppException catch (e) {
@@ -66,7 +105,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (e) {
       AppLogger.error('Unexpected error during registration: ${_usernameController.text}', e);
       setState(() {
-        _errorMessage = 'An unexpected error occurred.';
+        _errorMessage = e.toString();
       });
     } finally {
       if (mounted) {
@@ -83,7 +122,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(
         title: const Text('Register'),
       ),
-      body: SingleChildScrollView(
+      body: _isLoadingDistricts
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -167,21 +208,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16.0),
-              TextFormField(
-                controller: _districtController,
+                    DropdownButtonFormField<District>(
                 decoration: const InputDecoration(
-                  labelText: 'District ID (optional)',
+                        labelText: 'District (optional)',
                   border: OutlineInputBorder(),
                 ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value != null && value.isNotEmpty) {
-                    final number = int.tryParse(value);
-                    if (number == null) {
-                      return 'Please enter a valid district ID';
-                    }
-                  }
-                  return null;
+                      value: _selectedDistrict,
+                      items: _districts.map((district) {
+                        return DropdownMenuItem<District>(
+                          value: district,
+                          child: Text(district.name),
+                        );
+                      }).toList(),
+                      onChanged: (District? newValue) {
+                        setState(() {
+                          _selectedDistrict = newValue;
+                        });
                 },
               ),
               const SizedBox(height: 24.0),
@@ -196,8 +238,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
               ElevatedButton(
-                onPressed: _isLoading ? null : _register,
-                child: _isLoading
+                      onPressed: _isLoading || _isLoadingDistricts ? null : _register,
+                      child: _isLoading || _isLoadingDistricts
                     ? const SizedBox(
                         height: 20,
                         width: 20,

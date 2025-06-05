@@ -10,7 +10,7 @@ from django.db import transaction
 from ..models import UserProfile
 from ..forms import (
     CustomUserCreationForm, CustomUserChangeForm,
-    UserProfileForm, UserProfileUpdateForm, UserManagementForm
+    UserProfileForm, UserProfileUpdateForm, UserManagementForm, UserActiveStatusForm
 )
 from ..mixins import StaffRequiredMixin
 from ..decorators import staff_required
@@ -67,21 +67,33 @@ def user_list(request):
 @staff_required
 def user_detail(request, pk):
     user = get_object_or_404(User, pk=pk)
+    
     if request.method == 'POST':
-        form = UserManagementForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()
+        user_form = UserActiveStatusForm(request.POST, instance=user)
+        profile_form = UserManagementForm(request.POST, instance=user.userprofile)
+        
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            
             log_activity(
                 user=request.user,
-                action="Updated user",
-                details=f"Updated user details for: {user.username}",
+                action="Updated user and profile",
+                details=f"Updated user details and profile for: {user.username}",
                 request=request
             )
-            messages.success(request, 'User updated successfully.')
+            messages.success(request, 'User and profile updated successfully.')
             return redirect('admindashboard:user_list')
     else:
-        form = UserManagementForm(instance=user)
-    return render(request, 'admindashboard/users/detail.html', {'form': form, 'user_obj': user})
+        user_form = UserActiveStatusForm(instance=user)
+        profile_form = UserManagementForm(instance=user.userprofile)
+        
+    context = {
+        'user_obj': user,
+        'user_form': user_form,       # Pass User form to template
+        'profile_form': profile_form, # Pass UserProfile form to template
+    }
+    return render(request, 'admindashboard/users/detail.html', context)
 
 @login_required
 @staff_required

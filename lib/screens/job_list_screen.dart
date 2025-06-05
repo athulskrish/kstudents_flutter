@@ -21,7 +21,22 @@ class JobListScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => JobListProvider()..fetchJobs(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('Jobs')),
+        appBar: AppBar(
+          title: Consumer<JobListProvider>(
+            builder: (context, provider, _) => Text(provider.showSavedJobs ? 'Saved Jobs' : 'Jobs'),
+          ),
+          actions: [
+            Consumer<JobListProvider>(
+              builder: (context, provider, _) => IconButton(
+                icon: Icon(provider.showSavedJobs ? Icons.assignment : Icons.bookmark),
+                tooltip: provider.showSavedJobs ? 'Show All Jobs' : 'Show Saved Jobs',
+                onPressed: () {
+                  provider.toggleShowSavedJobs();
+                },
+              ),
+            ),
+          ],
+        ),
         body: Consumer<JobListProvider>(
           builder: (context, provider, _) {
             if (provider.isLoading) {
@@ -29,16 +44,17 @@ class JobListScreen extends StatelessWidget {
             }
             return Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'Filter by role/title',
-                      border: OutlineInputBorder(),
+                if (!provider.showSavedJobs)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Filter by role/title',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: provider.setRoleFilter,
                     ),
-                    onChanged: provider.setRoleFilter,
                   ),
-                ),
                 Expanded(
                   child: ListView.builder(
                     itemCount: provider.filteredJobs.length,
