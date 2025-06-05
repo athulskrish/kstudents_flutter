@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kerala_tech_reach/models/news.dart';
 import 'package:kerala_tech_reach/services/api_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 class NewsDetailScreen extends StatefulWidget {
   final String newsSlug;
@@ -36,6 +37,7 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasError) {
+            print('Error loading news detail: ${snapshot.error}');
             return Center(
               child: Text('Error: ${snapshot.error}'),
             );
@@ -70,7 +72,7 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                     const SizedBox(height: 16.0),
                     Center(
                       child: CachedNetworkImage(
-                        imageUrl: '${_apiService.baseUrl.replaceFirst('/api', '')}${news.image}',
+                        imageUrl: news.image!,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => const CircularProgressIndicator(),
                         errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -78,9 +80,13 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                     ),
                    ],
                   const SizedBox(height: 16.0),
-                  Text(
-                    news.content,
-                    style: const TextStyle(fontSize: 16.0),
+                  Html(
+                    data: news.content,
+                    style: {
+                      "body": Style(
+                        fontSize: FontSize(16.0),
+                      ),
+                    },
                   ),
                   // You can add more details here, like author, views, likes, etc.
                 ],

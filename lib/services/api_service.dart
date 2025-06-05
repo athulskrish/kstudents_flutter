@@ -508,6 +508,9 @@ class ApiService {
     if (response.statusCode == 200) {
       return News.fromJson(json.decode(response.body));
     } else {
+      print('DEBUG: Failed to load news detail for slug: $slug');
+      print('DEBUG: Status Code: ${response.statusCode}');
+      print('DEBUG: Response Body: ${response.body}');
       throw Exception('Failed to load news detail');
     }
   }

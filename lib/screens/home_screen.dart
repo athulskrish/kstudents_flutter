@@ -27,7 +27,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final ApiService _apiService = ApiService();
   List<TechPick> _techPicks = [];
   List<AdSlider> _adSliders = [];
@@ -48,6 +48,31 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentPage = 0;
   Timer? _timer;
   
+  // For featured jobs animation
+  late AnimationController _jobsAnimationController;
+  late Animation<double> _jobsFadeAnimation;
+  
+  // For featured events animation
+  late AnimationController _eventsAnimationController;
+  late Animation<double> _eventsFadeAnimation;
+
+  // For featured news animation
+  late AnimationController _newsAnimationController;
+  late Animation<double> _newsFadeAnimation;
+
+  // For featured exams animation
+  late AnimationController _examsAnimationController;
+  late Animation<double> _examsFadeAnimation;
+  
+  // For latest tech picks animation
+  late AnimationController _techPicksAnimationController;
+  late Animation<double> _techPicksFadeAnimation;
+  
+  // For welcome text animation
+  late AnimationController _welcomeAnimationController;
+  late Animation<Offset> _welcomeSlideAnimation;
+  late Animation<double> _welcomeFadeAnimation;
+  
   // Fallback ad slides in case API fails
   final List<Map<String, dynamic>> _fallbackAdSlides = [
     {
@@ -64,6 +89,11 @@ class _HomeScreenState extends State<HomeScreen> {
     },
   ];
 
+  bool _isJobCardPressed = false;
+  bool _isEventCardPressed = false;
+  bool _isNewsCardPressed = false;
+  bool _isExamCardPressed = false;
+
   @override
   void initState() {
     super.initState();
@@ -74,12 +104,105 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadFeaturedNews();
     _loadFeaturedExams();
     _startAutoSlider();
+    
+    // Initialize animation controller
+    _jobsAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _jobsFadeAnimation = CurvedAnimation(
+      parent: _jobsAnimationController,
+      curve: Curves.easeIn,
+    );
+    
+    // Initialize animation controller for events
+    _eventsAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _eventsFadeAnimation = CurvedAnimation(
+      parent: _eventsAnimationController,
+      curve: Curves.easeIn,
+    );
+
+    // Initialize animation controller for news
+    _newsAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _newsFadeAnimation = CurvedAnimation(
+      parent: _newsAnimationController,
+      curve: Curves.easeIn,
+    );
+
+    // Initialize animation controller for exams
+    _examsAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _examsFadeAnimation = CurvedAnimation(
+      parent: _examsAnimationController,
+      curve: Curves.easeIn,
+    );
+    
+    // Initialize animation controller for tech picks
+    _techPicksAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _techPicksFadeAnimation = CurvedAnimation(
+      parent: _techPicksAnimationController,
+      curve: Curves.easeIn,
+    );
+    
+    // Initialize animation controller for welcome text
+    _welcomeAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+     _welcomeSlideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, 0.5), // Start slightly below original position
+      end: Offset.zero, // End at original position
+    ).animate(CurvedAnimation(
+      parent: _welcomeAnimationController,
+      curve: Curves.easeOut,
+    ));
+    _welcomeFadeAnimation = CurvedAnimation(
+      parent: _welcomeAnimationController,
+      curve: Curves.easeIn,
+    );
+    
+    // Start animation after data is loaded (or if already loaded)
+    if (!_isLoadingFeaturedJobs) {
+      _jobsAnimationController.forward();
+    }
+     if (!_isLoadingFeaturedEvents) {
+      _eventsAnimationController.forward();
+    }
+     if (!_isLoadingFeaturedNews) {
+      _newsAnimationController.forward();
+    }
+     if (!_isLoadingFeaturedExams) {
+      _examsAnimationController.forward();
+    }
+    if (!_isLoadingTechPicks) {
+      _techPicksAnimationController.forward();
+    }
+    
+    // Start welcome text animation
+    _welcomeAnimationController.forward();
   }
   
   @override
   void dispose() {
     _timer?.cancel();
     _pageController.dispose();
+    _jobsAnimationController.dispose(); // Dispose the controller
+    _eventsAnimationController.dispose(); // Dispose the controller
+    _newsAnimationController.dispose(); // Dispose the controller
+    _examsAnimationController.dispose(); // Dispose the controller
+    _techPicksAnimationController.dispose(); // Dispose the controller
+    _welcomeAnimationController.dispose(); // Dispose the controller
     super.dispose();
   }
   
@@ -116,6 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _techPicks = picks;
         _isLoadingTechPicks = false;
       });
+      _techPicksAnimationController.forward(); // Start animation after loading
     } catch (e) {
       setState(() {
         _isLoadingTechPicks = false;
@@ -146,6 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _featuredJobs = jobs;
         _isLoadingFeaturedJobs = false;
       });
+      _jobsAnimationController.forward(); // Start animation after loading
     } catch (e) {
       setState(() {
         _isLoadingFeaturedJobs = false;
@@ -161,6 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _featuredEvents = events;
         _isLoadingFeaturedEvents = false;
       });
+      _eventsAnimationController.forward(); // Start animation after loading
     } catch (e) {
       setState(() {
         _isLoadingFeaturedEvents = false;
@@ -176,6 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _featuredNews = news;
         _isLoadingFeaturedNews = false;
       });
+      _newsAnimationController.forward(); // Start animation after loading
     } catch (e) {
       setState(() {
         _isLoadingFeaturedNews = false;
@@ -191,6 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _featuredExams = exams;
         _isLoadingFeaturedExams = false;
       });
+      _examsAnimationController.forward(); // Start animation after loading
     } catch (e) {
       setState(() {
         _isLoadingFeaturedExams = false;
@@ -243,31 +371,54 @@ class _HomeScreenState extends State<HomeScreen> {
             // Ad Slider
             _buildAdSlider(),
             
-            const Padding(
-              padding: EdgeInsets.all(16.0),
+            const SizedBox(height: 16.0),
+
+            SlideTransition(
+              position: _welcomeSlideAnimation,
+              child: FadeTransition(
+                opacity: _welcomeFadeAnimation,
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               child: Text(
                 'Welcome to Kerala Tech Reach',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
             
             // Featured Jobs Section
-            if (_featuredJobs.isNotEmpty) _buildFeaturedJobsSection(),
+            if (_featuredJobs.isNotEmpty) ...[
+              const SizedBox(height: 16.0),
+              _buildFeaturedJobsSection(),
+            ],
             
             // Featured Events Section
-            if (_featuredEvents.isNotEmpty) _buildFeaturedEventsSection(),
+            if (_featuredEvents.isNotEmpty) ...[
+              const SizedBox(height: 16.0),
+              _buildFeaturedEventsSection(),
+            ],
             
             // Featured News Section
-            if (_featuredNews.isNotEmpty) _buildFeaturedNewsSection(),
+            if (_featuredNews.isNotEmpty) ...[
+              const SizedBox(height: 16.0),
+              _buildFeaturedNewsSection(),
+            ],
             
             // Featured Exams Section
-            if (_featuredExams.isNotEmpty) _buildFeaturedExamsSection(),
+            if (_featuredExams.isNotEmpty) ...[
+              const SizedBox(height: 16.0),
+              _buildFeaturedExamsSection(),
+            ],
             
             // Latest Tech from Affiliate Marketing
+            const SizedBox(height: 16.0),
             _buildLatestTechSection(),
+
+            const SizedBox(height: 16.0),
           ],
         ),
       ),
@@ -278,10 +429,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       children: [
         SizedBox(
-          height: 180,
+          height: 220,
           child: _isLoadingAdSliders
               ? const Center(child: CircularProgressIndicator())
-              : PageView.builder(
+              : AnimatedBuilder(
+                  animation: _pageController,
+                  builder: (context, child) {
+                    return PageView.builder(
                   controller: _pageController,
                   itemCount: _adSliders.isNotEmpty ? _adSliders.length : _fallbackAdSlides.length,
                   onPageChanged: (int page) {
@@ -292,7 +446,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemBuilder: (context, index) {
                     if (_adSliders.isNotEmpty) {
                       final adSlider = _adSliders[index];
-                      return GestureDetector(
+                          // Calculate scale based on how close the page is to the center
+                          double scale = 1.0;
+                          if (_pageController.hasClients && _pageController.position.haveDimensions) {
+                             double page = _pageController.page ?? 0;
+                             scale = 1.0 - ((page - index).abs() * 0.2); // Adjust 0.2 for desired effect intensity
+                             scale = scale.clamp(0.8, 1.0); // Clamp scale to prevent distortion
+                          }
+                          return Transform.scale(
+                            scale: scale,
+                            child: GestureDetector(
                         onTap: () async {
                           if (adSlider.linkUrl != null && adSlider.linkUrl!.isNotEmpty) {
                             if (await canLaunch(adSlider.linkUrl!)) {
@@ -301,7 +464,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           }
                         },
                         child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(15),
                             color: Color(int.parse(adSlider.backgroundColor.replaceFirst('#', '0xFF'))),
@@ -324,11 +487,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 )
                               : null,
+                              ),
                         ),
                       );
                     } else {
-                      return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                          // Calculate scale based on how close the page is to the center
+                          double scale = 1.0;
+                          if (_pageController.hasClients && _pageController.position.haveDimensions) {
+                             double page = _pageController.page ?? 0;
+                             scale = 1.0 - ((page - index).abs() * 0.2); // Adjust 0.2 for desired effect intensity
+                             scale = scale.clamp(0.8, 1.0); // Clamp scale to prevent distortion
+                          }
+                          return Transform.scale(
+                             scale: scale,
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                           color: _fallbackAdSlides[index]['color'],
@@ -340,11 +513,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
+                                  ),
                             ),
                           ),
                         ),
                       );
                     }
+                      },
+                    );
                   },
                 ),
         ),
@@ -352,14 +528,15 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             _adSliders.isNotEmpty ? _adSliders.length : _fallbackAdSlides.length,
-            (index) => Container(
+            (index) => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
               margin: const EdgeInsets.symmetric(horizontal: 4),
               height: 8,
-              width: _currentPage == index ? 24 : 8,
+              width: _currentPage == index ? 20 : 8,
               decoration: BoxDecoration(
                 color: _currentPage == index
                     ? Theme.of(context).colorScheme.primary
-                    : Colors.grey.shade300,
+                    : Colors.grey.shade400,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -374,14 +551,14 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Latest Jobs',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -392,13 +569,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(builder: (context) => const JobListScreen()),
                   );
                 },
-                child: const Text('View All'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('View All'),
+                    const Icon(Icons.arrow_forward, size: 16),
+                  ],
+                ),
               ),
             ],
           ),
         ),
         _isLoadingFeaturedJobs
             ? const Center(child: CircularProgressIndicator())
+            : _featuredJobs.isEmpty
+                ? const Center(child: Text('No featured jobs available'))
             : ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
@@ -406,34 +591,76 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: _featuredJobs.length > 3 ? 3 : _featuredJobs.length,
                 itemBuilder: (context, index) {
                   final job = _featuredJobs[index];
-                  return Card(
+                      return FadeTransition(
+                        opacity: _jobsFadeAnimation,
+                        child: _buildJobCard(job),
+                      );
+                    },
+                  ),
+      ],
+    );
+  }
+  
+  // New helper widget to build a custom job card
+  Widget _buildJobCard(Job job) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isJobCardPressed = true),
+      onTapUp: (_) => setState(() => _isJobCardPressed = false),
+      onTapCancel: () => setState(() => _isJobCardPressed = false),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => JobDetailScreen(jobId: job.id),
+          ),
+        );
+      },
+      child: AnimatedScale(
+        scale: _isJobCardPressed ? 0.98 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        child: Card(
                     margin: const EdgeInsets.only(bottom: 8.0),
-                    child: ListTile(
-                      title: Text(
+          elevation: 4.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            side: BorderSide(color: Colors.grey.shade300, width: 1.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
                         job.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                       ),
-                      subtitle: Text(
+                      ),
+                      const SizedBox(height: 4.0),
+                      Text(
                         'Last Date: ${DateFormat('MMM dd, yyyy').format(job.lastDate)}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
                       ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => JobDetailScreen(jobId: job.id),
-                          ),
-                        );
-                      },
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              ],
+            ),
                     ),
-                  );
-                },
+        ),
               ),
-      ],
     );
   }
   
@@ -442,14 +669,14 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Upcoming Events',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -460,13 +687,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(builder: (context) => const events.EventsScreen()),
                   );
                 },
-                child: const Text('View All'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('View All'),
+                    const Icon(Icons.arrow_forward, size: 16),
+                  ],
+                ),
               ),
             ],
           ),
         ),
         _isLoadingFeaturedEvents
             ? const Center(child: CircularProgressIndicator())
+            : _featuredEvents.isEmpty
+                ? const Center(child: Text('No upcoming events available'))
             : ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
@@ -474,34 +709,76 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: _featuredEvents.length > 3 ? 3 : _featuredEvents.length,
                 itemBuilder: (context, index) {
                   final event = _featuredEvents[index];
-                  return Card(
+                      return FadeTransition(
+                        opacity: _eventsFadeAnimation,
+                        child: _buildEventCard(event),
+                      );
+                    },
+                  ),
+      ],
+    );
+  }
+  
+  // New helper widget to build a custom event card
+  Widget _buildEventCard(Event event) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isEventCardPressed = true),
+      onTapUp: (_) => setState(() => _isEventCardPressed = false),
+      onTapCancel: () => setState(() => _isEventCardPressed = false),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EventDetailScreen(eventId: event.id),
+          ),
+        );
+      },
+      child: AnimatedScale(
+        scale: _isEventCardPressed ? 0.98 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        child: Card(
                     margin: const EdgeInsets.only(bottom: 8.0),
-                    child: ListTile(
-                      title: Text(
+          elevation: 4.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            side: BorderSide(color: Colors.grey.shade300, width: 1.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
                         event.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                       ),
-                      subtitle: Text(
+                      ),
+                      const SizedBox(height: 4.0),
+                      Text(
                         event.location ?? 'No location specified',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
                       ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EventDetailScreen(eventId: event.id),
-                          ),
-                        );
-                      },
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              ],
+            ),
                     ),
-                  );
-                },
+        ),
               ),
-      ],
     );
   }
   
@@ -510,14 +787,14 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Latest News',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -528,13 +805,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(builder: (context) => const NewsListScreen()),
                   );
                 },
-                child: const Text('View All'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('View All'),
+                    const Icon(Icons.arrow_forward, size: 16),
+                  ],
+                ),
               ),
             ],
           ),
         ),
         _isLoadingFeaturedNews
             ? const Center(child: CircularProgressIndicator())
+            : _featuredNews.isEmpty
+                ? const Center(child: Text('No featured news available'))
             : ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
@@ -542,34 +827,76 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: _featuredNews.length > 3 ? 3 : _featuredNews.length,
                 itemBuilder: (context, index) {
                   final news = _featuredNews[index];
-                  return Card(
+                      return FadeTransition(
+                        opacity: _newsFadeAnimation,
+                        child: _buildNewsCard(news),
+                      );
+                    },
+                  ),
+      ],
+    );
+  }
+
+  // New helper widget to build a custom news card
+  Widget _buildNewsCard(News news) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isNewsCardPressed = true),
+      onTapUp: (_) => setState(() => _isNewsCardPressed = false),
+      onTapCancel: () => setState(() => _isNewsCardPressed = false),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NewsDetailScreen(newsSlug: news.slug ?? ''),
+          ),
+        );
+      },
+      child: AnimatedScale(
+        scale: _isNewsCardPressed ? 0.98 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        child: Card(
                     margin: const EdgeInsets.only(bottom: 8.0),
-                    child: ListTile(
-                      title: Text(
+          elevation: 4.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            side: BorderSide(color: Colors.grey.shade300, width: 1.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
                         news.title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                       ),
-                      subtitle: Text(
+                      ),
+                      const SizedBox(height: 4.0),
+                      Text(
                         DateFormat('MMM dd, yyyy').format(news.createdAt),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
                       ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => NewsDetailScreen(newsSlug: news.slug ?? ''),
-                          ),
-                        );
-                      },
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              ],
+            ),
                     ),
-                  );
-                },
+        ),
               ),
-      ],
     );
   }
 
@@ -578,14 +905,14 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Upcoming Exams',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -596,13 +923,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(builder: (context) => const EntranceExamsScreen()),
                   );
                 },
-                child: const Text('View All'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('View All'),
+                    const Icon(Icons.arrow_forward, size: 16),
+                  ],
+                ),
               ),
             ],
           ),
         ),
         _isLoadingFeaturedExams
             ? const Center(child: CircularProgressIndicator())
+            : _featuredExams.isEmpty
+                ? const Center(child: Text('No featured exams available'))
             : ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
@@ -610,21 +945,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: _featuredExams.length > 3 ? 3 : _featuredExams.length,
                 itemBuilder: (context, index) {
                   final exam = _featuredExams[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 8.0),
-                    child: ListTile(
-                      title: Text(
-                        exam.examName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        'Date: ${DateFormat('MMM dd, yyyy').format(exam.examDate)}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      return FadeTransition(
+                        opacity: _examsFadeAnimation,
+                        child: _buildExamCard(exam),
+                      );
+                    },
+                  ),
+      ],
+    );
+  }
+
+  // New helper widget to build a custom exam card
+  Widget _buildExamCard(Exam exam) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isExamCardPressed = true),
+      onTapUp: (_) => setState(() => _isExamCardPressed = false),
+      onTapCancel: () => setState(() => _isExamCardPressed = false),
                       onTap: () async {
                         // Open the exam URL if available
                         if (exam.examUrl.isNotEmpty) {
@@ -633,11 +969,52 @@ class _HomeScreenState extends State<HomeScreen> {
                           }
                         }
                       },
-                    ),
-                  );
-                },
+      child: AnimatedScale(
+        scale: _isExamCardPressed ? 0.98 : 1.0,
+        duration: const Duration(milliseconds: 100),
+        child: Card(
+          margin: const EdgeInsets.only(bottom: 8.0),
+          elevation: 4.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+            side: BorderSide(color: Colors.grey.shade300, width: 1.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        exam.examName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4.0),
+                      Text(
+                        'Date: ${DateFormat('MMM dd, yyyy').format(exam.examDate)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
               ),
       ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -646,11 +1023,11 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Text(
             'Latest Tech Picks',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -663,11 +1040,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 220,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       itemCount: _techPicks.length > 5 ? 5 : _techPicks.length,
                       itemBuilder: (context, index) {
                         final pick = _techPicks[index];
-                        return _buildTechPickCard(pick);
+                        return FadeTransition(
+                          opacity: _techPicksFadeAnimation,
+                          child: _buildTechPickCard(pick),
+                        );
                       },
                     ),
                   ),
@@ -683,7 +1063,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       },
       child: Card(
-        margin: const EdgeInsets.all(8.0),
+        margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
         elevation: 2.0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
@@ -705,11 +1085,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     : Container(
                         height: 120,
                         color: Colors.grey[300],
-                        child: const Icon(Icons.devices_other, size: 40),
+                        child: const Icon(Icons.devices_other, size: 40, color: Colors.grey),
                       ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -717,7 +1097,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       pick.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -725,6 +1105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
+                        fontSize: 14,
                       ),
                     ),
                   ],

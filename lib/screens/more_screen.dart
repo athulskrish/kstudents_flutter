@@ -86,7 +86,7 @@ class _MoreScreenState extends State<MoreScreen> {
             title: const Text('Settings'),
             onTap: () {
               Navigator.push(
-                context,
+            context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
               );
             },
@@ -100,8 +100,8 @@ class _MoreScreenState extends State<MoreScreen> {
               // Example using url_launcher to send an email:
               // launchUrl(Uri(scheme: 'mailto', path: 'support@example.com'));
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const MessageUsScreen()),
+              context,
+              MaterialPageRoute(builder: (context) => const MessageUsScreen()),
               );
             },
           ),
@@ -111,8 +111,8 @@ class _MoreScreenState extends State<MoreScreen> {
             title: const Text('News'),
             onTap: () {
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const NewsListScreen()),
+              context,
+              MaterialPageRoute(builder: (context) => const NewsListScreen()),
               );
             },
           ),
@@ -125,8 +125,8 @@ class _MoreScreenState extends State<MoreScreen> {
               // Example using url_launcher for an external URL:
               // launchUrl(Uri.parse('https://yourwebsite.com/faq'));
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const FAQScreen()),
+              context,
+              MaterialPageRoute(builder: (context) => const FAQScreen()),
               );
             },
           ),
@@ -139,7 +139,7 @@ class _MoreScreenState extends State<MoreScreen> {
               // Example using url_launcher for an external URL:
               // launchUrl(Uri.parse('https://yourwebsite.com/privacy_policy'));
               Navigator.push(
-                context,
+            context,
                 MaterialPageRoute(builder: (context) => const PrivacyScreen()),
               );
             },

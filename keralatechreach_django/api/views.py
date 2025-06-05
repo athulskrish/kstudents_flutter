@@ -104,6 +104,7 @@ class NewsViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'content', 'excerpt']
+    lookup_field = 'slug'
 
 class JobViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Job.objects.filter(is_published=True)
@@ -447,11 +448,10 @@ class RegisterView(generics.CreateAPIView):
 
             return Response({
                 "user": UserSerializer(user, context=self.get_serializer_context()).data,
-                    "message": "User created successfully. Please check your email to verify your account.",
+                "message": "User created successfully. Please check your email to verify your account.",
                 "access": access_token,
                 "refresh": refresh_token,
             }, status=status.HTTP_201_CREATED)
-
         except Exception as e:
             # Log the error with traceback for debugging
             import traceback
